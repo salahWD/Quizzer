@@ -1,0 +1,141 @@
+h3 {
+  font-size: 30px;
+  line-height: 33px;
+}
+.mb32 {
+  margin-bottom: 32px;
+}
+p,
+span {
+  font-weight: 400;
+}
+img {
+  max-width: 100%;
+}
+.section {
+  padding: 96px 0;
+  position: relative;
+  overflow: hidden;
+}
+.align-children {
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  -webkit-align-items: center;
+  justify-content: center;
+  -webkit-justify-content: center;
+  flex-direction: row;
+  -webkit-flex-direction: row;
+}
+.widget .text-center .img-responsive {
+  margin-left: auto;
+  margin-right: auto;
+}
+.newsCard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2/1;
+  /* height: 250px; */
+  background-color: #fff;
+  color: #fff;
+  overflow: hidden;
+  border-radius: 6px;
+}
+figure img {
+  display: block;
+  object-fit: cover !important;
+  object-position: center center !important;
+  height: 100%;
+  width: 100%;
+}
+.overlay {
+  background: rgb(40, 26, 54);
+  background: -moz-linear-gradient(
+    0deg,
+    rgba(40, 26, 54, 1) 0%,
+    rgba(89, 59, 116, 0) 100%
+  );
+  background: -webkit-linear-gradient(
+    0deg,
+    rgba(40, 26, 54, 1) 0%,
+    rgba(89, 59, 116, 0) 100%
+  );
+  background: linear-gradient(
+    0deg,
+    rgba(40, 26, 54, 1) 0%,
+    rgba(89, 59, 116, 0) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#281a36",endColorstr="#593b74",GradientType=1);
+  display: block;
+  position: absolute;
+  height: 200px;
+  width: 100%;
+  bottom: 0;
+  z-index: 3;
+}
+.newsCaption {
+  position: absolute;
+  top: auto;
+  bottom: 31px;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  padding: 15px;
+  -webkit-transform: translateY(80%);
+  transform: translateY(80%);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transition: -webkit-transform 0.4s;
+  transition: -webkit-transform 0.4s;
+  transition: transform 0.4s;
+  transition: transform 0.4s, -webkit-transform 0.4s;
+}
+.newsCaption i {
+  font-size: 24px;
+}
+.newsCaption-title {
+  margin-top: 0px;
+}
+.newsCaption-content {
+  margin: 0;
+}
+.newsCaption-link {
+  color: #fff;
+  text-decoration: underline;
+  opacity: 0.8;
+  -webkit-transition-property: opacity;
+  transition-property: opacity;
+  -webkit-transition-duration: 0.15s;
+  transition-duration: 0.15s;
+  -webkit-transition-timing-function: cubic-bezier(0.39, 0.58, 0.57, 1);
+  transition-timing-function: cubic-bezier(0.39, 0.58, 0.57, 1);
+}
+.news-Slide-up:hover .overlay {
+  background: rgb(64, 10, 111);
+  background: -moz-linear-gradient(
+    0deg,
+    rgba(64, 10, 111, 1) 0%,
+    rgba(89, 59, 116, 0) 100%
+  );
+  background: -webkit-linear-gradient(
+    0deg,
+    rgba(64, 10, 111, 1) 0%,
+    rgba(89, 59, 116, 0) 100%
+  );
+  background: linear-gradient(
+    0deg,
+    rgba(64, 10, 111, 1) 0%,
+    rgba(89, 59, 116, 0) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#400a6f",endColorstr="#593b74",GradientType=1);
+}
+.news-Slide-up:hover .newsCaption {
+  -webkit-transform: translateY(0px);
+  transform: translateY(0px);
+  -webkit-transition: -webkit-transform 0.4s;
+  transition: -webkit-transform 0.4s;
+  transition: transform 0.4s;
+  transition: transform 0.4s, -webkit-transform 0.4s;
+}

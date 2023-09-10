@@ -1,0 +1,54 @@
+.btn:not(.btn-warning):not(.btn-danger):not(.btn-secondary) {
+  background-color: rgb(0 73 86);
+  color: rgb(207 247 238);
+  border: none;
+  &:active,
+  &:focus {
+    outline: none;
+    box-shadow: none;
+    background-color: rgb(5, 115, 134);
+  }
+  &:hover {
+    background-color: rgb(5, 115, 134);
+  }
+  &.btn-outline {
+    border: 1px solid rgb(0 77 90);
+    color: rgb(0 77 90);
+    background-color: transparent;
+  }
+}
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+  &:active,
+  &:focus,
+  &:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+  &.btn-outline {
+    border: 1px solid rgb(0 77 90);
+    color: rgb(0 77 90);
+    background-color: transparent;
+  }
+}
+.form-control:focus,
+.form-control:active {
+  border-color: rgb(0, 57, 67);
+  box-shadow: 0 0 0 0.2rem rgba(5, 115, 134, 0.2);
+}
+.btn-white {
+  color: #212529;
+}
+.btn-secondary {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+  &:hover {
+    color: #fff;
+    background-color: #5c636a;
+    border-color: #565e64;
+  }
+}

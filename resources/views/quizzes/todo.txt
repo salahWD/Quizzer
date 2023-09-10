@@ -1,0 +1,39 @@
+TODO: js modal preview fixes {✅}
+
+TODO: and start adding the other types of questions
+-- text question creation question type   {✅}
+-- image question creation question type  {✅}
+-- text creation question type            {✅}
+-- media creation question type           {✅}
+-- form creation question type            {✅}
+----- add form elmenets                   {✅} (12/12)
+------- you may add some optinos          {}
+
+
+TODO: then add the results {✅}
+
+TODO: make sure copy options is funnctioning on results {✅}
+
+TODO: then start making the logical branching and other sh*t
+-- logical branching    {✅}
+-- logical conditions   {✅}
+
+TODO: multilangual features   {✅}
+
+TODO: taking the quiz part    {✅}
+
+TODO: saving the token_quizzes info  {✅}
+
+TODO: then you can do the reports  {✅}
+
+TODO: making themes and templates  {✅}
+
+TODO: link paypal    {✅}
+TODO: link stripe    {✅}
+TODO: link Bank Transfet    {✅}
+
+TODO: lastly the ui  {❔}
+
+TODO: and do not forget the quiz themes and templates  {✅}
+
+TODO: make coupons requests and discounts {✅}

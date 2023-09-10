@@ -1,0 +1,51 @@
+form .form-select,
+form .form-control {
+  font-size: 16px;
+}
+form label {
+  color: #29333a;
+}
+.mw-500,
+form .form-body {
+  max-width: 500px;
+  margin: auto;
+  padding: 5px 70px 35px;
+}
+.mw-650 {
+  max-width: 700px;
+  margin: auto;
+  margin-bottom: 30px;
+}
+form .btn-success {
+  background-color: #0aad4b;
+}
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active {
+  background-color: #089d43;
+}
+.option-card {
+  padding: 40px 15px 10px;
+  box-shadow: 0 2px 2px 0 rgba(64, 81, 108, 0.1);
+  min-height: 270px;
+}
+.option-card .img {
+  width: 30px;
+  text-align: center;
+}
+.option-card.active {
+  border: 3px solid #329dcd;
+  box-shadow: 0 10px 20px 0 rgba(64, 81, 108, 0.19);
+}
+html[lang="en"] {
+  direction: ltr !important;
+}
+html[lang="ar"] {
+  direction: rtl !important;
+}
+.nav-item.active {
+  color: white;
+}
+.nav-item.active a {
+  color: inherit !important;
+}
