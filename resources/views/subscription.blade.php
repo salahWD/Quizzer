@@ -6,7 +6,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    You will be charged ${{ number_format($plan->price, 2) }} for {{ $plan->name }} Plan
+                  {{ __('You will be charged') }} ${{ number_format($plan->price, 2) }} for {{ $plan->name }} Plan
                 </div>
 
                 <div class="card-body">
@@ -18,8 +18,8 @@
                         <div class="row">
                             <div class="col-xl-4 col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Name</label>
-                                    <input type="text" name="name" id="card-holder-name" class="form-control" value="" placeholder="Name on the card">
+                                    <label for="">{{ __('Name') }}</label>
+                                    <input type="text" name="name" id="card-holder-name" class="form-control" value="" placeholder="{{ __('Name on the card') }}">
                                 </div>
                             </div>
                         </div>
@@ -27,13 +27,13 @@
                         <div class="row">
                             <div class="col-xl-4 col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Card details</label>
+                                    <label for="">{{ __('Card details') }}</label>
                                     <div id="card-element"></div>
                                 </div>
                             </div>
                             <div class="col-xl-12 col-lg-12">
                             <hr>
-                                <button type="submit" class="btn btn-primary" id="card-button" data-secret="{{ $intent->client_secret }}">Purchase</button>
+                                <button type="submit" class="btn btn-primary" id="card-button" data-secret="{{ $intent->client_secret }}">{{ __('Purchase') }}</button>
                             </div>
                         </div>
 

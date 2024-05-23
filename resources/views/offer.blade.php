@@ -34,15 +34,19 @@
       padding: 1.5rem 1.5rem;
     }
 
-    #upload-img {
+    .upload-img {
       opacity: 0;
     }
 
-    #upload-label {
+    .upload-label {
       position: absolute;
       top: 50%;
       left: 1rem;
       transform: translateY(-50%);
+    }
+    html[lang="ar"] .upload-label {
+      left: unset;
+      right: 1rem;
     }
 
     .image-area {
@@ -52,7 +56,7 @@
     }
 
     .image-area::before {
-      content: 'Selected Image';
+      content: '{{ __("Selected Image") }}';
       color: #555;
       font-weight: bold;
       text-transform: uppercase;
@@ -68,6 +72,9 @@
       z-index: 2;
       position: relative;
     }
+    html[lang="ar"] .accordion-button::after {
+      margin-left: 0;
+    }
   </style>
 @endsection
 
@@ -75,7 +82,7 @@
   <form action="{{ route("process_payment", $plan->id) }}" method="POST" enctype="multipart/form-data" id="payment-form">
     @csrf
     <div class="container pb-4">
-      <h1 class="h3 mb-5">Payment</h1>
+      <h1 class="h3 mb-5">{{ __('Payment')}}</h1>
       <div class="row">
         <!-- Left -->
         <div class="col-lg-9">
@@ -104,29 +111,77 @@
                   </svg>
                 </span>
               </h2>
-              <div id="option-1" class="accordion-collapse collapse show" data-bs-parent="#accordionPayment" style="">
+              <div id="option-1" class="accordion-collapse collapse" data-bs-parent="#accordionPayment" style="">
                 <div class="accordion-body">
-                  <div class="mb-3">
-                    <label class="form-label">Bank Account (iban)</label>
-                    <input type="text" class="form-control" value="123 123 123 123" readonly>
-                  </div>
-                  <div class="row">
-                    <div class="col-lg-6">
-                      <div class="mb-3">
-                        <label class="form-label">Name of Bank</label>
-                        <input type="text" class="form-control" value="Al-rajhi" readonly>
+                  <div class="accordion" id="bank-accordion">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#bank-1" aria-expanded="false" aria-controls="bank-1">
+                          {{ __('Al Etihad Bank (in US dollars)') }}
+                        </button>
+                      </h2>
+                      <div id="bank-1" class="accordion-collapse collapse" data-bs-parent="#bank-accordion">
+                        <div class="accordion-body">
+                          <div class="mb-3">
+                            <label class="form-label">{{ __('Bank Account (iban)') }}</label>
+                            <input type="text" class="form-control" value="JO41UBSI1180000300230027315101" readonly>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label class="form-label">{{ __('Name of Bank') }}</label>
+                                <input type="text" class="form-control" value="{{ __('Al Etihad Bank - Um Uthaina Branch (in US dollars)') }}" readonly>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label class="form-label">{{ __('Account Owner') }}</label>
+                                <input type="text" class="form-control" value="{{ __('Hive Nahl Marketing Est') }}" readonly>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label class="form-label">{{ __('Account Number') }}</label>
+                                <input type="text" class="form-control" value="0300230027315101" readonly>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-lg-3">
-                      <div class="mb-3">
-                        <label class="form-label">Other info</label>
-                        <input type="text" class="form-control" value="123465" readonly>
-                      </div>
-                    </div>
-                    <div class="col-lg-3">
-                      <div class="mb-3">
-                        <label class="form-label">Other info</label>
-                        <input type="text" class="form-control" value="123465" readonly>
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                          {{ __('Al Etihad Bank (in Jordanian Dinar)') }}
+                        </button>
+                      </h2>
+                      <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#bank-accordion">
+                        <div class="accordion-body">
+                          <div class="mb-3">
+                            <label class="form-label">{{ __('Bank Account (iban)') }}</label>
+                            <input type="text" class="form-control" value="JO77UBSI1180000300130027316301" readonly>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label class="form-label">{{ __('Name of Bank') }}</label>
+                                <input type="text" class="form-control" value="{{ __('Union Bank - Um Uthaina Branch (in Jordanian Dinar)') }}" readonly>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label class="form-label">{{ __('Account Owner') }}</label>
+                                <input type="text" class="form-control" value="{{ __('Hive Nahl Marketing Est') }}" readonly>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label class="form-label">{{ __('Account Number') }}</label>
+                                <input type="text" class="form-control" value="0300130027316301" readonly>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -134,14 +189,14 @@
                     <div class="col-lg-6 mx-auto">
                       <!-- Upload image input-->
                       <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow">
-                        <input name="bank_bill" id="upload-img" type="file" onchange="readURL(this);" class="form-control border-0">
-                        <label id="upload-label" for="upload-img" class="font-weight-light text-muted">Choose file</label>
+                        <input name="bank_bill" data-target="upload-img-1-preview" id="upload-img-1" type="file" onchange="readURL(this);" class="upload-img form-control border-0">
+                        <label for="upload-img-1" class="upload-label font-weight-light text-muted">{{ __('Choose file') }}</label>
                         <div class="input-group-append">
-                          <label for="upload-img" class="btn btn-light m-0 rounded-pill px-4"> <i style="margin-right: 6px" class="fa fa-cloud-upload text-light"></i><small class="text-uppercase font-weight-bold text-light">Choose file</small></label>
+                          <label for="upload-img-1" class="btn btn-primary m-0 rounded-pill px-4"> <i style="margin-{{ app()->getLocale() == "ar" ? "left": "right" }}: 6px" class="fa fa-cloud-upload text-light"></i><small class="text-uppercase font-weight-bold text-light">{{ __("Choose file") }}</small></label>
                         </div>
                       </div>
                       <!-- Uploaded image area-->
-                      <div class="image-area mt-4"><img id="imageResult" src="#" alt="" class="img-fluid rounded shadow-sm mx-auto d-block"></div>
+                      <div class="image-area mt-4"><img id="upload-img-1-preview" src="#" alt="" class="imageResult img-fluid rounded shadow-sm mx-auto d-block"></div>
                     </div>
                   </div>
                 </div>
@@ -152,7 +207,7 @@
               <h2 class="h5 px-4 py-3 accordion-header d-flex justify-content-between align-items-center">
                 <label data-bs-toggle="collapse" data-bs-target="#option-2" class="form-check w-100 collapsed form-check-label pt-1" for="payment2">
                 <input class="form-check-input" type="radio" name="payment_method" id="payment2" value="paypal">
-                  PayPal
+                {{ __("PayPal") }}
                 </label>
                 <span>
                   <svg width="103" height="25" xmlns="http://www.w3.org/2000/svg">
@@ -180,7 +235,7 @@
               <h2 class="h5 px-4 py-3 accordion-header d-flex justify-content-between align-items-center">
                 <label data-bs-toggle="collapse" data-bs-target="#option-3" class="form-check w-100 collapsed form-check-label pt-1" for="payment3">
                 <input class="form-check-input" type="radio" name="payment_method" id="payment3" value="stripe">
-                  Stripe
+                  {{ __("Stripe") }}
                 </label>
                 <span class="logo">
                   <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -242,15 +297,165 @@
               <div id="option-3" class="accordion-collapse collapse" data-bs-parent="#accordionPayment" style="">
                 <div class="accordion-body">
                   <div class="px-2 col-lg-6 mb-3">
-                    {{-- <h6 class="title">Online Payment Method</h6>
-                    <p class="">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quod ratione molestiae vitae voluptatem!</p> --}}
                     <div class="form-group mb-3">
-                      <label for="">Name</label>
-                      <input type="text" name="name" id="card-holder-name" class="form-control" value="" placeholder="Name on the card">
+                      <label for="">{{ __("Name") }}</label>
+                      <input type="text" name="name" id="card-holder-name" class="form-control" value="" placeholder="{{ __("Name on the card") }}">
                     </div>
                     <div class="form-group">
-                      <label for="">Card details</label>
-                      <div id="card-element"></div>
+                      <label for="">{{ __("Card details") }}</label>
+                      <div id="payment-element">
+                        <!-- Mount the Payment Element here -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Option 1 -->
+            <div class="accordion-item mb-3 border">
+              <h2 class="h5 px-4 py-3 accordion-header d-flex justify-content-between align-items-center">
+                <label data-bs-toggle="collapse" data-bs-target="#option-4" class="form-check w-100 collapsed form-check-label pt-1" for="payment4">
+                <input class="form-check-input" type="radio" name="payment_method" id="payment4" value="cliq">
+                  {{ __('Cliq') }}
+                </label>
+                <span class="logo">
+                  <img height="37px" src="{{ url("images/cliq.png") }}" alt="">
+                </span>
+              </h2>
+              <div id="option-4" class="accordion-collapse collapse" data-bs-parent="#accordionPayment" style="">
+                <div class="accordion-body">
+
+                  <div class="mb-3">
+                    <label class="form-label">{{ __('Alias') }}</label>
+                    <input type="text" class="form-control" value="ESFHA" readonly>
+                  </div>
+                  <div class="row py-4">
+                    <div class="col-lg-6 mx-auto">
+                      <!-- Upload image input-->
+                      <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow">
+                        <input name="bank_bill" data-target="upload-img-2-preview" id="upload-img-2" type="file" onchange="readURL(this);" class="upload-img form-control border-0">
+                        <label for="upload-img-2" class="upload-label font-weight-light text-muted">{{ __('Choose file') }}</label>
+                        <div class="input-group-append">
+                          <label for="upload-img-2" class="btn btn-primary m-0 rounded-pill px-4"> <i style="margin-{{ app()->getLocale() == "ar" ? "left": "right" }}: 6px" class="fa fa-cloud-upload text-light"></i><small class="text-uppercase font-weight-bold text-light">{{ __("Choose file") }}</small></label>
+                        </div>
+                      </div>
+                      <!-- Uploaded image area-->
+                      <div class="image-area mt-4"><img id="upload-img-2-preview" src="#" alt="" class="imageResult img-fluid rounded shadow-sm mx-auto d-block"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <!-- Option 2 -->
+            <div class="accordion-item mb-3 border">
+              <h2 class="h5 px-4 py-3 accordion-header d-flex justify-content-between align-items-center">
+                <label data-bs-toggle="collapse" data-bs-target="#option-5" class="form-check w-100 collapsed form-check-label pt-1" for="payment5">
+                <input class="form-check-input" type="radio" name="payment_method" id="payment5" value="zincash">
+                  {{ __('Zain Cash') }}
+                </label>
+                <span class="logo">
+                  <img height="37px" src="{{ url("images/zain-cash.png") }}" alt="">
+                </span>
+              </h2>
+              <div id="option-5" class="accordion-collapse collapse" data-bs-parent="#accordionPayment" style="">
+                <div class="accordion-body">
+
+                  <div class="mb-3">
+                    <label class="form-label">{{ __('Number') }}</label>
+                    <input type="text" class="form-control" value="00962796300545" readonly>
+                  </div>
+                  <div class="row py-4">
+                    <div class="col-lg-6 mx-auto">
+                      <!-- Upload image input-->
+                      <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow">
+                        <input name="bank_bill" data-target="upload-img-3-preview" id="upload-img-3" type="file" onchange="readURL(this);" class="upload-img form-control border-0">
+                        <label for="upload-img-3" class="upload-label font-weight-light text-muted">{{ __('Choose file') }}</label>
+                        <div class="input-group-append">
+                          <label for="upload-img-3" class="btn btn-primary m-0 rounded-pill px-4"> <i style="margin-{{ app()->getLocale() == "ar" ? "left": "right" }}: 6px" class="fa fa-cloud-upload text-light"></i><small class="text-uppercase font-weight-bold text-light">{{ __("Choose file") }}</small></label>
+                        </div>
+                      </div>
+                      <!-- Uploaded image area-->
+                      <div class="image-area mt-4"><img id="upload-img-3-preview" src="#" alt="" class="imageResult img-fluid rounded shadow-sm mx-auto d-block"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <!-- Option 3 -->
+            <div class="accordion-item mb-3 border">
+              <h2 class="h5 px-4 py-3 accordion-header d-flex justify-content-between align-items-center">
+                <label data-bs-toggle="collapse" data-bs-target="#option-6" class="form-check w-100 collapsed form-check-label pt-1" for="payment6">
+                <input class="form-check-input" type="radio" name="payment_method" id="payment6" value="walet">
+                  {{ __('Umniah (uwallet)') }}
+                </label>
+                <span class="logo">
+                  <img width="103px" src="{{ url("images/wallet.png") }}" alt="">
+                </span>
+              </h2>
+              <div id="option-6" class="accordion-collapse collapse" data-bs-parent="#accordionPayment" style="">
+                <div class="accordion-body">
+
+                  <div class="mb-3">
+                    <label class="form-label">{{ __('Number') }}</label>
+                    <input type="text" class="form-control" value="00962781081008" readonly>
+                  </div>
+                  <div class="row py-4">
+                    <div class="col-lg-6 mx-auto">
+                      <!-- Upload image input-->
+                      <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow">
+                        <input name="bank_bill" data-target="upload-img-4-preview" id="upload-img-4" type="file" onchange="readURL(this);" class="upload-img form-control border-0">
+                        <label for="upload-img-4" class="upload-label font-weight-light text-muted">{{ __('Choose file') }}</label>
+                        <div class="input-group-append">
+                          <label for="upload-img-4" class="btn btn-primary m-0 rounded-pill px-4"> <i style="margin-{{ app()->getLocale() == "ar" ? "left": "right" }}: 6px" class="fa fa-cloud-upload text-light"></i><small class="text-uppercase font-weight-bold text-light">{{ __("Choose file") }}</small></label>
+                        </div>
+                      </div>
+                      <!-- Uploaded image area-->
+                      <div class="image-area mt-4"><img id="upload-img-4-preview" src="#" alt="" class="imageResult img-fluid rounded shadow-sm mx-auto d-block"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            <!-- Option 4 -->
+            <div class="accordion-item mb-3 border">
+              <h2 class="h5 px-4 py-3 accordion-header d-flex justify-content-between align-items-center">
+                <label data-bs-toggle="collapse" data-bs-target="#option-8" class="form-check w-100 collapsed form-check-label pt-1" for="payment8">
+                <input class="form-check-input" type="radio" name="payment_method" id="payment8" value="western">
+                  {{ __('Western Union') }}
+                </label>
+                <span class="logo">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88" height="48" viewBox="0 0 88 48"><defs><path id="a" d="M.32.366h54.635v25.166H.321z"/><path id="c" d="M0 .366h8.578v24.529H0z"/><path id="e" d="M.16.366H8.74v24.529H.16z"/></defs><g fill="none" fill-rule="evenodd"><path fill="#000" d="M0 0h88v48H0z"/><g transform="translate(21.224 11.38)"><mask id="b" fill="#fff"><use xlink:href="#a"/></mask><path fill="#FD0" d="M49.596.366v15.106l.001.037c.001.02.11 2.078-1.236 3.488-.875.915-2.187 1.38-3.903 1.38-1.715 0-3.028-.465-3.901-1.38-1.346-1.409-1.237-3.467-1.236-3.486L39.323.366h-2.21L33.96 11.79v3.553c0 3.023.994 5.585 2.873 7.407 1.877 1.82 4.513 2.783 7.624 2.783 3.11 0 5.747-.962 7.624-2.783 1.88-1.822 2.874-4.384 2.874-7.407V.366h-5.36zm-15.635 0l-6.766 24.529h-4.91l-5.127-16.26-5.128 16.26H7.155L.32.365h5.32L9.823 15.89 14.712.366h4.923l4.976 15.639L28.704.365h5.257z" mask="url(#b)"/></g><g transform="translate(11.906 11.38)"><mask id="d" fill="#fff"><use xlink:href="#c"/></mask><path fill="#FFF" d="M6.834 24.895L0 .365h1.744l6.834 24.53z" mask="url(#d)"/></g><g transform="translate(16.565 11.38)"><mask id="f" fill="#fff"><use xlink:href="#e"/></mask><path fill="#FFF" d="M6.994 24.895L.16.365h1.745l6.834 24.53z" mask="url(#f)"/></g></g></svg>
+                </span>
+              </h2>
+              <div id="option-8" class="accordion-collapse collapse" data-bs-parent="#accordionPayment" style="">
+                <div class="accordion-body">
+                  <div class="mb-3">
+                    <label class="form-label">{{ __('Benefiter Name') }}:</label>
+                    <input type="text" class="form-control" value="{{ __('Hamza Omar A. Hammad') }}" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">{{ __('Phone Number') }}:</label>
+                    <input type="text" class="form-control" value="{{ __('00962796300545') }}" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">{{ __('Address') }}:</label>
+                    <input type="text" class="form-control" value="{{ __('Jordan - Amman - Seventh Circle') }}" readonly>
+                  </div>
+                  <div class="row py-4">
+                    <div class="col-lg-6 mx-auto">
+                      <!-- Upload image input-->
+                      <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow">
+                        <input name="bank_bill" data-target="upload-img-5-preview" id="upload-img-5" type="file" onchange="readURL(this);" class="upload-img form-control border-0">
+                        <label for="upload-img-5" class="upload-label font-weight-light text-muted">{{ __('Choose file') }}</label>
+                        <div class="input-group-append">
+                          <label for="upload-img-5" class="btn btn-primary m-0 rounded-pill px-4"> <i style="margin-{{ app()->getLocale() == "ar" ? "left": "right" }}: 6px" class="fa fa-cloud-upload text-light"></i><small class="text-uppercase font-weight-bold text-light">{{ __("Choose file") }}</small></label>
+                        </div>
+                      </div>
+                      <!-- Uploaded image area-->
+                      <div class="image-area mt-4"><img id="upload-img-5-preview" src="#" alt="" class="imageResult img-fluid rounded shadow-sm mx-auto d-block"></div>
                     </div>
                   </div>
                 </div>
@@ -262,7 +467,7 @@
         <div class="col-lg-3">
           <div class="card position-sticky top-0">
             <div class="p-3 bg-opacity-10">
-              <h6 class="card-title mb-3">Order Summary</h6>
+              <h6 class="card-title mb-3">{{ __("Order Summary") }}</h6>
               <div class="d-flex justify-content-between mb-1 small">
                 <span>{{ __('Price') }}</span> <span>{{ config("pricing.CURRENCY") }}
                   {{-- @if(auth()->user()->get_remaining_paid_value() > 0)
@@ -289,39 +494,30 @@
                 <span>{{ __('Coupon') }} (Code: <span id="coupon-code">XXXX</span>)</span> <span class="text-danger">-{{ config("pricing.CURRENCY") }}<span id="coupon-price">5</span></span>
               </div>
               <div class="input-group my-3">
-                <input name="coupon" type="text" id="coupon-input" class="form-control form-control-sm" placeholder="Enter Coupon">
+                <input name="coupon" type="text" id="coupon-input" class="form-control form-control-sm" placeholder="{{ __("Enter Coupon") }}">
                 <div class="input-group-append">
                   <button id="coupon-btn" type="button" class="btn"><i class="fa fa-send"></i></button>
                 </div>
               </div>
               <hr>
               <div class="d-flex justify-content-between mb-4 small">
-                <span>TOTAL</span>
+                <span>{{ __("TOTAL") }}</span>
                 <strong class="text-dark">
-                  {{ config("pricing.CURRENCY") }}
-                  <?php /* $price =
-                    auth()->user()->get_remaining_paid_value() > 0 &&
-                    $plan->price - auth()->user()->get_remaining_paid_value() > 0 ?
-                    $plan->price - auth()->user()->get_remaining_paid_value():
-                    $plan->price; */?>
 
+                  {{ config("pricing.CURRENCY") }}
                   <span id="total-price" data-price="{{ $plan->price }}">{{ $plan->price }}</span>
-                  {{-- <span id="total-price" data-price="$price">$price</span> --}}
+
                 </strong>
               </div>
-              {{-- <div class="form-check mb-1 small">
-                <input class="form-check-input" type="checkbox" value="" id="tnc">
-                <label class="form-check-label" for="tnc">
-                  I agree to the <a href="#">terms and conditions</a>
-                </label>
-              </div>
-              <div class="form-check mb-3 small">
-                <input class="form-check-input" type="checkbox" value="" id="subscribe">
-                <label class="form-check-label" for="subscribe">
-                  Get emails about product updates and events. If you change your mind, you can unsubscribe at any time. <a href="#">Privacy Policy</a>
-                </label>
-              </div> --}}
               <button type="submit" id="card-button" data-secret="{{ $intent->client_secret }}" class="btn btn-primary w-100 mt-2">{{ __('Order Now') }}</button>
+              <div id="error-toast" class="toast mt-3 align-items-center text-white bg-danger border-0 fade hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                  <div class="toast-body">
+                    {{ __("something went wrong! please check payment info") }}
+                  </div>
+                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -334,22 +530,33 @@
   <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <script>
+
+    const errorToast = new bootstrap.Toast(document.getElementById("error-toast"))
     const stripe = Stripe('{{ env('STRIPE_KEY') }}')
 
-    const elements = stripe.elements()
-    const cardElement = elements.create('card')
+    // const elements = stripe.elements({
+    //   mode: 'payment',
+    //   currency: 'usd',
+    //   amount: 1099,
+    // })
 
-    cardElement.mount('#card-element')
+    const elements = stripe.elements()
+
+
+    const cardElement = elements.create('card')
+    // const paymentElement = elements.create("payment");
+
+    cardElement.mount('#payment-element')
+    // paymentElement.mount("#payment-element");
 
     const form = document.getElementById('payment-form')
     const cardBtn = document.getElementById('card-button')
     const cardHolderName = document.getElementById('card-holder-name')
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (event) => {
       if (document.querySelector("input#payment3").checked == true) {
-        e.preventDefault()
+        event.preventDefault();
 
-        cardBtn.disabled = true
         const { setupIntent, error } = await stripe.confirmCardSetup(
           cardBtn.dataset.secret, {
             payment_method: {
@@ -361,9 +568,7 @@
           }
         )
 
-        if(error) {
-          cardBtn.disable = false
-        } else {
+        if(!error) {
           let token = document.createElement('input')
           token.setAttribute('type', 'hidden')
           token.setAttribute('name', 'token')
@@ -371,6 +576,41 @@
           form.appendChild(token)
           form.submit();
         }
+
+        // if (!stripe) {
+        //   return;
+        // }
+
+        // const {error: submitError} = await elements.submit();
+        // if (submitError) {
+        //   console.error(submitError)
+        //   return;
+        // }
+
+        /* ==== this part did not finish yet ==== */
+        // const response = await fetch('{{ route("process_payment", $plan->id) }}', {
+        //   method: "POST",
+        //   body: {
+        //     payment_method: "stripe",
+        //     coupon: $("#coupon-input").val(),
+        //   },
+        // });
+        // const {client_secret: clientSecret} = await response.json();
+
+        // const {error} = await stripe.confirmPayment({
+        //   elements,
+        //   clientSecret,
+        //   confirmParams: {
+        //     return_url: '{{ route("success_payment") }}',
+        //   },
+        // });
+
+        // if (error) {
+        //   handleError(error);
+        //   errorToast.show()
+        // }else {
+        //   console.log("hii from offer page")
+        // }
       }
     })
   </script>
@@ -383,21 +623,23 @@
       if (input.files && input.files[0]) {
         var reader = new FileReader();
         reader.onload = function (e) {
-          $('#imageResult').attr('src', e.target.result);
+          $("#" + $(input).data("target")).attr('src', e.target.result);
         };
         reader.readAsDataURL(input.files[0]);
       }
     }
 
     $(function () {
-      $('#upload-img').on('change', function () {
-        readURL(input);
-      });
+      $('.upload-img').each(function () {
+        $(this).on('change', function () {
+          readURL(this);
+        });
+      })
     });
 
     $("#coupon-btn").click(function () {
 
-      if ($("#coupon-input").val() != null && $("#coupon-input").val().length == 6) {
+      if ($("#coupon-input").val() != null && $("#coupon-input").val().length > 3) {
 
         $("#coupon-input").removeClass("border-danger");
 
@@ -418,6 +660,27 @@
           },
           success: function (res) {
             btn.attr("disabled", false);
+            /* This Code Handles the percent and fixed coupons */
+            // if (res.type == 2) {// Percent
+            //   let discount = (res.amount / 100) * $("#total-price").data("price");
+            //   $("#coupon-price").text();
+            //   if ($("#total-price").data("price") - discount > 0) {
+            //     $("#total-price").text($("#total-price").data("price") - discount);
+            //   }else {
+            //     $("#total-price").text(0);
+            //   }
+            //   $("#coupon-holder").removeClass("d-none");
+            //   $("#coupon-code").text(code);
+            // }else {// Fixed
+              // $("#coupon-price").text(res.amount);
+              // if ($("#total-price").data("price") - res.amount > 0) {
+              //   $("#total-price").text($("#total-price").data("price") - res.amount);
+              // }else {
+              //   $("#total-price").text(0);
+              // }
+              // $("#coupon-holder").removeClass("d-none");
+              // $("#coupon-code").text(code);
+            // }
             $("#coupon-price").text(res.amount);
             if ($("#total-price").data("price") - res.amount > 0) {
               $("#total-price").text($("#total-price").data("price") - res.amount);

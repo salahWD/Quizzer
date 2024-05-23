@@ -54,6 +54,9 @@
                     type="email"
                     class="form-control @error('email') is-invalid @enderror"
                     name="email"
+                    @if(app()->getLocale() == "ar")
+                    style="direction:rtl"
+                    @endif
                     placeholder="{{ __('Enter Email Address') }}"
                     value="{{ old('email') }}"
                     required

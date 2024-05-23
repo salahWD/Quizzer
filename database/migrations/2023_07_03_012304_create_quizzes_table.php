@@ -17,8 +17,10 @@ return new class extends Migration {
         $table->string("image")->nullable();
         $table->boolean("status")->default(FALSE);
         $table->boolean("is_template")->default(FALSE);
+        $table->boolean("can_go_back")->default(FALSE);
         $table->boolean("is_shown_policy")->default(FALSE);
         $table->tinyinteger("font_family")->default(1);
+        $table->tinyinteger("font_family_ar")->nullable();
         $table->string("main_text_color", 7)->default("#222222");
         $table->string("background_color", 7)->default("#ffffff");
         $table->string("btn_color", 7)->default("#329dcd");
@@ -34,6 +36,8 @@ return new class extends Migration {
         $table->string("meta_description")->nullable();
         $table->boolean("show_logo")->default(false);
         $table->string("policy_link")->nullable();
+        $table->string("popup_img")->nullable();
+        $table->string("popup_thumb")->nullable();
         $table->timestamps();
     });
   }

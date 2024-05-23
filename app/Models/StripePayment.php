@@ -57,13 +57,26 @@ class StripePayment extends Payment {
   public function pay() {
 
     $subscription = auth()->user()->newSubscription($this->package_id, $this->stripe_plan)
+        ->withCoupon($this->coupon ?? null)
         ->create($this->token);
 
-    if ($subscription != null && $subscription->id != null) {
+    $price = $this->price;
+
+    if (!empty($this->coupon)) {
+      \Stripe\Stripe::setApiKey(config("stripe.Secret_key"));
+      $c = \Stripe\Coupon::retrieve($this->coupon);
+      if ($c->percent_off > 0) {
+        $price = $this->price - ($c->percent_off / 100 * $this->price);
+      } else {
+        $price = $this->price - ($c->amount_off / 100);
+      }
+    }
+
+    if ($subscription != null && $subscription->stripe_id != null) {
 
       $payment = StripePayment::create([
         "user_id" => auth()->id(),
-        "amount" => $this->price,
+        "amount" => $price,
         "payment_id" => $subscription->stripe_id,
         "package_id" => $this->package_id,
         "status" => "pending",
@@ -72,10 +85,10 @@ class StripePayment extends Payment {
 
       header("Location: " . route("success_payment", ["token" => $subscription->stripe_id]));
       exit();
-    }else {
-      return redirect()->route("cancel_payment");
     }
 
+    header("Location: " . route("cancel_payment"));
+    exit();
 
   }
 
@@ -92,54 +105,54 @@ class StripePayment extends Payment {
 
   }
 
-  public function webhook() {
+  // public function webhook() {
 
 
-    $stripe = new \Stripe\StripeClient(config("stripe.Secret_key"));
+  //   $stripe = new \Stripe\StripeClient(config("stripe.Secret_key"));
 
-    $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
+  //   $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
 
-    $payload = @file_get_contents('php://input');
-    $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-    $event = null;
+  //   $payload = @file_get_contents('php://input');
+  //   $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+  //   $event = null;
 
-    try {
-      $event = \Stripe\Webhook::constructEvent(
-        $payload, $sig_header, $endpoint_secret
-      );
-    } catch(\UnexpectedValueException $e) {
-      // Invalid payload
-      return response('', 400);
-      // http_response_code(300);
-      exit();
-    } catch(\Stripe\Exception\SignatureVerificationException $e) {
-      // Invalid signature
-      // http_response_code(300);
-      return response('', 400);
-      exit();
-    }
+  //   try {
+  //     $event = \Stripe\Webhook::constructEvent(
+  //       $payload, $sig_header, $endpoint_secret
+  //     );
+  //   } catch(\UnexpectedValueException $e) {
+  //     // Invalid payload
+  //     return response('', 400);
+  //     // http_response_code(300);
+  //     exit();
+  //   } catch(\Stripe\Exception\SignatureVerificationException $e) {
+  //     // Invalid signature
+  //     // http_response_code(300);
+  //     return response('', 400);
+  //     exit();
+  //   }
 
 
-    // Handle the event
-    switch ($event->type) {
-      case 'checkout.session.completed':
-        $session = $event->data->object;
+  //   // Handle the event
+  //   switch ($event->type) {
+  //     case 'checkout.session.completed':
+  //       $session = $event->data->object;
 
-        $payment = StripePayment::where("payment_id", $session->id)->first();
+  //       $payment = StripePayment::where("payment_id", $session->id)->first();
 
-        if ($payment && $payment->status != "completed") {
-          StripePayment::where("payment_id", $session->id)
-              ->update(["status" => "completed"]);
-        }
+  //       if ($payment && $payment->status != "completed") {
+  //         StripePayment::where("payment_id", $session->id)
+  //             ->update(["status" => "completed"]);
+  //       }
 
-        default:
-        echo 'Received unknown event type ' . $event->type;
-      }
+  //       default:
+  //       echo 'Received unknown event type ' . $event->type;
+  //     }
 
-      return response('', 200);
-      // http_response_code(200);
-      exit();
+  //     return response('', 200);
+  //     // http_response_code(200);
+  //     exit();
 
-  }
+  // }
 
   }

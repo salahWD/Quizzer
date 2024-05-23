@@ -1,5 +1,82 @@
+let globalActiveQuestion = 0;
+
+function updateStepBtnsUi() {
+  console.log(globalActiveQuestion);
+  let nextTarget = $(
+    `#questions-holder > .question[data-order="${globalActiveQuestion + 1}"]`
+  );
+  if (nextTarget.length == 0 || nextTarget.hasClass("no-answer-yet")) {
+    $("#forward-ques-btn").addClass("opacity-50");
+  } else {
+    $("#forward-ques-btn").removeClass("opacity-50");
+  }
+  if (globalActiveQuestion <= 0) {
+    $("#back-ques-btn").addClass("opacity-50");
+  } else {
+    $("#back-ques-btn").removeClass("opacity-50");
+  }
+}
+
+$("#forward-ques-btn").click(function () {
+  let target = $(
+    `#questions-holder > .question[data-order="${globalActiveQuestion + 1}"]`
+  );
+  if (!target.hasClass("no-answer-yet")) {
+    activeQuestion(target.attr("id"));
+  }
+});
+$("#back-ques-btn").click(function () {
+  if (globalActiveQuestion - 1 == 0) {
+    globalActiveQuestion = 0;
+    activeQuestion("quiz-intro");
+  } else {
+    activeQuestion(
+      $(
+        `#questions-holder > .question[data-order="${
+          globalActiveQuestion - 1
+        }"]`
+      ).attr("id")
+    );
+  }
+});
+
+window.tiktokCompleted = false; // it checks if user finished the quiz (he saw the result)
+function storeResult(id, fallback, ...args) {
+  if (isTemplate == 0 && id != null && id != "" && id != "undefined") {
+    $.ajax({
+      url: `${apiRoute}/store-result`,
+      method: "POST",
+      headers: {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+      },
+      data: {
+        submission_code: window.submission,
+        result_id: id,
+      },
+      success: function (res) {
+        fallback(...args);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  } else {
+    fallback(...args);
+  }
+}
+
 function activeQuestion(selectorId) {
-  $(`#${selectorId}`)
+  let target = $(`#${selectorId}`);
+  target.removeClass("no-answer-yet");
+  let target_order = parseInt(target.data("order"));
+  if (!isNaN(target_order)) {
+    globalActiveQuestion = target_order > 0 ? target_order : 0;
+  } else if (target.hasClass("result") || target.attr("id") == "no-result") {
+    // remove back/forward btns on result or (Not Result Found)
+    $("#steps-btns").fadeOut();
+  }
+  updateStepBtnsUi();
+  target
     .fadeIn(300)
     .css("display", "flex")
     .addClass("active")
@@ -7,14 +84,78 @@ function activeQuestion(selectorId) {
     .each(function () {
       $(this).removeClass("active");
       $(this).fadeOut(300);
-      // FB Integration
-      if (FbInteg == true) {
-        fbq("track", "ViewContent", {
-          question: $(this).data("fb") ?? $(this).text(),
-        });
-      }
     });
-  if ($("#" + selectorId).data("type") <= 5) {
+  // FB Integration
+  if (FbInteg.length > 0 && notEmpty(target.data("fb"))) {
+    fbq("trackCustom", FbInteg, { value: target.data("fb") });
+  }
+  // Tiktok Integration
+  if (TkInteg.length > 0) {
+    if (notEmpty(target.data("tk"))) {
+      ttq.track(TkInteg, {
+        contents: [
+          {
+            content_id: selectorId,
+            content_type: "product",
+            content_name: target.data("tk"),
+          },
+        ],
+        value: "0",
+        currency: "USD",
+      });
+    }
+    if (target.hasClass("question") && target.data("type") == 3) {
+      target.find(`button.nex-btn`).click(function () {
+        ttq.track("SubmitForm");
+      });
+    }
+    if (
+      window.tiktokCompleted == false &&
+      (target.hasClass("result") || target.attr("id") == "no-result")
+    ) {
+      window.tiktokCompleted = true;
+      ttq.track("CompleteRegistration");
+    }
+  }
+  // Twitter Integration
+  if (TwInteg.length > 0) {
+    if (notEmpty(target.data("tw"))) {
+      twq("event", target.data("tw"));
+    }
+  }
+  // SC Integration
+  if (ScInteg == true) {
+    if (
+      $(`#${selectorId}`).hasClass("question") &&
+      $(`#${selectorId}`).data("type") == 3
+    ) {
+      $(`#${selectorId}`)
+        .find(`button.nex-btn`)
+        .click(function () {
+          snaptr("track", "SIGN_UP");
+        });
+    } else if ($(`#${selectorId}`).hasClass("result")) {
+      snaptr("track", "VIEW_CONTENT");
+    }
+  }
+  if (GAIteg == true) {
+    let item = $(`#${selectorId}`);
+    if (
+      typeof funcs !== "undefined" &&
+      notEmpty(funcs) &&
+      funcs.includes(
+        `integ_ga_item_${item.data("id")}_${item.hasClass("result") ? 2 : 1}`
+      )
+    ) {
+      window[
+        `integ_ga_item_${item.data("id")}_${item.hasClass("result") ? 2 : 1}`
+      ]();
+    }
+  }
+  if (
+    $("#" + selectorId).hasClass("question") &&
+    $("#" + selectorId).data("id")
+  ) {
     $.ajax({
       url: `${addViewRoute}/${$("#" + selectorId).data("id")}`,
       headers: {
@@ -22,7 +163,32 @@ function activeQuestion(selectorId) {
       },
       error: (err) => console.error(err),
     });
+    $(document).unbind("keypress");
+    if (parseInt($("#" + selectorId).data("type")) == 3) {
+      $(document).on("keypress", function (e) {
+        if (e.which == 13) {
+          $("#" + selectorId)
+            .find(".nex-btn")
+            .click();
+        }
+      });
+    }
+  } else if (
+    $("#" + selectorId).hasClass("result") &&
+    $("#" + selectorId).data("id")
+  ) {
+    $.ajax({
+      url: `${addViewResultRoute}/${$("#" + selectorId).data("id")}`,
+      headers: {
+        "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content"),
+      },
+      error: (err) => console.error(err),
+    });
   }
+}
+
+function notEmpty(param) {
+  return typeof param != "undefined" && param != null && param != "";
 }
 
 $("#intro-btn").click(function () {
@@ -71,6 +237,35 @@ if (QuizType == 1) {
       data["submission_code"] = window.submission;
     }
 
+    if (data["answers"] != null && data["answers"].length > 0) {
+      data["answers"].forEach((ansr) => {
+        if (FbInteg.length > 0 && notEmpty($(`#answer-${ansr}`).data("fb"))) {
+          fbq("trackCustom", FbInteg, {
+            value: $(`#answer-${ansr}`).data("fb"),
+          });
+        }
+        if (TkInteg.length > 0 && notEmpty($(`#answer-${ansr}`).data("tk"))) {
+          ttq.track(TkInteg, {
+            contents: [
+              {
+                content_id: `answer-${ansr}`,
+                content_type: "product",
+                content_name: $(`#answer-${ansr}`).data("tk"),
+              },
+            ],
+            value: "0",
+            currency: "USD",
+          });
+        }
+        if (ScInteg == true && notEmpty($(`#answer-${ansr}`).data("sc"))) {
+          snaptr("track", $(`#answer-${ansr}`).data("sc"));
+        }
+        if (TwInteg.length > 0 && notEmpty($(`#answer-${ansr}`).data("tw"))) {
+          twq("event", $(`#${selectorId}`).data("tw"));
+        }
+      });
+    }
+
     $.ajax({
       url: url,
       method: "POST",
@@ -79,11 +274,9 @@ if (QuizType == 1) {
       },
       data: data,
       success: function (res) {
-        console.log(res);
-
-        if (res != null && res.submission_code != null) {
-          window.submission = res.submission_code;
-        }
+        // if (res != null && res.submission_code != null) {
+        //   window.submission = res.submission_code;
+        // }
 
         if (
           res != null &&
@@ -127,12 +320,16 @@ if (QuizType == 1) {
       });
     }
 
-    console.log(result || "no-result");
-
     if (result != null && result != undefined) {
       if (result.data("type") == 1 || result.data("type") == 3) {
         $(`#${result.attr("id")}-score`).text(score);
-        activeQuestion(result.attr("id"));
+        storeResult(
+          result.data("id"),
+          function (id) {
+            activeQuestion(id);
+          },
+          result.attr("id")
+        );
       } else if (result.data("type") == 2) {
         let targetUrl = new URL(result.data("url"));
         let utm = result.data("utm");
@@ -162,14 +359,26 @@ if (QuizType == 1) {
 
         form += "</form>";
         form = $(form);
-        $("body").append(form);
-        form.submit();
+        storeResult(
+          result.data("id"),
+          function (form) {
+            $("body").append(form);
+            form.submit();
+          },
+          form
+        );
       } else {
         console.error("result has no type");
         activeQuestion("no-result");
       }
     } else {
       activeQuestion("no-result");
+    }
+    if (typeof finish_remarketing_ga === "function") {
+      finish_remarketing_ga();
+    }
+    if (typeof finish_convertion_ga === "function") {
+      finish_convertion_ga();
     }
   }
 
@@ -190,9 +399,9 @@ if (QuizType == 1) {
         $(this).data("target")
       );
 
-      if ($(this).data("target") == "end") {
-        calculateResult(TotalScore);
-      }
+      // if ($(this).data("target") == "end") {
+      //   calculateResult(TotalScore);
+      // }
     });
   });
 
@@ -212,7 +421,9 @@ if (QuizType == 1) {
 
         let requiredErrors = [];
         if (form.find("input").length > 0) {
-          form.find("input").each(function () {
+          let arr = form.find("input").get();
+          arr.push(...$(".question.active .form-privacy").get());
+          $.each(arr, function () {
             if ($(this).prop("required") == true) {
               if (["text", "textarea"].includes($(this).attr("type"))) {
                 if ($(this).val().length < 1) {
@@ -230,7 +441,11 @@ if (QuizType == 1) {
                   requiredErrors.push($(this).attr("id"));
                 }
               } else if ($(this).attr("type") == "number") {
-                if (isNaN($(this).val())) {
+                if (isNaN($(this).val()) || $(this).val() <= 0) {
+                  requiredErrors.push($(this).attr("id"));
+                }
+              } else if ($(this).hasClass("form-privacy")) {
+                if ($(this).prop("checked") != true) {
                   requiredErrors.push($(this).attr("id"));
                 }
               }
@@ -240,13 +455,17 @@ if (QuizType == 1) {
 
         if (requiredErrors.length == 0) {
           let form_data = {};
-          form.find("input,select,textarea").each(function (i) {
-            form_data[$(this).data("id")] = {
-              id: $(this).data("id"),
-              type: $(this).data("type"),
-              value: $(this).val(),
-            };
-          });
+          form
+            .find(
+              "input[type='radio']:checked,[type='checkbox']:checked,input:not([type='radio']):not([type='checkbox']),select,textarea"
+            )
+            .each(function (i) {
+              form_data[$(this).data("id")] = {
+                id: $(this).data("id"),
+                type: $(this).data("type"),
+                value: $(this).val(),
+              };
+            });
 
           conditionsCheck(
             $(this).parents(".question").data("id"),
@@ -254,9 +473,9 @@ if (QuizType == 1) {
             $(this).data("target")
           );
 
-          if ($(this).data("target") == "end") {
-            calculateResult();
-          }
+          // if ($(this).data("target") == "end") {
+          //   calculateResult();
+          // }
         } else {
           requiredErrors.forEach((el) => {
             document.getElementById(el).classList.add("border-danger");
@@ -264,7 +483,9 @@ if (QuizType == 1) {
           question
             .find(".btns-row .error-box")
             .html(
-              "<div class='alert alert-danger'>required fields are not filled</div>"
+              "<div class='alert alert-danger'>" +
+                __["required fields are not filled"] +
+                "</div>"
             );
         }
       });
@@ -285,9 +506,9 @@ if (QuizType == 1) {
           $(this).data("target")
         );
 
-        if ($(this).data("target") == "end") {
-          calculateResult();
-        }
+        // if ($(this).data("target") == "end") {
+        //   calculateResult();
+        // }
       });
   });
 
@@ -385,6 +606,36 @@ if (QuizType == 1) {
     if (window.submission != null) {
       data["submission_code"] = window.submission;
     }
+    console.log(window.submission);
+
+    if (data["answers"] != null && data["answers"].length > 0) {
+      data["answers"].forEach((ansr) => {
+        if (FbInteg.length > 0 && notEmpty($(`#answer-${ansr}`).data("fb"))) {
+          fbq("trackCustom", FbInteg, {
+            value: $(`#answer-${ansr}`).data("fb"),
+          });
+        }
+        if (TkInteg.length > 0 && notEmpty($(`#answer-${ansr}`).data("tk"))) {
+          ttq.track(TkInteg, {
+            contents: [
+              {
+                content_id: `answer-${ansr}`,
+                content_type: "product",
+                content_name: $(`#answer-${ansr}`).data("tk"), // string. The name of the page or product. Example: "shirt".
+              },
+            ],
+            value: "0",
+            currency: "USD",
+          });
+        }
+        if (ScInteg == true && notEmpty($(`#answer-${ansr}`).data("sc"))) {
+          snaptr("track", $(`#answer-${ansr}`).data("sc"));
+        }
+        if (TwInteg.length > 0 && notEmpty($(`#answer-${ansr}`).data("tw"))) {
+          twq("event", $(`#${selectorId}`).data("tw"));
+        }
+      });
+    }
 
     $.ajax({
       url: url,
@@ -394,9 +645,9 @@ if (QuizType == 1) {
       },
       data: data,
       success: function (res, statusText, xhr) {
-        if (res != null && res.submission_code != null) {
-          window.submission = res.submission_code;
-        }
+        // if (res != null && res.submission_code != null) {
+        //   window.submission = res.submission_code;
+        // }
 
         if (res != null && res.results != null && res.results.length > 0) {
           res.results.forEach((result) => {
@@ -470,7 +721,13 @@ if (QuizType == 1) {
 
     if (result != null && result != undefined) {
       if ($(result).data("type") == 1 || $(result).data("type") == 3) {
-        activeQuestion($(result).attr("id"));
+        storeResult(
+          result.data("id"),
+          function (id) {
+            activeQuestion(id);
+          },
+          $(result).attr("id")
+        );
       } else if ($(result).data("type") == 2) {
         let targetUrl = new URL($(result).data("url"));
         let utm = $(result).data("utm");
@@ -500,14 +757,26 @@ if (QuizType == 1) {
 
         form += "</form>";
         form = $(form);
-        $("body").append(form);
-        form.submit();
+        storeResult(
+          result.data("id"),
+          function (form) {
+            $("body").append(form);
+            form.submit();
+          },
+          form
+        );
       } else {
         console.error("no result type on this result");
         activeQuestion("no-result");
       }
     } else {
       activeQuestion("no-result");
+    }
+    if (typeof finish_remarketing_ga === "function") {
+      finish_remarketing_ga();
+    }
+    if (typeof finish_convertion_ga === "function") {
+      finish_convertion_ga();
     }
   }
 
@@ -528,9 +797,9 @@ if (QuizType == 1) {
         $(this).data("target")
       );
 
-      if ($(this).data("target") == "end") {
-        calculateResult();
-      }
+      // if ($(this).data("target") == "end") {
+      //   calculateResult();
+      // }
     });
   });
 
@@ -550,7 +819,9 @@ if (QuizType == 1) {
 
         let requiredErrors = [];
         if (form.find("input").length > 0) {
-          form.find("input").each(function () {
+          let arr = form.find("input").get();
+          arr.push(...$(".question.active .form-privacy").get());
+          $.each(arr, function () {
             if ($(this).prop("required") == true) {
               if (["text", "textarea"].includes($(this).attr("type"))) {
                 if ($(this).val().length < 1) {
@@ -568,7 +839,12 @@ if (QuizType == 1) {
                   requiredErrors.push($(this).attr("id"));
                 }
               } else if ($(this).attr("type") == "number") {
-                if (isNaN($(this).val())) {
+                console.log($(this));
+                if (isNaN($(this).val()) || $(this).val() <= 0) {
+                  requiredErrors.push($(this).attr("id"));
+                }
+              } else if ($(this).hasClass("form-privacy")) {
+                if ($(this).prop("checked") != true) {
                   requiredErrors.push($(this).attr("id"));
                 }
               }
@@ -578,13 +854,17 @@ if (QuizType == 1) {
 
         if (requiredErrors.length == 0) {
           let form_data = {};
-          form.find("input,select,textarea").each(function (i) {
-            form_data[$(this).data("id")] = {
-              id: $(this).data("id"),
-              type: $(this).data("type"),
-              value: $(this).val(),
-            };
-          });
+          form
+            .find(
+              "input[type='radio']:checked,[type='checkbox']:checked,input:not([type='radio']):not([type='checkbox']),select,textarea"
+            )
+            .each(function (i) {
+              form_data[$(this).data("id")] = {
+                id: $(this).data("id"),
+                type: $(this).data("type"),
+                value: $(this).val(),
+              };
+            });
 
           conditionsCheck(
             $(this).parents(".question").data("id"),
@@ -592,9 +872,9 @@ if (QuizType == 1) {
             $(this).data("target")
           );
 
-          if ($(this).data("target") == "end") {
-            calculateResult();
-          }
+          // if ($(this).data("target") == "end") {
+          //   calculateResult();
+          // }
         } else {
           requiredErrors.forEach((el) => {
             document.getElementById(el).classList.add("border-danger");
@@ -602,7 +882,9 @@ if (QuizType == 1) {
           question
             .find(".btns-row .error-box")
             .html(
-              "<div class='alert alert-danger'>required fields are not filled</div>"
+              "<div class='alert alert-danger'>" +
+                __["required fields are not filled"] +
+                "</div>"
             );
         }
       });
@@ -623,9 +905,9 @@ if (QuizType == 1) {
           $(this).data("target")
         );
 
-        if ($(this).data("target") == "end") {
-          calculateResult();
-        }
+        // if ($(this).data("target") == "end") {
+        //   calculateResult();
+        // }
       });
   });
 

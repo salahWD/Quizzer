@@ -1,11 +1,11 @@
 TODO: Add Integration:
     Calendly           {✅}
-    Facebook Pixel     {📌}
-    Google Ads Pixel   {❔}
-    Google Tag Manage  {❔}
-    ActiveCampaign     {❔}
-    GetResponse        {❔}
-    ConvertKit         {❔}
-
-
-TODO: make is_annual trigger
+    Facebook Pixel     {✅}
+    ActiveCampaign     {✅}
+    Google Ads Pixel   {✅}
+    Google Tag Manage  {✅}
+    GetResponse        {✅}
+    ConvertKit         {✅}
+    tiktok             {✅}
+    snapchat           {✅}
+    tiwtter            {✅}

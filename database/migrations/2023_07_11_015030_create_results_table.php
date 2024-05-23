@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->tinyinteger("type");
             $table->integer("min_score")->nullable();
             $table->integer("max_score")->nullable();
+            $table->integer("views")->default(0);
             $table->boolean("show_score")->nullable();
             $table->string("result_link")->nullable();
             $table->boolean("show_button")->nullable();

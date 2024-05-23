@@ -2,7 +2,9 @@ $color_1: #fff;
 $color_2: white;
 $background-color_1: white;
 $background-color_2: rgba(255, 255, 255, 0.25);
-
+.opacity-50 {
+  opacity: 0.5 !important;
+}
 body {
   position: relative;
   min-height: 100dvh;
@@ -33,23 +35,28 @@ body {
     max-width: 900px;
     width: calc(100% - 30px);
     max-height: 80px;
-    z-index: 1;
+    z-index: 99;
     position: relative;
     &.watermark {
       position: absolute;
       width: fit-content;
       bottom: 0;
       right: 0;
+      display: flex;
+    }
+    .steps-btns {
+      display: flex;
+      gap: 0.5rem;
     }
     .website-logo {
-      max-width: 50px;
-      max-height: 50px;
+      max-height: 40px;
     }
   }
   .quiz-content {
     position: relative;
     z-index: 5;
     height: 100%;
+    padding-bottom: 60px;
     .questions {
       display: flex;
       flex-direction: column;
@@ -99,6 +106,17 @@ body {
           margin: auto;
           max-width: 900px;
           width: calc(100% - 30px);
+          padding: 30px 15px;
+          @media (max-width: 991px) {
+            padding: 30px 0;
+          }
+          .body {
+            padding: 40px;
+            background: white;
+            @media (max-width: 991px) {
+              padding: 20px;
+            }
+          }
           .count {
             font-size: 12px;
             font-weight: 400;
@@ -186,6 +204,9 @@ body {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            @media screen and (max-width: 992px) {
+              gap: 12px;
+            }
             &.img-answers {
               flex-direction: row;
               flex-wrap: wrap;
@@ -193,6 +214,15 @@ body {
                 width: calc(100% / 4 - 15px);
                 max-width: calc(100% / 4 - 15px);
                 min-width: calc(100% / 4 - 15px); // 15px is gap size
+                @media screen and (max-width: 992px) {
+                  width: calc(50% - 6px);
+                  max-width: calc(50% - 6px);
+                  min-width: calc(50% - 6px);
+                  padding: 5px;
+                  .img {
+                    height: fit-content;
+                  }
+                }
               }
             }
             .answer {
@@ -264,6 +294,10 @@ body {
       }
     }
   }
+  .ql-video {
+    width: 1920px;
+    aspect-ratio: 16/9;
+  }
 }
 
 .media-container {
@@ -317,4 +351,19 @@ body {
   span {
     font-weight: 700;
   }
+}
+.desc img {
+  max-width: 100%;
+}
+html[lang="ar"]
+  body
+  .quiz-content
+  .questions
+  .item
+  .content
+  .answers
+  .answer
+  .answer-letter {
+  margin-right: 0;
+  margin-left: 20px;
 }

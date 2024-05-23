@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Payment extends Model {
   use HasFactory;
@@ -15,7 +16,10 @@ class Payment extends Model {
     1 => "level-1",
     2 => "level-2",
     3 => "level-3",
-    4 => "admin",
+    4 => "level-1",
+    5 => "level-2",
+    6 => "level-3",
+    7 => "admin",
   ];
 
   protected $fillable = [
@@ -44,4 +48,16 @@ class Payment extends Model {
     return $this->status == "completed";
   }
 
+  public function get_package_name() {
+    $package = config("pricing.PRICING_PACKAGES." . $this->package_id);
+    return $package["NAME"] ?? null;
+  }
+
+  public function user() {
+    return $this->belongsTo(User::class);
+  }
+
+  public function get_currency() {
+    return config("pricing.CURRENCY") ?? null;
+  }
 }

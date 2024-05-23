@@ -16,12 +16,12 @@
         <img class="img-responsive" alt="Get Unlimited Quizzes" src="https://149842022.v2.pressablecdn.com/wp-content/uploads/sites/59/2016/03/macbook-preview-flexible.png">
       </div>
       <div class="col-md-4 col-md-offset-1 col-sm-5 col-sm-offset-1">
-        <div class="">
-          <h3>Get Unlimited Quizzes</h3>
+        <div class="mx-md-text-center">
+          <h3>{{ __('Create Unlimited options from Ai Sales Representative today') }}</h3>
           <div class="mb32">
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga dolores obcaecati quidem aut, incidunt ea in?</p>
+            <p>{{ __('You can use prebuilt AI Sales representative templates') }}</p>
           </div>
-          <a class="btn btn-lg btn-filled" href="https://google.com">let's see</a>
+          <a class="btn btn-primary btn-lg btn-filled" href="{{ route('pricing') }}">{{ __("Try Now") }}</a>
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@
     <!-- CARD 1-->
     @foreach ($templates as $template)
       <div class="col-lg-4">
-        <a href='{{ route("preview_template", $template->id) }}' class="url-box">
+        <a href='{{ route("preview_template", $template->id) }}' class="url-box text-decoration-none">
           <figure class='newsCard news-Slide-up' style="aspect-ratio: 2/1">
             @if ($template->intro_image != null)
               <img class="card-image border w-100" src="{{ url("images/uploads/$template->intro_image") }}">
@@ -46,14 +46,19 @@
                 <h5 class='newsCaption-title text-white m-0'>{{ $template->name ?? "Template Title" }}</h5>
                 <i class="fas fa-arrow-alt-circle-right "></i>
               </div>
-              <div class='newsCaption-content d-flex'>
-                <p class="col-10 py-3 px-0">{{ $template->template_desc }}</p>
+              <div class='newsCaption-content text-white d-flex'>
+                <p class="col-10 py-2 pt-3 mt-1 px-0">{{ $template->template_desc }}</p>
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <a href="{{ route("preview_template", $template->id) }}" class="btn btn-primary">{{ __('preview')}}</a>
+                </div>
               </div>
             </div>
             <span class="overlay"></span>
           </figure>
         </a>
-      @endforeach
-    </div>
+      </div>
+    @endforeach
   </div>
 </div>

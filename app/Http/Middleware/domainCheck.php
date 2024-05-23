@@ -14,9 +14,9 @@ class domainCheck {
     $domain = $request->getHost();
     if (config("app.APP_DOMAIN") != $domain) {
 
-      $query = Website::select("id")->where("custom_domain", "=", $domain)->get();
+      $query = Website::select("id")->where("custom_domain", "=", $domain)->where("domain_status", "=", 2)->get();
 
-      if ($query->count() > 0) {
+      // if ($query->count() > 0) {
 
         // $name = Route::currentRouteName();
 
@@ -24,8 +24,11 @@ class domainCheck {
         //   $quiz_id = $query->first()->id;
         //   return redirect()->to(route("show_quiz", $quiz_id));
         // }
-// dd(route("show_quiz",$quiz_id));
-      }else{
+        // dd(route("show_quiz",$quiz_id));
+      // }else{
+      //   abort(404);
+      // }
+      if (!($query->count() > 0)) {
         abort(404);
       }
 

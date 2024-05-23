@@ -16,7 +16,7 @@ class Integration extends Model {
     "name",
     "email",
     "key",
-    "url",
+    "value",
   ];
 
   public function website() {
@@ -30,5 +30,4 @@ class Integration extends Model {
   public function quiz() {
     return $this->belongsToMany('integration_quiz');
   }
-
 }

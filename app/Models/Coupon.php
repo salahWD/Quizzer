@@ -12,25 +12,25 @@ class Coupon extends Model {
     "package_id",
     "code",
     "amount",
+    "type",
     "expire_date",
   ];
 
   public function package() {
 
-    if (isset($this->package_id)) {
+    if ($this->has_package()) {
       $package = config("pricing.PRICING_PACKAGES")[$this->package_id];
       return $package;
-    }else {
+    } else {
       return null;
     }
   }
 
   public function has_package() {
-    return isset($this->package_id);
+    return isset($this->package_id) && !empty($this->package_id);
   }
 
   public function is_expired() {
     return now() > $this->expire_date;
   }
-
 }

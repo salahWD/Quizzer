@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
+
   <style>
     @import 'https://fonts.googleapis.com/css?family=Noto+Sans';
     * {
@@ -144,21 +145,21 @@
     }
   </style>
 
-    <div class="floating-chat enter">
-      <img src="http://via.placeholder.com/100" class="image">
-      <div class="chat">
-          <div class="header">
-            <img src="http://via.placeholder.com/400" class="image">
-            <button>
-                <i class="fa fa-times" aria-hidden="true"></i>
-            </button>
-          </div>
-          <div class="body">
-            <div>Testing Text Just To Take Place</div>
-            <a href="#" class="btn">Take Quiz</a>
-          </div>
+  <div class="floating-chat enter">
+    <img src="http://via.placeholder.com/100" class="image">
+    <div class="chat">
+      <div class="header">
+        <img src="http://via.placeholder.com/400" class="image">
+        <button>
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="body">
+        <div>Testing Text Just To Take Place</div>
+        <a href="#" class="btn">Take Quiz</a>
       </div>
     </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script>

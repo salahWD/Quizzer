@@ -17,6 +17,7 @@ return new class extends Migration {
       $table->enum('method', ["paypal", "stripe", "bank"]);
       $table->string('bank_bill')->nullable();
       $table->boolean('is_annual')->default(0);
+      $table->boolean('is_viewed')->default(0);
       $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
       $table->timestamps();
     });

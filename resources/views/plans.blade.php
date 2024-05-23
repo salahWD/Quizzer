@@ -5,7 +5,7 @@
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card">
-        <div class="card-header">Select Plane:</div>
+        <div class="card-header">{{ __('Select Plane') }}:</div>
         <div class="card-body">
           <div class="row">
             @foreach($plans as $plan)
@@ -16,9 +16,9 @@
                 </div>
                 <div class="card-body">
                   <h5 class="card-title">{{ $plan->name }}</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                  <p class="card-text">{{ $plan->description }}</p>
 
-                  <a href="{{ route('plans.show', $plan->slug) }}" class="btn btn-primary pull-right">Choose</a>
+                  <a href="{{ route('plans.show', $plan->slug) }}" class="btn btn-primary pull-right">{{ __('Choose') }}</a>
 
                 </div>
                 </div>

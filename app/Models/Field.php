@@ -68,6 +68,24 @@ class Field extends Model implements TranslatableContract {
     if ($this->type == 13) {
       return "hidden";
     }
+    if ($this->type == 14) {
+      return "utm_source";
+    }
+    if ($this->type == 15) {
+      return "utm_medium";
+    }
+    if ($this->type == 16) {
+      return "utm_campaign";
+    }
+    if ($this->type == 17) {
+      return "utm_id";
+    }
+    if ($this->type == 18) {
+      return "utm_term";
+    }
+    if ($this->type == 19) {
+      return "utm_content";
+    }
     return "text";
   }
 

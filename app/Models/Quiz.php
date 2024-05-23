@@ -7,12 +7,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Question;
+use App\Models\Result;
 use App\Models\Submission;
 use App\Models\Website;
 use App\Models\Template;
 use App\Models\QuizTranslation;
 use App\Models\Integration;
 use App\Models\Ac;
+use App\Models\Gr;
+use App\Models\Ck;
+use App\Models\Casestuty;
+use App\Models\Quizgoogle;
+use App\Models\Itemgoogl;
 
 use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
 use Astrotomic\Translatable\Translatable;
@@ -48,6 +54,10 @@ class Quiz extends Model implements TranslatableContract {
     return $this->hasOne(Template::class);
   }
 
+  public function casestuty() {
+    return $this->hasMany(Casestuty::class);
+  }
+
   public function website() {
     return $this->belongsTo(Website::class);
   }
@@ -72,13 +82,13 @@ class Quiz extends Model implements TranslatableContract {
   public function website_integrations($name = null) {
     if ($name != null) {
       return $this->belongsTo(Website::class, 'website_id')
-          ->leftJoin('integrations', 'integrations.website_id', '=', 'websites.id')
-          ->where('integrations.name', $name)
-          ->select('websites.id', 'integrations.*');
-        }else {
+        ->leftJoin('integrations', 'integrations.website_id', '=', 'websites.id')
+        ->where('integrations.name', $name)
+        ->select('websites.id', 'integrations.*');
+    } else {
       return $this->belongsTo(Website::class, 'website_id')
-          ->leftJoin('integrations', 'integrations.website_id', '=', 'websites.id')
-          ->select('websites.id', 'integrations.*');
+        ->leftJoin('integrations', 'integrations.website_id', '=', 'websites.id')
+        ->select('websites.id', 'integrations.*');
     }
   }
 
@@ -86,6 +96,63 @@ class Quiz extends Model implements TranslatableContract {
     return $this->belongsToMany(Integration::class, 'integration_quiz');
   }
 
+  /* Facebook Methods */
+  public function all_quiz_items() {
+
+    $questions = $this->hasMany(Question::class)->get();
+    $results = $this->hasMany(Result::class)->get();
+    return $questions->merge($results);
+  }
+
+  public function fb_items() {
+
+    $questions = $this->hasMany(Question::class)
+      ->with("translations")
+      ->with("answers")
+      ->with("fb_event")
+      ->get();
+    $results = $this->hasMany(Result::class)->with("fb_event")->get();
+    return collect()->merge($questions)->merge($results);
+  }
+
+  public function tk_items() {
+
+    $questions = $this->hasMany(Question::class)
+      ->with("translations")
+      ->with("answers")
+      ->with("tk_event")
+      ->get();
+    $results = $this->hasMany(Result::class)->with("tk_event")->get();
+    return collect([])->merge($questions)->merge($results);
+  }
+
+  public function tw_items() {
+
+    $questions = $this->hasMany(Question::class)
+      ->with("translations")
+      ->with("answers")
+      ->with("tw_event")
+      ->get();
+    $results = $this->hasMany(Result::class)->with("tw_event")->get();
+    return collect([])->merge($questions)->merge($results);
+  }
+
+  public function sc_items() {
+
+    $questions = $this->hasMany(Question::class)
+      ->with("translations")
+      ->with("answers")
+      ->with("sc_event")
+      ->get();
+    $results = $this->hasMany(Result::class)->with("sc_event")->get();
+    return collect([])->merge($questions)->merge($results);
+  }
+
+  public function answers() {
+    return $this->hasManyThrough(Answer::class, Question::class);
+  }
+
+  /* Active Campaign Methods */
   public function integration_ac() {
     return $this->hasMany(Ac::class);
   }
@@ -98,7 +165,7 @@ class Quiz extends Model implements TranslatableContract {
       $curl = curl_init();
 
       curl_setopt_array($curl, array(
-        CURLOPT_URL => $integ->url . '/api/3/lists',
+        CURLOPT_URL => $integ->value . '/api/3/lists',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -114,7 +181,6 @@ class Quiz extends Model implements TranslatableContract {
       $response = curl_exec($curl);
       curl_close($curl);
       return json_decode($response);
-
     }
     return false;
   }
@@ -127,7 +193,7 @@ class Quiz extends Model implements TranslatableContract {
       $curl = curl_init();
 
       curl_setopt_array($curl, array(
-        CURLOPT_URL => $integ->url . '/api/3/fields',
+        CURLOPT_URL => $integ->value . '/api/3/fields',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -143,13 +209,14 @@ class Quiz extends Model implements TranslatableContract {
       $response = curl_exec($curl);
       curl_close($curl);
       $fields = json_decode($response);
-      $fields_ids = array_column(array_filter($fields->fieldRels, function ($field) use ($list_id) {
-        if ($field->relid == $list_id) {
-          return true;
-        }
-      }), 'field');
 
-      if (count($fields->fields) > 0) {
+      if (!empty($fields) && $fields != null && $fields->fields != null && count($fields->fields) > 0) {
+        $fields_ids = array_column(array_filter($fields->fieldRels, function ($field) use ($list_id) {
+          if ($field->relid == $list_id) {
+            return true;
+          }
+        }), 'field');
+
         $custom_fields = array_filter($fields->fields, function ($field) use ($fields_ids) {
           if (in_array($field->id, $fields_ids)) {
             return true;
@@ -157,36 +224,57 @@ class Quiz extends Model implements TranslatableContract {
         });
 
         return [
-          (Object) [
+          (object) [
             'id' => "Email",
             "type" => 'email',
             "title" => 'Email',
           ],
-          (Object) [
+          (object) [
             'id' => "First-Name",
             "type" => 'text',
             "title" => 'First Name',
           ],
-          (Object) [
+          (object) [
             'id' => "Last-Name",
             "type" => 'text',
             "title" => 'Last Name',
           ],
-          (Object) [
+          (object) [
             'id' => "Phone",
             "type" => 'text',
             "title" => 'Phone',
           ],
           ...$custom_fields
         ];
-
+      } else {
+        return [
+          (object) [
+            'id' => "Email",
+            "type" => 'email',
+            "title" => 'Email',
+          ],
+          (object) [
+            'id' => "First-Name",
+            "type" => 'text',
+            "title" => 'First Name',
+          ],
+          (object) [
+            'id' => "Last-Name",
+            "type" => 'text',
+            "title" => 'Last Name',
+          ],
+          (object) [
+            'id' => "Phone",
+            "type" => 'text',
+            "title" => 'Phone',
+          ],
+        ];
       }
-
     }
     return false;
   }
 
-  public function integration_ac_get_field_options($is_email=false) {
+  public function integration_ac_get_field_options($is_email = false) {
     if ($is_email) {
       $ac_values = DB::select("
         SELECT F.id AS ac_value_id, FT.label AS ac_value_title, 3 AS ac_value_type
@@ -196,7 +284,7 @@ class Quiz extends Model implements TranslatableContract {
         WHERE F.type = 3 AND Q.type = 3 AND Q.quiz_id = $this->id AND FT.locale = 'en' AND FT.label IS NOT NULL AND FT.label != ''
       ");
       return $ac_values;
-    }else {
+    } else {
 
       $ac_values = DB::select("
         SELECT *
@@ -217,69 +305,456 @@ class Quiz extends Model implements TranslatableContract {
         WHERE Q.quiz_id = $this->id AND FT.locale = 'en' AND FT.label IS NOT NULL AND FT.label != '') x
       ");
 
-      array_push($ac_values, (Object) [
-        'ac_value_id' => 'result',
-        'ac_value_title' => 'result',
-        'ac_value_type' => 2
-      ]);
+      // array_push($ac_values, (Object) [
+      //   'ac_value_id' => 'result',
+      //   'ac_value_title' => 'result',
+      //   'ac_value_type' => 2
+      // ]);
 
-      array_push($ac_values, (Object) [
+      array_push($ac_values, (object) [
         'ac_value_id' => 'date',
         'ac_value_title' => 'date',
         'ac_value_type' => 4
       ]);
 
       return $ac_values;
-
     }
     return false;
   }
 
-  // public function integration_ac_get_field_values() {
-  //   $ac_values = DB::select(
-  //     "SELECT *
-  //       FROM (SELECT QU.id AS ac_value_id, QUT.name AS ac_value_title, 0 AS ac_value_type
-  //         FROM quizzes AS QU
-  //         INNER JOIN quiz_translations AS QUT ON QUT.quiz_id = QU.id
-  //         WHERE QU.id = $this->id AND QUT.locale = 'en' AND QUT.name IS NOT NULL AND QUT.name != ''
-  //       UNION
-  //         SELECT Q.id AS ac_value_id, QT.title AS ac_value_title, 1 AS ac_value_type
-  //         FROM questions AS Q
-  //         INNER JOIN question_translations AS QT ON QT.question_id = Q.id
-  //         WHERE Q.quiz_id = $this->id AND QT.locale = 'en' AND Q.type IN (1, 2) AND QT.title IS NOT NULL AND QT.title != ''
-  //       UNION
-  //         SELECT F.id AS ac_value_id, FT.label AS ac_value_title, 3 AS ac_value_type
-  //         FROM fields AS F
-  //         INNER JOIN field_translations AS FT ON FT.field_id = F.id
-  //         INNER JOIN questions AS Q ON Q.id = F.question_id
-  //       WHERE Q.quiz_id = $this->id AND FT.locale = 'en' AND FT.label IS NOT NULL AND FT.label != '') x"
-  //   );
+  public function integration_ac_get_tagable_answers() {
 
-  //   array_push($ac_values, (Object) [
-  //     'ac_value_id' => 'result',
-  //     'ac_value_title' => 'result',
-  //     'ac_value_type' => 2
-  //   ]);
+    $questions = $this->questions()
+      ->leftJoin("question_translations", "question_translations.question_id", "=", "questions.id")
+      ->with("answers")
+      ->with("answers.translations")
+      ->with("answers.acanswer")
+      ->select("questions.id", "question_translations.title")
+      ->get();
+    // foreach ($questions as $question) {
+    //   $question->answers;
+    // }
+    return $questions;
+  }
 
-  //   array_push($ac_values, (Object) [
-  //     'ac_value_id' => 'date',
-  //     'ac_value_title' => 'date',
-  //     'ac_value_type' => 4
-  //   ]);
+  public function integration_ac_get_tags() {
+    $integ = $this->website->get_integration('activeCompaign');
 
-  //   return $ac_values ?? false;
+    if ($integ != null) {
 
-  // }
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => $integ->value . '/api/3/tags',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+          'Api-Token: ' . $integ->key,
+        ),
+      ));
+      $response = curl_exec($curl);
+      $response = json_decode($response);
+      curl_close($curl);
+      if ($response != null && $response->tags != null) {
+        return $response->tags;
+      }
+      return $response;
+    }
+    return false;
+  }
+
+  /* Get Response Methods */
+  public function integration_gr() {
+    return $this->hasMany(Gr::class);
+  }
+
+  public function integration_gr_get_lists() {
+    $integ = $this->website->get_integration('getResponse');
+
+    if ($integ != null) {
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.getresponse.com/v3/campaigns',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+          'X-Auth-Token: api-key ' . $integ->key,
+        ),
+      ));
+
+      $response = curl_exec($curl);
+      curl_close($curl);
+      $response = $this->isJson($response) ? json_decode($response) : null;
+      return !empty($response) ? $response : null;
+    }
+    return false;
+  }
+
+  private function isJson($string) {
+    json_decode($string);
+    return json_last_error() === JSON_ERROR_NONE;
+  }
+
+  public function integration_gr_get_list_fields() {
+    $integ = $this->website->get_integration('getResponse');
+
+    if ($integ != null) {
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.getresponse.com/v3/custom-fields',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+          'X-Auth-Token: api-key ' . $integ->key,
+        ),
+      ));
+
+      $response = curl_exec($curl);
+      $response = $this->isJson($response) ? json_decode($response) : null;
+
+      curl_close($curl);
+
+      if (!empty($response) && isset($response->httpStatus) && $response->httpStatus == 200) {
+        $custom_fields =  json_decode($response);
+        dd($custom_fields);
+        return [
+          (object) [
+            'customFieldId' => "Email",
+            "type" => 'email',
+            "name" => 'Email',
+          ],
+          (object) [
+            'customFieldId' => "Name",
+            "type" => 'text',
+            "name" => 'Name',
+          ],
+          ...$custom_fields
+        ];
+      } else {
+        return [
+          (object) [
+            'customFieldId' => "Email",
+            "type" => 'email',
+            "name" => 'Email',
+          ],
+          (object) [
+            'customFieldId' => "Name",
+            "type" => 'text',
+            "name" => 'Name',
+          ]
+        ];
+      }
+    }
+    return false;
+  }
+
+  public function integration_gr_get_field_options($is_email = false) {
+
+    $ac_values = DB::select("
+      SELECT *
+      FROM (SELECT QU.id AS gr_value_id, QUT.name AS gr_value_title, 0 AS gr_value_type
+        FROM quizzes AS QU
+        INNER JOIN quiz_translations AS QUT ON QUT.quiz_id = QU.id
+        WHERE QU.id = $this->id AND QUT.locale = 'en' AND QUT.name IS NOT NULL AND QUT.name != ''
+      UNION
+        SELECT Q.id AS gr_value_id, QT.title AS gr_value_title, 1 AS gr_value_type
+        FROM questions AS Q
+        INNER JOIN question_translations AS QT ON QT.question_id = Q.id
+        WHERE Q.quiz_id = $this->id AND QT.locale = 'en' AND Q.type IN (1, 2) AND QT.title IS NOT NULL AND QT.title != ''
+      UNION
+        SELECT F.id AS gr_value_id, FT.label AS gr_value_title, 3 AS gr_value_type
+        FROM fields AS F
+        INNER JOIN field_translations AS FT ON FT.field_id = F.id
+        INNER JOIN questions AS Q ON Q.id = F.question_id
+      WHERE Q.quiz_id = $this->id AND FT.locale = 'en' AND FT.label IS NOT NULL AND FT.label != '') x
+    ");
+
+    // array_push($ac_values, (Object) [
+    //   'gr_value_id' => 'result',
+    //   'gr_value_title' => 'result',
+    //   'gr_value_type' => 2
+    // ]);
+
+    array_push($ac_values, (object) [
+      'gr_value_id' => 'date',
+      'gr_value_title' => 'date',
+      'gr_value_type' => 4
+    ]);
+
+    return $ac_values;
+  }
+
+  public function integration_gr_get_tags() {
+    $integ = $this->website->get_integration('getResponse');
+
+    if ($integ != null) {
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.getresponse.com/v3/tags',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+          'X-Auth-Token: api-key ' . $integ->key,
+        ),
+      ));
+      $response = curl_exec($curl);
+      $response = json_decode($response);
+      curl_close($curl);
+      if ($response != null && is_array($response) && count($response) > 0) {
+        return $response;
+      }
+    }
+    return false;
+  }
+
+  public function integration_gr_get_tagable_answers() {
+
+    $questions = $this->questions()
+      ->leftJoin("question_translations", "question_translations.question_id", "=", "questions.id")
+      ->with("answers")
+      ->with("answers.translations")
+      ->with("answers.granswer")
+      ->select("questions.id", "question_translations.title")
+      ->get();
+    // foreach ($questions as $question) {
+    //   $question->answers;
+    // }
+    return $questions;
+  }
+
+  /* Convert Kit Methods */
+  public function integration_ck() {
+    return $this->hasMany(Ck::class);
+  }
+
+  public function integration_ck_get_lists() {
+    $integ = $this->website->get_integration('convertKit');
+
+    if ($integ != null) {
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.convertkit.com/v3/sequences?api_key=' . $integ->value,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+      ));
+
+      $response = curl_exec($curl);
+
+      curl_close($curl);
+      return json_decode($response);
+    }
+    return false;
+  }
+
+  public function integration_ck_get_list_fields() {
+    $integ = $this->website->get_integration('convertKit');
+
+    if ($integ != null) {
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.convertkit.com/v3/custom_fields?api_key=up7ra-PlPxFJNtbiWs-5yw',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+      ));
+
+      $response = curl_exec($curl);
+      curl_close($curl);
+      $fields = json_decode($response);
+
+      if (!empty($fields) && $fields != null && $fields->custom_fields != null && count($fields->custom_fields) > 0) {
+
+        $custom_fields = $fields->custom_fields;
+
+        return [
+          (object) [
+            'id' => "Email",
+            "type" => 'email',
+            "label" => 'Email',
+          ],
+          (object) [
+            'id' => "First-Name",
+            "type" => 'text',
+            "label" => 'First Name',
+          ],
+          ...$custom_fields
+        ];
+      } else {
+        return [
+          (object) [
+            'id' => "Email",
+            "type" => 'email',
+            "label" => 'Email',
+          ],
+          (object) [
+            'id' => "First-Name",
+            "type" => 'text',
+            "label" => 'First Name',
+          ]
+        ];
+      }
+    }
+    return false;
+  }
+
+  public function integration_ck_get_field_options() {
+
+    $ck_values = DB::select("
+      SELECT *
+      FROM (SELECT QU.id AS ck_value_id, QUT.name AS ck_value_title, 0 AS ck_value_type
+        FROM quizzes AS QU
+        INNER JOIN quiz_translations AS QUT ON QUT.quiz_id = QU.id
+        WHERE QU.id = $this->id AND QUT.locale = 'en' AND QUT.name IS NOT NULL AND QUT.name != ''
+      UNION
+        SELECT Q.id AS ck_value_id, QT.title AS ck_value_title, 1 AS ck_value_type
+        FROM questions AS Q
+        INNER JOIN question_translations AS QT ON QT.question_id = Q.id
+        WHERE Q.quiz_id = $this->id AND QT.locale = 'en' AND Q.type IN (1, 2) AND QT.title IS NOT NULL AND QT.title != ''
+      UNION
+        SELECT F.id AS ck_value_id, FT.label AS ck_value_title, 3 AS ck_value_type
+        FROM fields AS F
+        INNER JOIN field_translations AS FT ON FT.field_id = F.id
+        INNER JOIN questions AS Q ON Q.id = F.question_id
+      WHERE Q.quiz_id = $this->id AND FT.locale = 'en' AND FT.label IS NOT NULL AND FT.label != '') x
+    ");
+
+    // array_push($ck_values, (Object) [
+    //   'ck_value_id' => 'result',
+    //   'ck_value_title' => 'result',
+    //   'ck_value_type' => 2
+    // ]);
+
+    array_push($ck_values, (object) [
+      'ck_value_id' => 'date',
+      'ck_value_title' => 'date',
+      'ck_value_type' => 4
+    ]);
+
+    return $ck_values;
+  }
+
+  public function integration_ck_get_tagable_answers() {
+
+    $questions = $this->questions()
+      ->leftJoin("question_translations", "question_translations.question_id", "=", "questions.id")
+      ->with("answers")
+      ->with("answers.translations")
+      ->with("answers.ckanswer")
+      ->orderBy("questions.order")
+      ->select("questions.id", "question_translations.title")
+      ->get();
+
+    return $questions;
+  }
+
+  public function integration_ck_get_tags() {
+    $integ = $this->website->get_integration('convertKit');
+
+    if ($integ != null) {
+
+      $curl = curl_init();
+
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.convertkit.com/v3/tags?api_key=' . $integ->value,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+      ));
+
+      $response = curl_exec($curl);
+      $response = json_decode($response);
+
+      curl_close($curl);
+
+      if ($response != null && $response->tags != null) {
+        return $response->tags;
+      }
+      return $response;
+    }
+    return false;
+  }
+
+  /* Google Ads Pixel Methods */
+  public function google_tags() {
+    return $this->hasOne(Quizgoogle::class);
+  }
+
+  public function integration_ga_content_items() {
+
+    $ac_values = DB::select("
+      SELECT *
+      FROM (SELECT Q.id AS ga_id, QT.title AS ga_title, 1 AS ga_type, IG.marketing_tag, IG.conversion_tag
+        FROM questions AS Q
+        INNER JOIN question_translations AS QT ON QT.question_id = Q.id
+        LEFT JOIN itemgoogles AS IG ON IG.item_id = Q.id AND IG.item_type = 1
+        WHERE Q.quiz_id = $this->id AND QT.locale = 'en' AND QT.title IS NOT NULL AND QT.title != ''
+      UNION
+        SELECT R.id AS ga_id, RT.title AS ga_title, 2 AS ga_type, IG.marketing_tag, IG.conversion_tag
+        FROM results AS R
+        INNER JOIN result_translations AS RT ON RT.result_id = R.id
+        LEFT JOIN itemgoogles AS IG ON IG.item_id = R.id AND IG.item_type = 2
+        WHERE R.quiz_id = $this->id AND RT.locale = 'en' AND RT.title IS NOT NULL AND RT.title != '') x
+    ");
+
+    return $ac_values;
+  }
 
   public function owner() {
     return User::join("websites", "websites.user_id", "=", "users.id")
-        ->join("quizzes", "quizzes.website_id", "=", "websites.id")
-        ->select("users.*")
-        ->where("quizzes.id", $this->id)->get()->first();
+      ->join("quizzes", "quizzes.website_id", "=", "websites.id")
+      ->select("users.*")
+      ->where("quizzes.id", $this->id)->get()->first();
+  }
+
+  public function all_items_ids() {
+    $questions = $this->hasMany(Question::class)->select("id")->get()->toArray();
+    $results = $this->hasMany(Result::class)->select("id")->get()->toArray();
+    return array_merge(array_column($questions, "id"), array_column($results, "id"));
   }
 
   public function questions() {
-    return $this->hasMany(Question::class);
+    return $this->hasMany(Question::class)->orderBy("questions.order");
   }
 
   public function questions_with_answers() {
@@ -294,30 +769,35 @@ class Quiz extends Model implements TranslatableContract {
     return $this->hasMany(Submission::class);
   }
 
+  public function nonempty_submissions() {
+    return $this->hasMany(Submission::class)->has("entries", ">", "0");
+  }
+
   public function submissions_leads() {
     return $this->hasMany(Submission::class)
-        ->select("submissions.*", "EF.value")
-        ->leftJoin("questions AS Q", "Q.quiz_id", "=", DB::raw("submissions.quiz_id AND Q.type = 3"))
-        ->leftJoin("fields AS F", "F.question_id", "=", DB::raw("Q.id AND F.is_lead_email = 1 AND F.type = 3"))// type id of email
-        ->leftJoin("entries AS E", "E.submission_id", "=", "submissions.id")
-        ->leftJoin("entry_field AS EF", "EF.field_id", "=", DB::raw("F.id AND EF.entry_id = E.id"))
-        ->groupBy("EF.id")
-        ->orderBy("submissions.created_at", "desc")->toSql();
+      ->select("submissions.*", "EF.value")
+      ->leftJoin("questions AS Q", "Q.quiz_id", "=", DB::raw("submissions.quiz_id AND Q.type = 3"))
+      ->leftJoin("fields AS F", "F.question_id", "=", DB::raw("Q.id AND F.is_lead_email = 1 AND F.type = 3")) // type id of email
+      ->leftJoin("entries AS E", "E.submission_id", "=", "submissions.id")
+      ->leftJoin("entry_field AS EF", "EF.field_id", "=", DB::raw("F.id AND EF.entry_id = E.id"))
+      ->groupBy("EF.id")
+      ->orderBy("submissions.created_at", "desc")->toSql();
   }
 
   public function submissions_is_done() {
-    return $this->hasMany(Submission::class)
-        ->where("is_done", 1);
+    return $this->hasMany(Submission::class)->has("entries", ">", "0")->where("is_done", 1);
   }
 
   public function submissions_count() {
     return $this->hasMany(Submission::class)->count();
   }
 
+  public function nonempty_submissions_count() {
+    return $this->hasMany(Submission::class)->has("entries", ">", "0")->count();
+  }
+
   public function submissions_is_done_count() {
-    return $this->hasMany(Submission::class)
-        ->where("is_done", 1)
-        ->count();
+    return $this->hasMany(Submission::class)->has("entries", ">", "0")->where("is_done", 1)->count();
   }
 
   /*=== Action Methods ===*/
@@ -326,20 +806,28 @@ class Quiz extends Model implements TranslatableContract {
 
     $user = $this->owner();
 
-    if ($user->status == "admin") {return true;}
-    if ($user->status == "inactive") {return false;}
+    if ($user != null) {
+      if ($user->status == "admin") {
+        return true;
+      }
+      if ($user->status == "inactive") {
+        return false;
+      }
 
-    $total_responses = DB::table("submissions AS S")
-    ->selectRaw("COUNT(S.id) AS responses_count")
-    ->join("quizzes AS Q", "Q.id", "=", "S.quiz_id")
-    ->join("websites AS W", "W.id", "=", "Q.website_id")
-    ->join("users AS U", "U.id", "=", "W.user_id")
-    ->where("U.id", $user->id)
-    // ->where("U.id", DB::raw("(select users.id FROM users INNER JOIN websites ON websites.user_id = users.id INNER JOIN quizzes ON quizzes.website_id = websites.id WHERE quizzes.id = " . $this->id . ")"))
-    ->get()->first()->responses_count;
+      $total_responses = DB::table("submissions AS S")
+        ->selectRaw("COUNT(S.id) AS responses_count")
+        ->join("quizzes AS Q", "Q.id", "=", "S.quiz_id")
+        ->join("websites AS W", "W.id", "=", "Q.website_id")
+        ->join("users AS U", "U.id", "=", "W.user_id")
+        ->where("U.id", $user->id)
+        // ->where("U.id", DB::raw("(select users.id FROM users INNER JOIN websites ON websites.user_id = users.id INNER JOIN quizzes ON quizzes.website_id = websites.id WHERE quizzes.id = " . $this->id . ")"))
+        ->get()->first()->responses_count;
 
-    $packages = config("pricing.PRICING_PACKAGES");
-    return $total_responses < $packages[User::Levels_Packages[$user->status]]["RESPONSES"];
+      $packages = config("pricing.PRICING_PACKAGES");
+      return $total_responses < $packages[User::Levels_Packages[$user->status]]["RESPONSES"];
+    } else {
+      return false;
+    }
   }
 
   public function add_view() {
@@ -359,26 +847,26 @@ class Quiz extends Model implements TranslatableContract {
 
   public function ar_questions() {
     return $this->hasMany(Question::class)
-        ->join('question_translations', 'question_translations.question_id', '=', 'questions.id')
-        ->select('questions.*', 'question_translations.locale AS locale', 'question_translations.title AS ar_title', 'question_translations.description AS ar_description')
-        ->where('locale', 'ar')
-        ->orderBy('order')->get();
+      ->join('question_translations', 'question_translations.question_id', '=', 'questions.id')
+      ->select('questions.*', 'question_translations.locale AS locale', 'question_translations.title AS ar_title', 'question_translations.description AS ar_description')
+      ->where('locale', 'ar')
+      ->orderBy('order')->get();
   }
 
   public function en_questions() {
     return $this->hasMany(Question::class)
-        ->join('question_translations', 'question_translations.question_id', '=', 'questions.id')
-        ->select('questions.*', 'question_translations.locale AS locale', 'question_translations.title AS en_title', 'question_translations.description AS en_description')
-        ->where('locale', 'en')
-        ->orderBy('order')->get();
+      ->join('question_translations', 'question_translations.question_id', '=', 'questions.id')
+      ->select('questions.*', 'question_translations.locale AS locale', 'question_translations.title AS en_title', 'question_translations.description AS en_description')
+      ->where('locale', 'en')
+      ->orderBy('order')->get();
   }
 
   public function langs_questions() {
     return $this->hasMany(Question::class)
-        ->join('question_translations AS en', 'en.question_id', '=', DB::Raw('questions.id AND en.locale = "en"'))
-        ->leftJoin('question_translations AS ar', 'ar.question_id', '=', DB::Raw('questions.id AND ar.locale = "ar"'))
-        ->select('questions.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
-        ->orderBy('order')->get();
+      ->join('question_translations AS en', 'en.question_id', '=', DB::Raw('questions.id AND en.locale = "en"'))
+      ->leftJoin('question_translations AS ar', 'ar.question_id', '=', DB::Raw('questions.id AND ar.locale = "ar"'))
+      ->select('questions.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
+      ->orderBy('order')->get();
   }
 
   /*========== Results Methods ==========*/
@@ -390,74 +878,74 @@ class Quiz extends Model implements TranslatableContract {
 
   public function ar_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
-        ->select('results.*', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
-        ->get();
+      ->join('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
+      ->select('results.*', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
+      ->get();
   }
 
   public function en_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
-        ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label')
-        ->get();
+      ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
+      ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label')
+      ->get();
   }
 
   public function langs_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
-        ->leftJoin('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
-        ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'en.score_message AS en_score_message', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label', 'ar.score_message AS ar_score_message')
-        ->get();
+      ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
+      ->leftJoin('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
+      ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'en.score_message AS en_score_message', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label', 'ar.score_message AS ar_score_message')
+      ->get();
   }
 
   public function ar_score_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
-        ->select('results.*', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label', 'ar.score_message AS ar_score_message')
-        ->whereNotNull('min_score')
-        ->whereNotNull('max_score')
-        ->get();
+      ->join('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
+      ->select('results.*', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label', 'ar.score_message AS ar_score_message')
+      ->whereNotNull('min_score')
+      ->whereNotNull('max_score')
+      ->get();
   }
 
   public function en_score_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
-        ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'en.score_message AS en_score_message')
-        ->whereNotNull('min_score')
-        ->whereNotNull('max_score')
-        ->get();
+      ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
+      ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'en.score_message AS en_score_message')
+      ->whereNotNull('min_score')
+      ->whereNotNull('max_score')
+      ->get();
   }
 
   public function langs_score_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
-        ->leftJoin('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
-        ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'en.score_message AS en_score_message', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label', 'ar.score_message AS ar_score_message')
-        ->whereNotNull('min_score')
-        ->whereNotNull('max_score')
-        ->get();
+      ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
+      ->leftJoin('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
+      ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'en.score_message AS en_score_message', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label', 'ar.score_message AS ar_score_message')
+      ->whereNotNull('min_score')
+      ->whereNotNull('max_score')
+      ->get();
   }
 
   public function ar_outcome_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
-        ->select('results.*', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
-        ->get();
+      ->join('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
+      ->select('results.*', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
+      ->get();
   }
 
   public function en_outcome_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
-        ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label')
-        ->get();
+      ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
+      ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label')
+      ->get();
   }
 
   public function langs_outcome_results() {
     return $this->hasMany(Result::class)
-        ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
-        ->leftJoin('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
-        ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
-        ->get();
+      ->join('result_translations AS en', 'en.result_id', '=', DB::Raw('results.id AND en.locale = "en"'))
+      ->leftJoin('result_translations AS ar', 'ar.result_id', '=', DB::Raw('results.id AND ar.locale = "ar"'))
+      ->select('results.*', 'en.title AS en_title', 'en.description AS en_description', 'en.button_label AS en_button_label', 'ar.title AS ar_title', 'ar.description AS ar_description', 'ar.button_label AS ar_button_label')
+      ->get();
   }
 
   public static function get_type_id($type) {
@@ -537,4 +1025,18 @@ class Quiz extends Model implements TranslatableContract {
     ];
   }
 
+  public function itemgoogles() {
+    return DB::select("
+      SELECT *
+      FROM (SELECT IG.*
+        FROM questions AS Q
+        INNER JOIN itemgoogles AS IG ON IG.item_id = Q.id AND IG.item_type = 1
+        WHERE Q.quiz_id = $this->id AND ((IG.marketing_tag IS NOT NULL AND IG.marketing_tag != '') OR (IG.conversion_tag IS NOT NULL AND IG.conversion_tag != ''))
+      UNION
+        SELECT IG.*
+        FROM results AS R
+        INNER JOIN itemgoogles AS IG ON IG.item_id = R.id AND IG.item_type = 2
+        WHERE R.quiz_id = $this->id AND ((IG.marketing_tag IS NOT NULL AND IG.marketing_tag != '') OR (IG.conversion_tag IS NOT NULL AND IG.conversion_tag != ''))) x
+    ");
+  }
 }

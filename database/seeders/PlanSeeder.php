@@ -13,33 +13,67 @@ class PlanSeeder extends Seeder {
     $plans = [
       [
         'id' => 1,
-        'name' => 'Basic',
-        'slug' => 'basic',
-        'stripe_plan' => 'price_1NnklHF3E3HoHaeo8svzG9nJ',
-        'paypal_plan' => 'P-2W419892AD2451641MT6CNCA',
-        'price' => 37,
+        'name' => 'Musaad Growing',
+        'slug' => 'musaadgrowing',
+        // 'stripe_plan' => 'price_1NnklHF3E3HoHaeo8svzG9nJ',// testing S
+        'stripe_plan' => 'price_1OGPvTCD6W8jDb40wG9Mde9K',
+        'paypal_plan' => '',
+        'price' => 35,
         'best_seller' => false,
-        'description' => 'Basic Package'
+        'description' => 'Musaad Growing Package'
       ],
       [
         'id' => 2,
-        'name' => 'Pro',
-        'slug' => 'pro',
+        'name' => 'Musaad Advance',
+        'slug' => 'musaadadvance',
         'stripe_plan' => 'price_1NnklkF3E3HoHaeo40dDw7eW',
         'paypal_plan' => 'P-8H312152E29145839MT6COVA',
-        'price' => 74,
+        'price' => 70,
         'best_seller' => false,
-        'description' => 'Pro Package'
+        'description' => 'Musaad Advance Package'
       ],
       [
         'id' => 3,
         'name' => 'Premium',
         'slug' => 'premium',
-        'stripe_plan' => 'price_1NnkmDF3E3HoHaeoZyVzTrdx',
+        // 'stripe_plan' => 'price_1OGPvjCD6W8jDb40K82egWfe',// testing S
+        'stripe_plan' => 'price_1OGQ0dCD6W8jDb40TBqw9r48',
         'paypal_plan' => 'P-4GM66517EL458761VMT6CPCY',
         'price' => 186,
         'best_seller' => true,
         'description' => 'Premium Package'
+      ],
+      [
+        'id' => 4,
+        'name' => 'Musaad Growing',
+        'slug' => 'musaadgrowing',
+        // 'stripe_plan' => 'price_1NnklHF3E3HoHaeo8svzG9nJ',// testing S
+        'stripe_plan' => 'price_1OGPcwCD6W8jDb40NeuHfffX',
+        'price' => 294,
+        'best_seller' => false,
+        'description' => 'Musaad Growing Package'
+      ],
+      [
+        'id' => 5,
+        'name' => 'Musaad Advance',
+        'slug' => 'musaadadvance',
+        // 'stripe_plan' => 'price_1NnklkF3E3HoHaeo40dDw7eW',// testing S
+        'stripe_plan' => 'price_1NnklkF3E3HoHaeo40dDw7eW',
+        'paypal_plan' => 'P-8H312152E29145839MT6COVA',
+        'price' => 588,
+        'best_seller' => false,
+        'description' => 'Musaad Advance Package'
+      ],
+      [
+        'id' => 6,
+        'name' => 'Musaad Success',
+        'slug' => 'musaadsuccess',
+        // 'stripe_plan' => 'price_1NnkmDF3E3HoHaeoZyVzTrdx',// testing S
+        'stripe_plan' => 'price_1NnkmDF3E3HoHaeoZyVzTrdx',
+        'paypal_plan' => 'P-4GM66517EL458761VMT6CPCY',
+        'price' => 1260,
+        'best_seller' => true,
+        'description' => 'Musaad Success Package'
       ]
     ];
 

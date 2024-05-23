@@ -2,26 +2,26 @@
   <div class="container">
     <ul class="navbar-nav m-auto">
       <li class="nav-item {{ (\Request::route()->getName() == 'build_quiz') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("build_quiz", compact("quiz")) }}">Build</a>
+        <a class="nav-link" href="{{ route("build_quiz", compact("quiz")) }}">{{ __('Build') }}</a>
       </li>
       <li class="nav-item {{ (\Request::route()->getName() == 'design_quiz') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("design_quiz", compact("quiz")) }}">Design</a>
+        <a class="nav-link" href="{{ route("design_quiz", compact("quiz")) }}">{{ __('Design') }}</a>
       </li>
       <li class="nav-item {{ (\Request::route()->getName() == 'config_quiz') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("config_quiz", compact("quiz")) }}">Configure</a>
+        <a class="nav-link" href="{{ route("config_quiz", compact("quiz")) }}">{{ __('Configure') }}</a>
       </li>
       <li class="nav-item {{ (\Request::route()->getName() == 'sharing_quiz') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("sharing_quiz", compact("quiz")) }}">Sharing</a>
+        <a class="nav-link" href="{{ route("sharing_quiz", compact("quiz")) }}">{{ __('Sharing') }}</a>
       </li>
       <li class="nav-item {{ (\Request::route()->getName() == 'report_quiz') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("report_quiz", compact("quiz")) }}">Reports</a>
+        <a class="nav-link" href="{{ route("report_quiz", compact("quiz")) }}">{{ __('Reports') }}</a>
       </li>
     </ul>
 
     @if ($quiz->status == 0)
-      <button onclick="publish()" id="publish-btn" class="btn btn-sm btn-success">publish</button>
+      <button onclick="publish()" id="publish-btn" class="btn btn-sm btn-success">{{ __('publish') }}</button>
     @else
-      <button onclick="unpublish()" id="publish-btn" class="btn btn-sm btn-secondary">unpublish</button>
+      <button onclick="unpublish()" id="publish-btn" class="btn btn-sm btn-secondary">{{ __('unpublish') }}</button>
     @endif
 
   </div>
@@ -47,7 +47,7 @@
           }, 1500);
         })
         $("#publish-btn").addClass("btn-secondary").removeClass("btn-success");
-        $("#publish-btn").text("unpublish");
+        $("#publish-btn").text("{{ __('unpublish') }}");
         $("#publish-btn").attr("onclick", "unpublish()");
       },
       error: err => console.log(err),
@@ -72,7 +72,7 @@
           }, 1500);
         })
         $("#publish-btn").addClass("btn-success").removeClass("btn-secondary");
-        $("#publish-btn").text("publish");
+        $("#publish-btn").text("{{ __('publish') }}");
         $("#publish-btn").attr("onclick", "publish()");
       },
       error: err => console.log(err),

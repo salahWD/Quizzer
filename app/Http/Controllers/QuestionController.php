@@ -60,10 +60,10 @@ class QuestionController extends Controller {
             "image"           => "nullable|exclude_if:media_type,video|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "nullable|max:400",
-            "en_button_label"    => "required|string|max:20",
+            "en_button_label"    => "required|string|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|string|max:20",
+            "ar_button_label"    => "sometimes|string|max:120",
             "is_skippable"    => "required|in:true,false",
             "show_policy"     => "required|in:true,false",
             "order"           => "required|integer|min:1",
@@ -77,10 +77,10 @@ class QuestionController extends Controller {
           $validate_ruls = [
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|nullable|max:20",
+            "ar_button_label"    => "sometimes|nullable|max:120",
             "order"           => "required|integer|min:1",
           ];
         }elseif (request("type_id") == 5) {
@@ -90,10 +90,10 @@ class QuestionController extends Controller {
             "image"           => "required_if:media_type,image|exclude_if:media_type,video|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|nullable|max:20",
+            "ar_button_label"    => "sometimes|nullable|max:120",
             "order"           => "required|integer|min:1",
           ];
         }
@@ -120,7 +120,7 @@ class QuestionController extends Controller {
             "order" => request("order"),
           ];
 
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $questionInfo["ar"] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -138,7 +138,7 @@ class QuestionController extends Controller {
                 "score" => $answer["score"],
                 "order" => $answer["order"]
               ];
-              if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+              if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                 $answerInfo['ar'] = ['text' => $answer["ar_text"]];
               }
               Answer::create($answerInfo);
@@ -171,17 +171,17 @@ class QuestionController extends Controller {
             "quiz_id" => $quiz->id,
             "type" => request("type_id"),
             "en" => [
-              "title" => $request["en_question_title"],
-              "description" => $request["en_question_desc"],
-              "button_label" => $request["en_button_label"],
+              "title" => request("en_question_title"),
+              "description" => request("en_question_desc"),
+              "button_label" => request("en_button_label"),
             ],
             "is_required" => request("is_required") == "true" ? 1 : 0,
-            "is_skippable" => $request["is_skippable"] == "true" ? 1 : 0,
-            "show_policy" => $request["show_policy"] == "true" ? 1 : 0,
-            "order" => $request["order"],
+            "is_skippable" => request("is_skippable") == "true" ? 1 : 0,
+            "show_policy" => request("show_policy") == "true" ? 1 : 0,
+            "order" => request("order"),
           ];
 
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $questino_info["ar"] = [
               "title" => null !== request("ar_question_title") && !empty(request("ar_question_title")) ? request("ar_question_title") : "",
               "description" => null !== request("ar_question_desc") && !empty(request("ar_question_desc")) ? request("ar_question_desc") : "",
@@ -212,7 +212,7 @@ class QuestionController extends Controller {
 
             if (in_array($field["type"], [1, 2, 3, 4, 5, 6, 8, 11, 12])) {
               $field_obj["en"]["placeholder"] = $field["placeholder"];
-              if (!empty($field["ar_label"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+              if (!empty($field["ar_label"]) && auth()->user()->can_translate()) {
                 $field_obj["ar"]["label"] = $field["ar_label"];
                 $field_obj["ar"]["placeholder"] = $field["ar_placeholder"];
               }
@@ -254,7 +254,7 @@ class QuestionController extends Controller {
             ],
             "order" => request("order"),
           ];
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $questino_info["ar"] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -275,7 +275,7 @@ class QuestionController extends Controller {
             ],
             "order" => request("order"),
           ];
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $questino_info["ar"] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -316,12 +316,12 @@ class QuestionController extends Controller {
             "media_type"      => "required|in:image,video",
             "video"           => "nullable|exclude_if:media_type,image|url",
             "image"           => "nullable|exclude_if:media_type,video|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
-            "en_question_title"  => "nullable|max:200",
+            "en_question_title"  => "required|nullable|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "nullable|string|max:20",
+            "en_button_label"    => "required|string|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|string|max:20",
+            "ar_button_label"    => "sometimes|string|max:120",
             "is_skippable"    => "required|string|in:true,false",
             "show_policy"     => "required|string|in:true,false",
             "order"           => "required|integer|min:1",
@@ -335,10 +335,10 @@ class QuestionController extends Controller {
           $validate_ruls = [
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|nullable|max:20",
+            "ar_button_label"    => "sometimes|nullable|max:120",
             "order"           => "required|integer|min:1",
           ];
         }elseif (request("type_id") == 5) {
@@ -348,10 +348,10 @@ class QuestionController extends Controller {
             "image"           => "required_if:media_type,image|exclude_if:media_type,video|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|nullable|max:20",
+            "ar_button_label"    => "sometimes|nullable|max:120",
             "order"           => "required|integer|min:1",
           ];
         }
@@ -378,7 +378,7 @@ class QuestionController extends Controller {
             "order" => request("order"),
           ];
 
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $question_info['ar'] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -398,7 +398,7 @@ class QuestionController extends Controller {
                 "order" => $answer["order"]
               ];
 
-              if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+              if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                 $answer_info['ar'] = ["text" => $answer["ar_text"] ?? ""];
               }
               Answer::create($answer_info);
@@ -422,7 +422,7 @@ class QuestionController extends Controller {
                 "image" => $unique_name
               ];
 
-              if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+              if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                 $answer_info['ar'] = ["text" => $answer["ar_text"] ?? ""];
               }
               Answer::create($answer_info);
@@ -445,7 +445,7 @@ class QuestionController extends Controller {
             "order" => request("order"),
           ];
 
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $questino_info['ar'] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -476,7 +476,7 @@ class QuestionController extends Controller {
 
             if (in_array($field["type"], [1, 2, 3, 4, 5, 6, 8, 11, 12])) {
               $field_obj["en"]["placeholder"] = $field["placeholder"];
-              if (!empty($field["ar_label"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+              if (!empty($field["ar_label"]) && auth()->user()->can_translate()) {
                 $field_obj["ar"]["label"] = $field["ar_label"];
                 $field_obj["ar"]["placeholder"] = $field["ar_placeholder"];
               }
@@ -519,7 +519,7 @@ class QuestionController extends Controller {
             "order" => request("order"),
           ];
 
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $question_info['ar'] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -542,7 +542,7 @@ class QuestionController extends Controller {
             "order" => $request["order"],
           ];
 
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $questino_info['ar'] = [
               "title" => request("ar_question_title"),
               "description" => request("ar_question_desc"),
@@ -700,10 +700,10 @@ class QuestionController extends Controller {
             "image"           => "nullable|exclude_if:media_type,video|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title" => "required|max:200",
             "en_question_desc"  => "nullable|max:400",
-            "en_button_label"   => "required|string|max:20",
+            "en_button_label"   => "required|string|max:120",
             "ar_question_title" => "sometimes|required|string|max:200",
             "ar_question_desc"  => "sometimes|nullable|max:400",
-            "ar_button_label"   => "sometimes|string|max:20",
+            "ar_button_label"   => "sometimes|string|max:120",
             "is_skippable"    => "required|in:true,false",
             "show_policy"     => "required|in:true,false",
             "fields"            => "required|array|max:16",
@@ -720,10 +720,10 @@ class QuestionController extends Controller {
           $validate_ruls = [
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|string|max:20",
+            "ar_button_label"    => "sometimes|string|max:120",
           ];
         }else if (request("type_id") == 5) {
           $validate_ruls = [
@@ -732,10 +732,10 @@ class QuestionController extends Controller {
             "image"           => "nullable|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "nullable|max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|string|max:20",
+            "ar_button_label"    => "sometimes|string|max:120",
           ];
         }
 
@@ -758,7 +758,7 @@ class QuestionController extends Controller {
           $question->video = request("video");
           $question->translateorNew('en')->title       = request("en_question_title");
           $question->translateorNew('en')->description = request("en_question_desc");
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $question->translateOrNew('ar')->title       = request("ar_question_title");
             $question->translateOrNew('ar')->description = request("ar_question_desc");
           }
@@ -777,7 +777,7 @@ class QuestionController extends Controller {
                       $DBAnswer->delete();
                     }else {
                       $DBAnswer->text = $answer["text"];
-                      if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                      if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                         $DBAnswer->translateOrNew("ar")->text = $answer["ar_text"] ?? "";
                       }
                       $DBAnswer->score = $answer["score"];
@@ -793,7 +793,7 @@ class QuestionController extends Controller {
                   "score" => $answer["score"],
                   "order" => $answer["order"]
                 ];
-                if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                   $createInfo["ar"] = ['text' => $answer["ar_text"] ?? ""];
                 }
                 Answer::create($createInfo);
@@ -873,7 +873,7 @@ class QuestionController extends Controller {
           $question->translateOrNew("en")->title        = $request["en_question_title"];
           $question->translateOrNew("en")->description  = $request["en_question_desc"];
           $question->translateOrNew("en")->button_label = $request["en_button_label"];
-          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && auth()->user()->can_translate()) {
             $question->translateOrNew('ar')->title       = request("ar_question_title");
             $question->translateOrNew('ar')->description = request("ar_question_desc");
             $question->translateOrNew("ar")->button_label = request("ar_button_label");
@@ -903,7 +903,7 @@ class QuestionController extends Controller {
                     $en->placeholder = $field["placeholder"];
                   }
 
-                  if (!empty($field["ar_label"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                  if (!empty($field["ar_label"]) && auth()->user()->can_translate()) {
                     $ar = $value->translateOrNew("ar");
                     $ar->label = $field["ar_label"];
                     if (in_array($value->type, [1, 2, 3, 4, 5, 6, 8, 11, 12])) {
@@ -955,7 +955,7 @@ class QuestionController extends Controller {
 
               if (in_array($field["type"], [1, 2, 3, 4, 5, 6, 8, 11, 12])) {
                 $field_obj["en"]["placeholder"] = $field["placeholder"];
-                if (!empty($field["ar_label"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                if (!empty($field["ar_label"]) && auth()->user()->can_translate()) {
                   $field_obj["ar"]["label"] = $field["ar_label"];
                   $field_obj["ar"]["placeholder"] = $field["ar_placeholder"];
                 }
@@ -997,7 +997,7 @@ class QuestionController extends Controller {
           $question->translateOrNew("en")->title        = request("en_question_title");
           $question->translateOrNew("en")->description  = request("en_question_desc");
           $question->translateOrNew("en")->button_label = request("en_button_label");
-          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && auth()->user()->can_translate()) {
             $question->translateOrNew("ar")->title        = request("ar_question_title");
             $question->translateOrNew("ar")->description  = request("ar_question_desc");
             $question->translateOrNew("ar")->button_label = request("ar_button_label");
@@ -1033,7 +1033,7 @@ class QuestionController extends Controller {
           $question->translateOrNew("en")->title        = request("en_question_title");
           $question->translateOrNew("en")->description  = request("en_question_desc");
           $question->translateOrNew("en")->button_label = request("en_button_label");
-          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && auth()->user()->can_translate()) {
             $question->translateOrNew("ar")->title        = request("ar_question_title");
             $question->translateOrNew("ar")->description  = request("ar_question_desc");
             $question->translateOrNew("ar")->button_label = request("ar_button_label");
@@ -1068,10 +1068,10 @@ class QuestionController extends Controller {
             "image"           => "nullable|exclude_if:media_type,video|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title" => "required|max:200",
             "en_question_desc"  => "nullable|max:400",
-            "en_button_label"   => "required|string|max:20",
+            "en_button_label"   => "required|string|max:120",
             "ar_question_title" => "sometimes|required|string|max:200",
             "ar_question_desc"  => "sometimes|nullable|max:400",
-            "ar_button_label"   => "sometimes|string|max:20",
+            "ar_button_label"   => "sometimes|string|max:120",
             "is_skippable"    => "required|in:true,false",
             "show_policy"     => "required|in:true,false",
             "fields"            => "required|array|max:16",
@@ -1088,10 +1088,10 @@ class QuestionController extends Controller {
           $validate_ruls = [
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|string|max:20",
+            "ar_button_label"    => "sometimes|string|max:120",
           ];
         }else if (request("type_id") == 5) {
           $validate_ruls = [
@@ -1100,10 +1100,10 @@ class QuestionController extends Controller {
             "image"           => "nullable|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte",
             "en_question_title"  => "required|max:200",
             "en_question_desc"   => "nullable|max:400",
-            "en_button_label"    => "required|max:20",
+            "en_button_label"    => "required|max:120",
             "ar_question_title"  => "sometimes|required|string|max:200",
             "ar_question_desc"   => "sometimes|nullable|max:400",
-            "ar_button_label"    => "sometimes|string|max:20",
+            "ar_button_label"    => "sometimes|string|max:120",
           ];
         }
 
@@ -1126,7 +1126,7 @@ class QuestionController extends Controller {
           $question->video = request("video");
           $question->translateOrNew('en')->title = request("en_question_title");
           $question->translateOrNew('en')->description = request("en_question_desc");
-          if (!empty(request("ar_question_title")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && auth()->user()->can_translate()) {
             $question->translateOrNew('ar')->title = request("ar_question_title");
             $question->translateOrNew('ar')->description = request("ar_question_desc");
           }
@@ -1145,7 +1145,7 @@ class QuestionController extends Controller {
                       $DBAnswer->delete();
                     }else {
                       $DBAnswer->translateOrNew("en")->text = $answer["text"];
-                      if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                      if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                         $DBAnswer->translateOrNew("ar")->text = $answer["ar_text"] ?? "";
                       }
                       $DBAnswer->order = $answer["order"];
@@ -1159,7 +1159,7 @@ class QuestionController extends Controller {
                   'en' => ['text' => $answer["text"]],
                   "order" => $answer["order"]
                 ];
-                if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                   $createInfo["ar"] = ['text' => $answer["ar_text"]];
                 }
                 Answer::create($createInfo);
@@ -1180,7 +1180,7 @@ class QuestionController extends Controller {
                       }
                     }else {
                       $DBAnswer->translateOrNew("en")->text = $answer["text"];
-                      if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                      if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                         $DBAnswer->translateOrNew("ar")->text = $answer["ar_text"] ?? "";
                       }
                       $DBAnswer->order = $answer["order"];
@@ -1212,7 +1212,7 @@ class QuestionController extends Controller {
                     "order" => $answer["order"],
                     "image" => $unique_name
                   ];
-                  if (!empty($answer["ar_text"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                  if (!empty($answer["ar_text"]) && auth()->user()->can_translate()) {
                     $createInfo["ar"] = ['text' => $answer["ar_text"]];
                   }
                   Answer::create($createInfo);
@@ -1241,7 +1241,7 @@ class QuestionController extends Controller {
           $question->translateOrNew("en")->title        = $request["en_question_title"];
           $question->translateOrNew("en")->description  = $request["en_question_desc"];
           $question->translateOrNew("en")->button_label = $request["en_button_label"];
-          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && auth()->user()->can_translate()) {
             $question->translateOrNew("ar")->title        = $request["ar_question_title"];
             $question->translateOrNew("ar")->description  = $request["ar_question_desc"];
             $question->translateOrNew("ar")->button_label = $request["ar_button_label"];
@@ -1271,7 +1271,7 @@ class QuestionController extends Controller {
                     $en->placeholder = $field["placeholder"];
                   }
 
-                  if (!empty($field["ar_label"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                  if (!empty($field["ar_label"]) && auth()->user()->can_translate()) {
                     $ar = $value->translateOrNew("ar");
                     $ar->label = $field["ar_label"];
                     if (in_array($value->type, [1, 2, 3, 4, 5, 6, 8, 11, 12])) {
@@ -1323,7 +1323,7 @@ class QuestionController extends Controller {
 
               if (in_array($field["type"], [1, 2, 3, 4, 5, 6, 8, 11, 12])) {
                 $field_obj["en"]["placeholder"] = $field["placeholder"];
-                if (!empty($field["ar_label"]) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+                if (!empty($field["ar_label"]) && auth()->user()->can_translate()) {
                   $field_obj["ar"]["label"] = $field["ar_label"];
                   $field_obj["ar"]["placeholder"] = $field["ar_placeholder"];
                 }
@@ -1365,7 +1365,7 @@ class QuestionController extends Controller {
           $question->translate("en")->title        = request("en_question_title");
           $question->translate("en")->description  = request("en_question_desc");
           $question->translate("en")->button_label = request("en_button_label");
-          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && auth()->user()->can_translate()) {
             $question->translateOrNew("ar")->title        = request("ar_question_title");
             $question->translateOrNew("ar")->description  = request("ar_question_desc");
             $question->translateOrNew("ar")->button_label = request("ar_button_label");
@@ -1401,7 +1401,7 @@ class QuestionController extends Controller {
           $question->translate("en")->title        = $request["en_question_title"];
           $question->translate("en")->description  = $request["en_question_desc"];
           $question->translate("en")->button_label = $request["en_button_label"];
-          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && (auth()->user()->is_admin() || auth()->user()->can_translate())) {
+          if (!empty(request("ar_question_title")) && !empty(request("ar_button_label")) && auth()->user()->can_translate()) {
             $question->translateOrNew("ar")->title        = $request["ar_question_title"];
             $question->translateOrNew("ar")->description  = $request["ar_question_desc"];
             $question->translateOrNew("ar")->button_label = $request["ar_button_label"];
@@ -1421,6 +1421,7 @@ class QuestionController extends Controller {
 
   public function reorder(Quiz $quiz, Request $request) {
 
+    // sleep(5);
     if (auth()->user()->is_admin() || auth()->user()->id == $quiz->website->user->id) {
 
       $validated = $request->validate([
@@ -1567,32 +1568,32 @@ class QuestionController extends Controller {
       ]);
 
       $result = true;
-      foreach ($request["conditions"] as $conditionInfo) {
+
+      foreach ($request["conditions"] as $i => $conditionInfo) {
         if (isset($conditionInfo["delete"]) && $conditionInfo["delete"] == 1) {
           $error = Condition::where('id', $conditionInfo["id"])->delete();
           if ($error == 0) {
             $result = false;
           }
         }else {
-
           if (in_array($question->type, [1, 2])) {
 
             $validated = $request->validate([
-              "conditions.*.question_id"  => "required|integer",
-              "conditions.*.answers"      => "required|array",
-              "conditions.*.answers.*"    => "integer",
-              "conditions.*.is_on"        => "required|string|in:true,false",
-              "conditions.*.any_or"       => "required|boolean|in:0,1",
-              "conditions.*.target_id"    => "required|integer|min:1",
-              "conditions.*.target_type"  => "required|integer|min:1|max:7",
+              "conditions." . $i . ".question_id"  => "required|integer",
+              "conditions." . $i . ".answers"      => "required|array",
+              "conditions." . $i . ".answers.*"    => "integer",
+              "conditions." . $i . ".is_on"        => "required|string|in:true,false",
+              "conditions." . $i . ".any_or"       => "required|boolean|in:0,1",
+              "conditions." . $i . ".target_id"    => "required|integer|min:1",
+              "conditions." . $i . ".target_type"  => "required|integer|min:1|max:7",
             ]);
           }else {
 
             $validated = $request->validate([
-              "conditions.*.question_id"  => "required|integer",
-              "conditions.*.is_on"        => "required|string|in:true,false",
-              "conditions.*.target_id"    => "required|integer|min:1",
-              "conditions.*.target_type"  => "required|integer|min:1|max:7",
+              "conditions." . $i . ".question_id"  => "required|integer",
+              "conditions." . $i . ".is_on"        => "required|string|in:true,false",
+              "conditions." . $i . ".target_id"    => "required|integer|min:1",
+              "conditions." . $i . ".target_type"  => "required|integer|min:1|max:7",
             ]);
           }
 

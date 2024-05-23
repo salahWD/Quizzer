@@ -1,4 +1,4 @@
-@extends('layout.master')
+@extends('layout.app-master')
 
 @section('styles')
   @vite(["resources/sass/reports.css"])
@@ -7,54 +7,53 @@
 @endsection
 
 @section('content')
+@include('admin.reports-header')
   <div class="container">
 
     <section class="content">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-              <div class="inner">
-                <h3>{{ $users }}</h3>
-                <p>Users</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-android-people"></i>
-              </div>
+      <div class="row mt-4">
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h3>{{ $users }}</h3>
+              <p>{{ __('Users') }}</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-android-people"></i>
             </div>
           </div>
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-              <div class="inner">
-                <h3>{{ $quizzes }}</h3>
-                <p>Quizzes</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-clipboard"></i>
-              </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-success">
+            <div class="inner">
+              <h3>{{ $quizzes }}</h3>
+              <p>{{ __('Quizzes') }}</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-clipboard"></i>
             </div>
           </div>
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-              <div class="inner">
-                {{-- <h3>53<sup style="font-size: 20px">%</sup></h3> --}}
-                <h3>{{ $websites }}</h3>
-                <p>Websites</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-android-globe"></i>
-              </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-info">
+            <div class="inner">
+              {{-- <h3>53<sup style="font-size: 20px">%</sup></h3> --}}
+              <h3>{{ $websites_count }}</h3>
+              <p>{{ __('Websites') }}</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-android-globe"></i>
             </div>
           </div>
-          <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-              <div class="inner">
-                <h3>{{ $submissions }}</h3>
-                <p>Total Sobmissions</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-ios-paperplane"></i>
-              </div>
+        </div>
+        <div class="col-lg-3 col-6">
+          <div class="small-box bg-success">
+            <div class="inner">
+              <h3>{{ $submissions }}</h3>
+              <p>{{ __('Total Sobmissions') }}</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-ios-paperplane"></i>
             </div>
           </div>
         </div>
@@ -66,7 +65,8 @@
         <section class="content">
           <div class="card card-danger">
             <div class="card-header bg-white">
-              <h3 class="title">active payments</h3>
+              <h3 class="title">{{ __('payments') }}</h3>
+              <p class="lead" style="font-size: 14px;">{{ __("Beautiful payments are payments that have not yet expired.") }}</p>
             </div>
             <div class="card-body">
               <canvas id="donutChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
@@ -78,7 +78,8 @@
         <section class="content">
           <div class="card card-danger">
             <div class="card-header bg-white">
-              <h3 class="title">active users</h3>
+              <h3 class="title">{{ __('users') }}</h3>
+              <p class="lead" style="font-size: 14px;">{{ __('active users is those who resubscribed after finishing their first subscription') }}</p>
             </div>
             <div class="card-body">
               <canvas id="donutRepaidUsersChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
@@ -88,63 +89,40 @@
       </div>
     </div>
 
-    <br>
-    <br>
-
-    {{--
-    <section class="content">
-      <section class="content">
-        <div class="container-fluid">
-          <h5 class="mb-2">More Info</h5>
-          <div class="row">
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-info">
-                  <i class="far fa-envelope"></i>
-                </span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Messages</span>
-                  <span class="info-box-number">1,410</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-success">
-                  <i class="far fa-flag"></i>
-                </span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Bookmarks</span>
-                  <span class="info-box-number">410</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-warning">
-                  <i class="far fa-copy"></i>
-                </span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Uploads</span>
-                  <span class="info-box-number">13,648</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6 col-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-danger">
-                  <i class="far fa-star"></i>
-                </span>
-                <div class="info-box-content">
-                  <span class="info-box-text">Likes</span>
-                  <span class="info-box-number">93,139</span>
-                </div>
-              </div>
-            </div>
+    <div class="row">
+      <div class="col-12 mt-4">
+        <div class="card">
+          <div class="card-header bg-white">
+            <h3 class="card-title">{{ __("Plans Subscribers") }}</h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  @foreach ($plans as $plan)
+                    <th>{{ __($plan->name) }} <span style="font-size: 12px;font-weight: 500;opacity: 0.8;">({{ $plan->is_yearly == 1 ? __("Yearly") : __("Monthly") }})</span></th>
+                  @endforeach
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  @foreach ($plans as $i => $plan)
+                    <td>
+                      {{ $plan->subs }} {{ __("subscription") }}
+                      <span class="badge @if($i % 2 == 1) bg-info @else bg-success @endif">{{ round(__($plan->subs), 1) }}%</span>
+                    </td>
+                  @endforeach
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </section>
-    </section> --}}
+      </div>
+    </div>
+
+    <br>
+    <br>
 
   </div>
 @endsection
@@ -157,12 +135,13 @@
   <script>
     var donutChartCanvas = $("#donutChart").get(0).getContext("2d");
     var donutData = {
-      labels: ["Active", "Inactive"],
+      labels: ["{{ __('Active') }}", "{{ __('Inactive') }}"],
       datasets: [
         {
           data: JSON.parse('{{ json_encode([$stats["active_payments"], $stats["inactive_payments"]]) }}'),
           backgroundColor: [
             "#00a65a",
+            // "#E6B800",
             "#f56954",
           ],
         },
@@ -183,12 +162,13 @@
 
     var donutRepaidUsersCanvas = $("#donutRepaidUsersChart").get(0).getContext("2d");
     var donutRepaidUsers = {
-      labels: ["Active", "Inactive"],
+      labels: ["{{ __('Active') }}", "{{ __('Trial') }}", "{{ __('Inactive') }}"],
       datasets: [
         {
-          data: JSON.parse('{{ json_encode([$stats["repaid_users"], $stats["paid_users"]]) }}'),
+          data: JSON.parse('{{ json_encode([$stats["active_users"], $stats["trial_users"], $stats["inactive_users"]]) }}'),
           backgroundColor: [
             "#00a65a",
+            "#E6B800",
             "#f56954",
           ],
         },

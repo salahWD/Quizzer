@@ -26,9 +26,9 @@
 
               <div class="col-sm-12">
                 @if(isset($coupon) && $coupon !== null)
-                  <h2>Edit Coupon ({{ $coupon->code }})</h2>
+                  <h2>{{ __('Edit Coupon') }} ({{ $coupon->code }})</h2>
                 @else
-                  <h2>Add Coupon</h2>
+                  <h2>{{ __('Add Coupon') }}</h2>
                 @endif
               </div>
             </div>
@@ -36,12 +36,12 @@
             <div class="row">
               <div class="col-sm-6">
                 <div class="inputBox">
-                  <input type="text" name="code" class="input" placeholder="Coupon Code" value="{{ old("code") ?? $coupon->code ?? "" }}">
+                  <input type="text" name="code" class="input" placeholder="{{ __('Coupon Code') }}" value="{{ old("code") ?? $coupon->code ?? "" }}">
                 </div>
               </div>
               <div class="col-sm-6">
                 <div class="inputBox">
-                  <input type="number" name="amount" class="input" step="0.01" placeholder="Amount" value="{{ old("amount") ?? $coupon->amount ?? "" }}">
+                  <input type="number" name="amount" class="input" step="0.01" placeholder="{{ __('Amount') }}" value="{{ old("amount") ?? $coupon->amount ?? "" }}">
                 </div>
               </div>
             </div>
@@ -49,17 +49,29 @@
             <div class="row">
               <div class="col-sm-6">
                 <div class="inputBox">
-                  <input type="text" id="expire-date" name="expire_date" class="input" placeholder="Expire Date" value="{{ old("expire_date") ?? $coupon->expire_date ?? "" }}">
+                  <input type="text" id="expire-date" name="expire_date" class="input" placeholder="{{ __('Expire Date') }}" value="{{ old("expire_date") ?? $coupon->expire_date ?? "" }}">
                 </div>
               </div>
 
               <div class="col-sm-6">
                 <div class="inputBox">
                   <select name="package_id" class="select">
-                    <option value="">No Specific Package</option>
+                    <option value="">{{ __('No Specific Package') }}</option>
                     @foreach ($packages as $package)
-                      <option value="{{ $package["ID"] }}" {{ old("package_id") == $package["ID"] ? "selected" : (isset($coupon) && null !== $coupon && $coupon->package_id == $package["ID"] ? "selected" : "") }}>{{ $package["NAME"] }}</option>
+                      <option value="{{ $package["ID"] }}" {{ old("package_id") == $package["ID"] ? "selected" : (isset($coupon) && null !== $coupon && $coupon->package_id == $package["ID"] ? "selected" : "") }}>{{ __($package["NAME"]) }} ({{ $package["YEARLY"] == 1 ? __("Yearly"): __("Monthly")  }})</option>
                     @endforeach
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+
+              <div class="col-sm-6">
+                <div class="inputBox">
+                  <select name="type" class="select">
+                    <option value="1" @if(isset($coupon) && null !== $coupon && $coupon->type == 1) selected @endif>{{ __('Fixed') }}</option>
+                    <option value="2" @if(isset($coupon) && null !== $coupon && $coupon->type == 2) selected @endif>{{ __("Percent") }}</option>
                   </select>
                 </div>
               </div>

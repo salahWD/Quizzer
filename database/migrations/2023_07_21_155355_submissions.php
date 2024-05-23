@@ -11,11 +11,13 @@ return new class extends Migration {
       Schema::create('submissions', function (Blueprint $table) {
         $table->id();
         $table->unsignedBigInteger('quiz_id');
+        $table->unsignedBigInteger('result_id');
         // $table->string('code');
         // $table->unique('code');
         $table->boolean('is_done')->default(0);
         $table->timestamps();
         $table->foreign('quiz_id')->references('id')->on('quizzes')->onDelete('cascade');
+        $table->foreign('result_id')->references('id')->on('results')->onDelete('cascade');
       });
     }
 

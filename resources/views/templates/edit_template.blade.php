@@ -1,6 +1,79 @@
-@extends("layout.template-master")
+@extends($quiz->is_template == 1 ? "layout.template-master": "layout.app-quiz-build")
 
-<?php $translation = $quiz->translate(app()->getLocale())?>
+@section('styles')
+
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <!-- Include the Quill library -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+  <style>
+    .custom-select-box {
+      cursor: pointer;
+      align-items: center;
+      display: inline-flex;
+      position: relative;
+      font: normal 16px/22px Arial,Sans-Serif;
+      color: black;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    .custom-select-box .styledSelect {
+      position: relative;
+      width: 100%;
+      margin-right: 20px;
+      background-color:white;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 12px 18px;
+      font-size: 16px;
+    }
+    .custom-select-box .styledSelect:after {
+      content: "";
+      width: 0;
+      height: 0;
+      border: 5px solid transparent;
+      border-color:black transparent transparent transparent;
+      position: absolute;
+      top: 20px;
+      right: 18px;
+    }
+    .custom-select-box .styledSelect:active,
+    .custom-select-box .styledSelect.active {
+      background-color:#eee;
+    }
+    .custom-select-box .options {
+      display: none;
+      position: absolute;
+      top: 0 !important;
+      right: 0 !important;
+      left: 0 !important;
+      z-index: 999;
+      margin: 0 0;
+      flex-direction: column;
+      padding: 0;
+      list-style: none;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color:white;
+      -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .custom-select-box .options li {
+      width: 100%;
+      border-bottom: 1px solid #ddd;
+      padding: 13px 18px;
+      transition: 0.3s;
+    }
+    .custom-select-box .options li:hover {
+      background-color:rgb(241, 241, 241);
+    }
+
+  </style>
+
+@endsection
 
 @section("content")
 
@@ -35,15 +108,17 @@
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Name Your Quiz</h5>
+            <h5 class="modal-title" id="exampleModalLabel">{{ __("Name Your Quiz") }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <label class="mb-1" for="quizTitle">Set quiz name:</label>
-            <input type="text" name="title" value="{{ $quiz->name }}" id="quizTitle" class="form-control" placeholder="Quiz Title">
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="editNameSubmit">Save changes</button>
+            <div class="mb-3">
+              <label class="mb-1" for="quizTitle">{{ __("Set quiz name:") }}</label>
+              <input type="text" name="title" value="{{ $quiz->name }}" id="quizTitle" class="form-control" placeholder="Quiz Title">
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __("Close") }}</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="editNameSubmit">{{ __("Save changes") }}</button>
+              </div>
             </div>
           </div>
         </div>
@@ -52,19 +127,19 @@
 
     <div class="alert alert-warning p-4" style="border-style: dashed" id="introInfo" data-removable="introRemovable">
 
-      <div id="introRemovable" class="{{ null !== $translation->intro_title && !empty($translation->intro_title) && null !== $translation->intro_btn && !empty($translation->intro_btn) ? 'd-none': ''}}">
-        <h4 class="title text-dark">Introduction Info</h4>
-        <p class="desc lead text-dark">fill the fields on the top of the option bar.</p>
+      <div id="introRemovable" class="{{ null !== $quiz->intro_title && !empty($quiz->intro_title) && null !== $quiz->intro_btn && !empty($quiz->intro_btn) ? 'd-none': ''}}">
+        <h4 class="title text-dark">{{ __("Introduction Info") }}</h4>
+        <p class="desc lead text-dark">{{ __("fill the fields on the top of the option bar.") }}</p>
       </div>
 
       <div class="container">
-        <div class="text-center {{ null == $translation->intro_title || empty($translation->intro_title) || null == ($translation->intro_btn) || empty($translation->intro_btn) ? 'd-none': ''}}">
-          <h3 class="text-dark title mb-3" id="introTitle">{{ $translation->intro_title }}</h3>
+        <div class="text-center {{ null == $quiz->intro_title || empty($quiz->intro_title) || null == ($quiz->intro_btn) || empty($quiz->intro_btn) ? 'd-none': ''}}">
+          <h3 class="text-dark title mb-3" id="introTitle">{{ $quiz->intro_title }}</h3>
           <p class="text-dark lead mb-2"
-              id="introDesc">{{ $translation->intro_description }}</p>
+              id="introDesc">{{ $quiz->intro_description }}</p>
           <button type="button"
-              class="btn btn-primary py-2 px-3 mt-4 {{ null == ($translation->intro_btn) || empty($translation->intro_btn) ? 'd-none': ''}}"
-              id="introButton">{{ $translation->intro_btn }}</button>
+              class="btn btn-primary py-2 px-3 mt-4 {{ null == ($quiz->intro_btn) || empty($quiz->intro_btn) ? 'd-none': ''}}"
+              id="introButton">{{ $quiz->intro_btn }}</button>
         </div>
       </div>
 
@@ -85,22 +160,22 @@
 
                 </div>
               </div>
-              <div class="col-8 px-0">
+              <div class="col-8 px-0" style="height: calc(100vh - 192px);overflow-y: auto;">
                 <div class="quiz-preview m-0 p-0">
 
                   <div
                       style="{{ "background-color: $quiz->background_color" }};"
-                      class="quiz-bg-img"
-                      id="quiz-bg-img"></div>
-                  <div
-                      style="{{ $quiz->image ? "background-image: url(" . url("images/uploads/$quiz->image") . ")": "" }};
-                          {{ "opacity: " . $quiz->image_opacity / 100 }};
-                          "
+                      data-bg-color="{{ $quiz->background_color }}"
                       class="quiz-bg-color"
                       id="quiz-bg-color"></div>
                   <div
+                      style="{{ $quiz->image ? "background-image: url(" . url("images/uploads/$quiz->image") . ")": "" }};{{ "opacity: " . $quiz->image_opacity / 100 }};"
+                      class="quiz-bg-img"
+                      id="quiz-bg-img"></div>
+                  <div
                       class="p-0 py-0 quiz-content"
                       style="color: {{ $quiz->main_text_color }}; font-family: {{ $fonts[$quiz->font_family]["name"] }};"
+                      data-main-color="{{ $quiz->main_text_color }}"
                       data-font-family="{{ $fonts[$quiz->font_family]["name"] }}"
                       data-answer-bg-color="{{ $quiz->answer_bg_color }}"
                       data-highlight="{{ $quiz->highlight_color }}"
@@ -116,8 +191,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="closeQuestionModal" data-bs-dismiss="modal">Close</button>
-            <button type="button" id="submit_modal" class="btn btn-primary">Save Question</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __("Close") }}</button>
+            <button type="button" id="submit_modal" class="btn btn-primary">{{ __("Save Question") }}</button>
           </div>
         </div>
       </div>
@@ -134,13 +209,13 @@
           <div class="modal-body p-4">
             <div class="container">
               <div class="mb-3 pt-4">
-                <p class="lead m-0 pb-3 border-bottom">Drag the answer to the result in order to map them.</p>
+                <p class="lead m-0 pb-3 border-bottom">{{ __("Drag the answer to the result in order to map them.") }}</p>
               </div>
               <div class="row m-0">
                 <div class="col-6">
                   <div class="split">
                     <h2 class="title">test</h2>
-                    <p class="lead">Answers:</p>
+                    <p class="lead">{{ __("Answers:") }}</p>
                     <div class="answers" id="mapping-modal-answers">
 
                     </div>
@@ -149,16 +224,9 @@
                 <div class="col-6">
                   <div class="split">
                     <h2 class="title">Results:</h2>
-                    <p class="lead"><span id="results-counter">{{ $results->count() }}</span> results have been created</p>
-                    <div class="results">
-                      @foreach ($results as $result)
-                        <div class="result card p-3 bg-light" style="min-height: 111px" data-id="{{ $result->id }}">
-                          <h3 class="title">{{ $result->getOriginal(app()->getLocale() . "_title") }}</h3>
-                          <p class="lead">Connected Answers:</p>
-                          <div class="connected-answers" id="connected-answers-{{$result->id}}">
-                          </div>
-                        </div>
-                      @endforeach
+                    <p class="lead"><span id="results-counter">{{ $results->count() }}</span> {{ __("results have been created") }}</p>
+                    <div class="results" id="mapping-modal-results">
+
                     </div>
                   </div>
                 </div>
@@ -166,8 +234,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="closeMappingModal" data-bs-dismiss="modal">Close</button>
-            <button type="button" id="submit_mapping_modal" class="btn btn-primary">save</button>
+            <button type="button" class="btn btn-secondary" id="closeMappingModal" data-bs-dismiss="modal">{{ __("Close") }}</button>
+            <button type="button" id="submit_mapping_modal" class="btn btn-primary">{{ __("save") }}</button>
           </div>
         </div>
       </div>
@@ -187,13 +255,13 @@
 
               </div>
               <div class="container">
-                <button id="add-new-condition" class="mt-3 btn py-4 w-100 text-center border border-primary text-primary" style="border-style: dashed;">Add Condition</button>
+                <button id="add-new-condition" class="mt-3 btn py-4 w-100 text-center border border-primary text-primary" style="border-style: dashed;">{{ __("Add Condition") }}</button>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="closeBranchingModal" data-bs-dismiss="modal">Close</button>
-            <button type="button" id="submit_branching_modal" class="btn btn-primary">save</button>
+            <button type="button" class="btn btn-secondary" id="closeBranchingModal" data-bs-dismiss="modal">{{ __("Close") }}</button>
+            <button type="button" id="submit_branching_modal" class="btn btn-primary">{{ __("save") }}</button>
           </div>
         </div>
       </div>
@@ -202,8 +270,8 @@
     <div id="contentItemsContainer" class="alert alert-primary list-group questions mb-3 p-4" style="border-style: dashed" id="contentItemsContainer" data-removable="contentRemovableInfo">
 
       <div id="contentRemovableInfo" {{ !empty($questions) && count($questions) > 0 ? "class=d-none": "" }}>
-        <h4 class="title text-dark">Content Elements</h4>
-        <p class="lead text-dark">Drag & Drop content elements here.</p>
+        <h4 class="title text-dark">{{ __("Content Elements") }}</h4>
+        <p class="lead text-dark">{{ __("Drag & Drop content elements here.") }}</p>
       </div>
 
     </div>
@@ -211,13 +279,10 @@
     <div class="alert alert-danger p-4 results" style="border-style: dashed" id="resultItemsContainer" data-removable="resultRemovableInfo">
 
       <div id="resultRemovableInfo" {{ !empty($results) && count($results) > 0 ? "class=d-none": "" }}>
-        <h4 class="title text-dark">Results Screen</h4>
-        <p class="lead text-dark">Drag & Drop results elements here.</p>
+        <h4 class="title text-dark">{{ __("Results Screen") }}</h4>
+        <p class="lead text-dark">{{ __("Drag & Drop results elements here.") }}</p>
       </div>
-
     </div>
-
-
   </div>{{-- container end --}}
 
 @endsection
@@ -225,40 +290,100 @@
 @section('options')
 
   <div class="quiz-options">
-    @if(Auth::user()->is_sub() || Auth::user()->is_admin())
-      <form action="{{ $formRoute }}" method="POST">
+
+    @if ($errors->any())
+      <div class="alert alert-danger mb-4">
+        @foreach ($errors->all() as $err)
+          <p>{{ $err }}</p>
+        @endforeach
+      </div>
+    @endif
+
+    <ul class="nav nav-tabs w-100" id="quiz-media">
+      <li class="nav-link w-50 text-center option-link @if(filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == FALSE || $quiz->intro_image == null) active @endif" data-option="quiz-image-option">{{ __('Image') }}</li>
+      <li class="nav-link w-50 text-center option-link @if($quiz->intro_image != null && filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == TRUE) active @endif" data-option="quiz-video-option">{{ __('Video') }}</li>
+    </ul>
+    <div class="option-container py-3 px-3 bg-white border border-top-0 @if(filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == FALSE || $quiz->intro_image == null) active @else d-none @endif" id="quiz-image-option">
+      <div id="intro-img-preview" style="width:fit-content" class="img-thumbnail mb-2 @if(empty($quiz->intro_image) || !File::exists(public_path("images/uploads/$quiz->intro_image"))) d-none @endif">
+        <div class="d-none" id="loader">
+          <div class="spinner-border" role="status">
+            <span class="sr-only">{{ __('Loading') }}...</span>
+          </div>
+        </div>
+        <img src="{{ !empty($quiz->intro_image) ? url("images/uploads/$quiz->intro_image") : "" }}" id="intro_image_preview" class="img-fluid" alt="{{ $quiz->intro_title ?? "" }}">
+      </div>
+      <input form="quiz-info" class="d-none" type="file" name="quiz-intro-img" id="quizImageInput" accept=".jpg,.png,.jpeg" data-target="img-preview">
+      <button type="button" class="btn btn-success" onclick="quizImageInput.click()">{{ __('Upload Image') }}</button>
+      <button type="button" id="resetQuizImage" class="btn btn-warning d-none">
+        <i class="fa fa-refresh"></i>
+      </button>
+      <p class="overflow-hidden d-inline mb-0 @if(filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == TRUE || $quiz->intro_image == null) d-none @endif">
+        <span class="mt-2 d-inline-block"></span>
+        <button form="delete_intro_img" type="submit" id="removeQuizImage" class="btn btn-danger">
+          <i class="fa fa-trash"></i>
+        </button>
+        <form id="delete_intro_img" action="{{ route("delete_intro_image", $quiz->id) }}" method="POST">
+          @csrf
+        </form>
+      </p>
+    </div>
+    <div class="option-container py-3 px-3 bg-white border border-top-0 @if($quiz->intro_image != null && filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == TRUE) active @else d-none @endif" id="quiz-video-option">
+      <div class="embed-responsive embed-responsive-16by9 @if($quiz->intro_image == null || !filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == TRUE) d-none @endif">
+        <iframe class="d-block mx-auto my-2 embed-responsive-item" src="@if(filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == TRUE) {{ $quiz->intro_image }} @endif" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+      <label class="form-label" for="quizVideoUrlInput">{{ __('Video URL') }}:</label>
+      <input form="quiz-info" class="form-control" id="quizVideoUrlInput" type="url" name="quiz-intro-url" data-target="img-preview" placeholder="{{ __('Enter A Youtube Video URL') }}" value="@if(filter_var($quiz->intro_image, FILTER_VALIDATE_URL) == TRUE) {{ $quiz->intro_image }} @endif">
+    </div>
+
+    <div class="mb-4"></div>
+
+    @if(auth()->check() && auth()->user()->can_translate())
+      <form action="{{ $formRoute }}" id="quiz-info" method="POST" enctype="multipart/form-data">
         @csrf
 
-        <div class="mb-4">
-          <label for="templateDesc" class="form-label">Set Template description:</label>
-          <textarea
-              required
-              type="text"
-              name="template_desc"
-              id="templateDesc"
-              class="form-control
-              @if (count($errors) > 0)
-                {{ count($errors->get("template_desc")) > 0 ? "is-invalid": "is-valid";}}
-              @endif
-              "
-              value="{{ old("template_desc") ?? $quiz->template_desc ?? "" }}"
-              placeholder="{{ __("Template Description (line or tow)") }}">{{ $quiz->template_desc }}</textarea>
-          @if (count($errors->get("template_desc")) > 0)
-            <div class="invalid-feedback">
-              @foreach ($errors->get("template_desc") as $err)
-                {{ $err }}
+        @if($quiz->is_template == 1)
+
+          <h3 class="title">{{ __('Description Info') }}:</h3>
+          <p class="lead">{{ __('this is the description of the template that will be shown at the templates page') }}.</p>
+          <div class="p-0">
+            <ul class="nav nav-tabs w-100">
+              @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                <li class="nav-link w-50 text-center option-link @if($localeCode == app()->getLocale()) active @endif" data-option="{{$localeCode}}-template-page" id="{{$localeCode}}-template-link">{{ $properties['native'] }}</li>
               @endforeach
-            </div>
-          @endif
-        </div>
-        <hr>
-        <h3 class="title">Introduction Info:</h3>
-        <p class="lead">this information will be shown at the starting page of the quiz.</p>
+            </ul>
+            @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+              <div class="option-container py-3 px-2 bg-white border border-top-0 @if(app()->getLocale() != $localeCode) d-none @endif" id="{{$localeCode}}-template-page">
+                <label for="templateDesc" class="form-label">{{ __('Set Template description') }}:</label>
+                <textarea
+                    required
+                    type="text"
+                    name="{{$localeCode}}_template_desc"
+                    id="templateDesc"
+                    class="form-control
+                    @if (count($errors) > 0)
+                      {{ count($errors->get($localeCode . "_template_desc")) > 0 ? "is-invalid": "is-valid";}}
+                    @endif
+                    "
+                    placeholder="{{ __("Template Description (line or tow)") }}">{{ old($localeCode . "_template_desc") ?? $quiz->translateOrDefault($localeCode)->template_desc ?? "" }}</textarea>
+                @if (count($errors->get($localeCode . "_template_desc")) > 0)
+                  <div class="invalid-feedback">
+                    @foreach ($errors->get($localeCode . "_template_desc") as $err)
+                      {{ $err }}
+                    @endforeach
+                  </div>
+                @endif
+              </div>
+            @endforeach
+          </div>
+          <hr>
+        @endif
+
+        <h3 class="title">{{ __('Introduction Info') }}:</h3>
+        <p class="lead">{{ __('this information will be shown at the starting page of the quiz') }}.</p>
         <div class="p-0">
           <ul class="nav nav-tabs w-100">
             @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-            {{-- {{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }} --}}
-            <li class="nav-link w-50 text-center option-link @if($localeCode == app()->getLocale()) active @endif" data-option="{{$localeCode}}-intro-page" id="{{$localeCode}}-intro-link">{{ $properties['native'] }}</li>
+              <li class="nav-link w-50 text-center option-link @if($localeCode == app()->getLocale()) active @endif" data-option="{{$localeCode}}-intro-page" id="{{$localeCode}}-intro-link">{{ $properties['native'] }}</li>
             @endforeach
           </ul>
           @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
@@ -269,8 +394,8 @@
                     class="form-control @error($localeCode . '_intro_title') is-invalid @enderror"
                     name="{{$localeCode}}_intro_title"
                     id="{{$localeCode}}_titleInput"
-                    value="{{ old($localeCode . '_intro_title') ?? $quiz->translate($localeCode, true)->intro_title }}"
-                    placeholder="Enter A Title">
+                    value="{{ old($localeCode . '_intro_title') ?? $quiz->intro_title }}"
+                    placeholder="{{ __('Enter A Title') }}">
                 @if (count($errors->get($localeCode . "_intro_title")) > 0)
                   <div class="invalid-feedback">
                     @foreach ($errors->get($localeCode . "_intro_title") as $err)
@@ -278,15 +403,15 @@
                     @endforeach
                   </div>
                 @endif
-                <label for="{{$localeCode}}_titleInput">intro title *({{$localeCode}})</label>
+                <label for="{{$localeCode}}_titleInput">{{ __('intro title') }} *({{$localeCode}})</label>
               </div>
               <div class="form-floating mb-3">
                 <textarea
                     class="form-control min-height @error($localeCode . '_intro_description') is-invalid @enderror"
                     name="{{$localeCode}}_intro_description"
                     id="{{$localeCode}}_descInput"
-                    placeholder="Enter a Description"
-                >{{ old($localeCode . '_intro_description') ?? $quiz->translate($localeCode, true)->intro_description }}</textarea>
+                    placeholder="{{ __('Enter a Description') }}"
+                >{{ old($localeCode . '_intro_description') ?? $quiz->intro_description }}</textarea>
                 @if (count($errors->get($localeCode . "_intro_description")) > 0)
                   <div class="invalid-feedback">
                     @foreach ($errors->get($localeCode . "_intro_description") as $err)
@@ -294,7 +419,7 @@
                     @endforeach
                   </div>
                 @endif
-                <label for="{{$localeCode}}_descInput">intro description</label>
+                <label for="{{$localeCode}}_descInput">{{ __('intro description') }}</label>
               </div>
               <div class="form-floating mb-3">
                 <input
@@ -302,8 +427,8 @@
                     class="form-control @error($localeCode . '_intro_btn') is-invalid @enderror"
                     name="{{$localeCode}}_intro_btn"
                     id="{{$localeCode}}_buttonInput"
-                    value="{{ old($localeCode . '_intro_btn') ?? $quiz->translate($localeCode, true)->intro_btn }}"
-                    placeholder="Button Text" />
+                    value="{{ old($localeCode . '_intro_btn') ?? $quiz->intro_btn }}"
+                    placeholder="{{ __('Button Text') }}" />
                 @if (count($errors->get($localeCode . "_intro_btn")) > 0)
                   <div class="invalid-feedback">
                     @foreach ($errors->get($localeCode . "_intro_btn") as $err)
@@ -311,38 +436,39 @@
                     @endforeach
                   </div>
                 @endif
-                <label for="{{$localeCode}}_buttonInput">Button Text *</label>
+                <label for="{{$localeCode}}_buttonInput">{{ __('Button Text') }} *</label>
               </div>
             </div>
           @endforeach
         </div>
 
-        @if ($errors->any())
-          <div class="alert alert-danger">
-            @foreach ($errors->all() as $err)
-              <p>{{ $err }}</p>
-            @endforeach
-          </div>
-        @endif
+        <div class="form-check form-switch mt-2">
+          <input
+              @if($quiz->policy_link != null && $quiz->is_shown_policy == 1) checked @endif
+              @if($quiz->policy_link == null) disabled @endif
+              class="form-check-input" name="show_policy" type="checkbox" id="show-policy-btn">
+          <label class="form-check-label" for="show-policy-btn">{{ __('show privacy & policy') }}</label>
+        </div>
 
         <div class="my-3">
-          <button class="btn btn-success">Submit <i class="fa fa-send"></i></button>
+          <button id="save-quiz" class="btn btn-success">{{ __('Submit') }} <i class="fa fa-send"></i></button>
         </div>
 
       </form>
     @else
-      <form action="{{ $formRoute }}" method="POST">
+      <form action="{{ $formRoute }}" id="quiz-info" method="POST" enctype="multipart/form-data">
         @csrf
-        <h3 class="title">Introduction Info:</h3>
-        <p class="lead">this information will be shown at the starting page of the quiz.</p>
+
+        <h3 class="title">{{ __('Introduction Info') }}:</h3>
+        <p class="lead">{{ __('this information will be shown at the starting page of the quiz') }}.</p>
         <div class="form-floating mb-3">
           <input
               type="text"
               class="form-control @error('en_intro_title') is-invalid @enderror"
               name="en_intro_title"
               id="en_titleInput"
-              value="{{ old('en_intro_title') ?? $translation->intro_title }}"
-              placeholder="Enter A Title">
+              value="{{ old('en_intro_title') ?? $quiz->intro_title }}"
+              placeholder="{{ __('Enter A Title') }}">
           @if (count($errors->get("en_intro_title")) > 0)
             <div class="invalid-feedback">
               @foreach ($errors->get("en_intro_title") as $err)
@@ -350,15 +476,15 @@
               @endforeach
             </div>
           @endif
-          <label for="en_titleInput">intro title *</label>
+          <label for="en_titleInput">{{ __('intro title') }} *</label>
         </div>
         <div class="form-floating mb-3">
           <textarea
               class="form-control min-height @error('en_intro_description') is-invalid @enderror"
               name="en_intro_description"
               id="en_descInput"
-              placeholder="Enter a Description"
-          >{{ old('en_intro_description') ?? $translation->intro_description }}</textarea>
+              placeholder="{{ __('Enter a Description') }}"
+          >{{ old('en_intro_description') ?? $quiz->intro_description }}</textarea>
           @if (count($errors->get("en_intro_description")) > 0)
             <div class="invalid-feedback">
               @foreach ($errors->get("en_intro_description") as $err)
@@ -366,7 +492,7 @@
               @endforeach
             </div>
           @endif
-          <label for="en_descInput">intro description</label>
+          <label for="en_descInput">{{ __('intro description') }}</label>
         </div>
         <div class="form-floating mb-3">
           <input
@@ -374,8 +500,8 @@
               class="form-control @error('en_intro_btn') is-invalid @enderror"
               name="en_intro_btn"
               id="en_buttonInput"
-              value="{{ old('en_intro_btn') ?? $translation->intro_btn }}"
-              placeholder="Button Text">
+              value="{{ old('en_intro_btn') ?? $quiz->intro_btn }}"
+              placeholder="{{ __('Button Text') }}">
           @if (count($errors->get("en_intro_btn")) > 0)
             <div class="invalid-feedback">
               @foreach ($errors->get("en_intro_btn") as $err)
@@ -383,19 +509,19 @@
               @endforeach
             </div>
           @endif
-          <label for="en_buttonText">Button Text *</label>
+          <label for="en_buttonText">{{ __('Button Text') }} *</label>
         </div>
 
-        @if ($errors->any())
-          <div class="alert alert-danger">
-            @foreach ($errors->all() as $err)
-              <p>{{ $err }}</p>
-            @endforeach
-          </div>
-        @endif
+        <div class="form-check form-switch mt-2">
+          <input
+              @if($quiz->policy_link == null && $quiz->is_shown_policy == 1) checked @endif
+              @if($quiz->policy_link == null) disabled='disabled' @endif
+              class="form-check-input" name="show_policy" type="checkbox" id="show-policy-btn">
+          <label class="form-check-label" for="show-policy-btn">{{ __('show privacy & policy') }}</label>
+        </div>
 
         <div class="my-3">
-          <button class="btn btn-success">Submit <i class="fa fa-send"></i></button>
+          <button id="save-quiz" class="btn btn-success">{{ __('Submit') }} <i class="fa fa-send"></i></button>
         </div>
 
       </form>
@@ -403,16 +529,16 @@
     <hr>
     <div class="container">
       <div class="pt-4 pb-2 px-2">
-        <h5>Content Builder</h5>
-        <p class="lead">Drag & drop content builder elements to create your content.</p>
+        <h5>{{ __('Content Builder') }}</h5>
+        <p class="lead">{{ __('Drag & drop content builder elements to create your content') }}.</p>
       </div>
     </div>
     <hr>
     <div class="container">
-      <b class="lead">Content Elements:</b>
+      <b class="lead">{{ __('Content Elements') }}:</b>
       <div class="content-items row items mt-3 mb-4">
         @foreach ($questions_types as $quest)
-          <div class="col-6 px-1 mb-2">
+          <div class="col-xl-6 px-1 mb-2" style="min-width:175px;">
             <div class="item card flex-row draggable-question" draggable="true" data-item="{{ $quest["id"] }}" data-name="{{ $quest["name"] }}">
               <div class="icon-bg py-1 px-3 d-flex align-items-center justify-content-center">
                 <i class="fa {{ $quest["icon"] }}"></i>
@@ -424,11 +550,16 @@
           </div>
         @endforeach
       </div>
-      <b class="lead">Results Screen:</b>
+      <b class="lead">{{ __('Results Screen') }}:</b>
       <div class="results-items row items mt-3 mb-4">
         @foreach ($results_types as $result)
-          <div class="col-6 px-1 mb-2">
-            <div class="item card flex-row draggable-result" draggable="true" data-item="{{ $result["id"] }}" data-name="{{ $result["name"] }}">
+          <div class="col-6 px-1 mb-2" @if(isset($website) && !empty($website) && $result["id"] == 8 && $website->get_integration("calendly") == null) style="opacity: 0.4" title="You Have To Integrate Calendly" @endif>
+            <div
+                class="item card flex-row draggable-result"
+                @if($result["id"] != 8 || !isset($website) || empty($website) || $website != null && $website->get_integration("calendly") != null) draggable="true" @endif
+                @if(isset($website) && !empty($website) && $result["id"] == 8 && $website != null && $website->get_integration("calendly") != null) data-value="{{ $website->get_integration("calendly")->key }}" @endif
+                data-item="{{ $result["id"] }}"
+                data-name="{{ $result["name"] }}">
               <div class="icon-bg py-1 px-3 d-flex align-items-center justify-content-center">
                 <i class="fa {{ $result["icon"] }}"></i>
               </div>
@@ -450,15 +581,21 @@
     var edit_quiz_name_route  = "{{ route("edit_quiz_name", compact("quiz")) }}";
     var questions_ajax_route  = "{{ url(app()->getLocale() . "/ajax/questions") }}";
     var question_ajax_route   = "{{ url(app()->getLocale() . "/ajax/question") }}";
-    var uploades_route        = "{{ url("/images/uploads") }}";
+    var uploades_route        = "{{ url("images/uploads/") }}";
     var public_route          = "{{ url("") }}";
     var edit_result           = "{{ route("add_result", compact("quiz")) }}";
     var get_result            = "{{ url(app()->getLocale() . "/ajax/results/") }}";
+    const LANG = "{{ app()->getLocale() }}";
     const actionCoolDownTime = 1500;
-    const quizType = JSON.parse('{!! json_encode($quiz->type) !!}');// 1 => scoring, 2 => outcome
+    const is_admin = {{ auth()->check() && (auth()->user()->is_admin() || auth()->user()->can_translate()) ? 1 : 0 }};
+    const has_policy = JSON.parse({{ json_encode((null !== $quiz->policy_label && !empty($quiz->policy_label))) }});
+    const quizType = parseInt(JSON.parse('{!! json_encode($quiz->type) !!}'));// 1 => scoring, 2 => outcome
+    const policyLink = '{{ $quiz->policy_link }}';
+    const policyText = '{{ $quiz->policy_label }}';
     var questions_types = JSON.parse('{!! json_encode($questions_types) !!}');
     var results_types = JSON.parse('{!! json_encode($results_types) !!}');
     const errTable = {
+      "en_question_title": "#EnQuestionTitleInput",
       "result_title": "#resultTitleInput",
       "result_link": "#resultButtonLink",
       "button_label": "#resultButtonLabel",
@@ -495,10 +632,86 @@
       ["Y", "#4fb0a1"],
       ["Z", "#bed05b"],
     ];
+    const __ = {
+      "SETTING": "{{ __('SETTING') }}",
+      "Add Image:": "{{ __('Add Image:') }}",
+      "Answers:": "{{ __('Answers:') }}",
+      "you can't Map this Question ):": '{{ __("you can\'t Map this Question ):") }}',
+      "of the following criteria:": "{{ __('of the following criteria:') }}",
+      "People who meet": "{{ __('People who meet') }}",
+      "SOCIAL SETTINGS:": "{{ __('SOCIAL SETTINGS:') }}",
+      "BUTTON SETTINGS:": "{{ __('BUTTON SETTINGS:') }}",
+      "no options": "{{ __('no options') }}",
+      "Label:": "{{ __('Label:') }}",
+      "Settings:": "{{ __('Settings:') }}",
+      "Upload Image": "{{ __('Upload Image') }}",
+      "Allow multiple choices:": "{{ __('Allow multiple choices:') }}",
+      "choose your calander": "{{ __('choose your calander') }}",
+      "UTM SETTINGS:": "{{ __('UTM SETTINGS:') }}",
+      "SEND DATA SETTINGS:": "{{ __('SEND DATA SETTINGS:') }}",
+      "RESULT SETTINGS:": "{{ __('RESULT SETTINGS:') }}",
+      "Result Description": "{{ __('Result Description') }}",
+      "No Items To Show": "{{ __('No Items To Show') }}",
+      "submit": "{{ __('submit') }}",
+      "Submit": "{{ __('Submit') }}",
+      "Jump to:": "{{ __('Jump to:') }}",
+      "you can't edit this Question ):": "{{ __('you can\'t edit this Question ):') }}",
+      "you can't edit this Result ):": "{{ __('you can\'t edit this Result ):') }}",
+      "Question Deleted Successfully": "{{ __('Question Deleted Successfully') }}",
+      "Somthing Went Wrong !!": "{{ __('Somthing Went Wrong !!') }}",
+      "Result Deleted Successfully": "{{ __('Result Deleted Successfully') }}",
+      "Question has been duplicated": "{{ __('Question has been duplicated') }}",
+      "Result has been duplicated": "{{ __('Result has been duplicated') }}",
+      "Button:": "{{ __('Button:') }}",
+      "Add Answer": "{{ __('Add Answer') }}",
+      "Add": "{{ __('Add') }}",
+    };
   </script>
   <script type="text/javascript" src="{{ URL::asset("js/sortable.js") }}"></script>
   <script type="text/javascript" src="{{ URL::asset("js/dashboard.js") }}"></script>
   <script>
+
+    $("#quizImageInput").on("input", function () {
+      $(this).data("value", $(this).val());
+      const [file] = this.files;
+      let loader = $("#loader");
+
+      $("#intro_image_preview").parent().removeClass("d-none");
+      loader.removeClass("d-none");
+
+      if (file) {
+        $("#intro_image_preview").attr("src", URL.createObjectURL(file));
+        loader.addClass("d-none");
+      }
+      $('#resetQuizImage').removeClass("d-none");
+      $('#resetQuizImage').on("click", function () {
+        $("#quizImageInput").val('');
+        $("#intro_image_preview").attr("src", $("#quizImageInput").data('value')).parent().addClass("d-none");
+      });
+    });
+
+    $("#quiz-media .option-link").each(function () {
+      $(this).click(function () {
+        $('#' + $(this).data('option')).siblings(".option-container").find("input").each(function () {
+          $(this).val('');
+        });
+      });
+    });
+
+    $("#save-quiz").click(function () {
+      if (
+        ($("#en_titleInput").val() == null || $("#en_titleInput").val() == "") &&
+        ($("#ar_titleInput").val() != null && $("#ar_titleInput").val() != "")
+      ) {
+        $("#en_titleInput").val($("#ar_titleInput").val());
+      }
+      if (
+        ($("#en_buttonInput").val() == null || $("#en_buttonInput").val() == "") &&
+        ($("#ar_buttonInput").val() != null && $("#ar_buttonInput").val() != "")
+      ) {
+        $("#en_buttonInput").val($("#ar_buttonInput").val());
+      }
+    });
 
     $(".nav-link").each(function () {
       $(this).click(function () {
@@ -512,9 +725,10 @@
     });
 
     linkIntroInputs();// link intro data with it's demo views
-    dragAndDropQuestionsHandler();// handling drag and drop question
-
-    questionsReorderConfig();// questions reorder config
+    dragAndDropQuestionsHandler();
+    window.onload = function () {
+      questionsReorderConfig();// questions reorder config
+    }
 
 
     $('#questionsModal').on("hide.bs.modal", function (e) {
@@ -572,7 +786,7 @@
       }else if (modalParams.itemType == 6) {
         if (modalParams != null && modalParams.isEdit) {
           resultModal("modalSidebar", "modalPreview", modalParams.data);
-          modalParams.data["type"] += 5;
+          modalParams.data["type"] = 6;
           updateQuestion(modalParams.data, quizType);
         }else {
           resultModal("modalSidebar", "modalPreview");
@@ -581,17 +795,26 @@
       }else if (modalParams.itemType == 7) {
         if (modalParams != null && modalParams.isEdit) {
           redirectModal("modalSidebar", modalParams.data);
-          modalParams.data["type"] += 5;
+          modalParams.data["type"] = 7;
           updateQuestion(modalParams.data, quizType);
         }else {
           redirectModal("modalSidebar");
           createNewQuestion(modalParams.itemType, quizType);
         }
+      }else if (modalParams.itemType == 8) {
+        if (modalParams != null && modalParams.isEdit) {
+          meetingModal(modalParams.key, modalParams.data);
+          modalParams.data["type"] = 8;
+          updateQuestion(modalParams.data, quizType);
+        }else {
+          meetingModal(modalParams.key);
+          createNewQuestion(modalParams.itemType, quizType);
+        }
       }else {
         resetModal();
+        console.error("wrong type");
       }
     });
-
 
 
     $('#mapping-modal').on("hide.bs.modal", function (e) {
@@ -607,7 +830,21 @@
       let modalTitle  = $(this).find('.modal-title');
       modalTitle.text(modalParams.itemName);
 
-      modalParams.data.forEach(answer => {
+
+      let resultsContainer = document.getElementById("mapping-modal-results");
+      modalParams.results.forEach(result => {
+        $(resultsContainer).append($(`<div class="result card p-3 bg-light" style="min-height: 111px" data-id="${result.id}">
+          <h3 class="title">${result.title}</h3>
+          <p class="lead">Connected Answers:</p>
+          <div class="connected-answers" id="connected-answers-${result.id}">
+          </div>
+        </div>`));
+      });
+
+      // let resultsElements = document.querySelectorAll("#mapping-modal-answers .results");
+      dragAndDropQuestionsHandler();// handling drag and drop question
+
+      modalParams.answers.forEach(answer => {
         if (answer.image == null) {
           createMappingAnswer(answer.id, answersStyles[answer.order-1][0], answer.text, answersStyles[answer.order-1][1]);
         }else {
@@ -643,9 +880,9 @@
         }
       });
 
-      let resultElements = document.querySelectorAll("#mapping-modal-answers .answer");
+      let answersElements = document.querySelectorAll("#mapping-modal-answers .answer");
 
-      resultElements.forEach(answer => {
+      answersElements.forEach(answer => {
 
         $(answer).on("dragstart", function (e) {
           let info = {
@@ -678,6 +915,13 @@
             success: function(res) {
               resetMappingModal();
               $('#mapping-modal').modal("hide");
+              console.log(info);
+              console.log(info.length > 0 && info.filter(el => el.answers.length > 0).length > 0);
+              if (info.length > 0 && info.filter(el => el.answers.length > 0).length > 0) {
+                $('#question-' + modalParams.question_id + " .mapping").addClass("text-primary");
+              }else {
+                $('#question-' + modalParams.question_id + " .mapping").removeClass("text-primary");
+              }
               let alert = makeSuccessAlert("Answers Mapped Successfully");
               setTimeout(() => {
                 alert.close();
@@ -690,7 +934,6 @@
 
       });
     });
-
 
 
     $('#branching-modal').on("hide.bs.modal", function (e) {
@@ -708,17 +951,17 @@
 
       if (modalParams.data.conditions.length > 0) {
         modalParams.data.conditions.forEach((condition, i) => {
-          createCondition(condition.id, conditionCount, modalParams.data.question_type, modalParams.data.answers, modalParams.data.targets, condition.question_id, condition);
+          createCondition(condition.id, conditionCount, parseInt(modalParams.data.question_type), modalParams.data.answers, modalParams.data.targets, condition.question_id, condition);
           conditionCount++;
         });
       }
 
       $("#add-new-condition").click(function () {
-        if ([1, 2].includes(modalParams.data.question_type)) {
-          createCondition(null, conditionCount, modalParams.data.question_type, modalParams.data.answers, modalParams.data.targets, modalParams.question_id, null);
+        if ([1, 2].includes(parseInt(modalParams.data.question_type))) {
+          createCondition(null, conditionCount, parseInt(modalParams.data.question_type), modalParams.data.answers, modalParams.data.targets, modalParams.question_id, null);
         }else {
           if ($("#conditions-container .condition").length == 0) {
-            createCondition(null, conditionCount, modalParams.data.question_type, modalParams.data.answers, modalParams.data.targets, modalParams.question_id, null);
+            createCondition(null, conditionCount, parseInt(modalParams.data.question_type), modalParams.data.answers, modalParams.data.targets, modalParams.question_id, null);
           }
         }
         conditionCount++;
@@ -747,7 +990,7 @@
               "is_on":        $(`#${$(this).attr("id")}-is-on`).prop("checked"),
               "any_or":       $(`#${$(this).attr("id")}-any-or`).val(),
               "target_id":    $(`#${$(this).attr("id")}-target`).val(),
-              "target_type":  $(`#${$(this).attr("id")}-target`).data("type"),
+              "target_type":  $(`#${$(this).attr("id")}-target option:selected`).data("typeid"),
             });
 
           }else {
@@ -771,6 +1014,11 @@
             success: function(res) {
               resetBranchingModal();
               $('#branching-modal').modal("hide");
+              if (info.length > 0 && info.length - info.filter(el => el.delete != null).length > 0) {
+                $('#question-' + modalParams.question_id + " .conditioning").addClass("text-primary");
+              }else {
+                $('#question-' + modalParams.question_id + " .conditioning").removeClass("text-primary");
+              }
               let alert = makeSuccessAlert("Branched Successfully");
               setTimeout(() => {
                 alert.close();
@@ -789,11 +1037,11 @@
     });
 
     @foreach ($questions as $question)
-      createQuestion({{$question->order}}, "{{$question->getOriginal(app()->getLocale() . "_title")}}", {{$question->id}}, {{$question->type}}, "contentItemsContainer");
+      createQuestion({{$question->order}}, "{{ $question->title }}", {{$question->id}}, {{$question->type}}, "contentItemsContainer", {{'{conditionsCount:' . ($question->active_conditions_count ?? "0") . ', isMapped: ' . ($question->is_mapped()) . '}'}});
     @endforeach
 
     @foreach ($results as $result)
-      createResult("{{$result->getOriginal(app()->getLocale() . "_title")}}", {{$result->id}}, {{$result->type + count($questions_types)}}, "resultItemsContainer", {{$result->min_score ?? "null"}}, {{$result->max_score ?? "null"}});
+      createResult("{{ $result->title }}", {{$result->id}}, {{$result->type + count($questions_types)}}, "resultItemsContainer", {{$result->min_score ?? "null"}}, {{$result->max_score ?? "null"}});
     @endforeach
 
     function linkIntroInputs() {
@@ -894,6 +1142,9 @@
           "itemType": e.target.dataset.item,
           "itemName": e.target.dataset.name,
         };
+        if (e.target.dataset.item == 8) {
+          info["key"] = e.target.dataset.value;
+        }
         e.originalEvent.dataTransfer.setData("text", JSON.stringify(info));
       });
       draggableResults.on("dragend", function (e) {
@@ -959,8 +1210,19 @@
       new Sortable(questionsReorderContainer, {
         animation: 150,
         handle: '.handler-questions',
-        ghostClass: 'border-primary',
+        ghostClass: 'reordering',
+        filter: '.filtered',
       });
+
+      var questions = questionsReorderContainer.querySelectorAll(".question");
+
+      questions.forEach(el => {
+        el.addEventListener("dragstart", function () {
+          questions.forEach(quest => {
+            quest.classList.add("filtered");
+          })
+        })
+      })
 
       $("#contentItemsContainer").on("drop", function (e) {
 
@@ -972,7 +1234,7 @@
             order.querySelector(".order b").innerText = order.dataset.order;
             orders.push({"id":order.dataset.id, "order":order.dataset.order});
           });
-          reorderQuestions(orders);
+          reorderQuestions(orders, questions);
         }
       });
     }
@@ -980,13 +1242,29 @@
     function createNewQuestion(type, quizType=1) {
       $("#submit_modal").click(function () {
 
+        // add cooldown
+        var btn = $(this);
+        btn.prop("disabled", true);
+        setTimeout(function () {
+          btn.prop("disabled", false);
+        }, actionCoolDownTime);
+
         if (type == 1) {
 
           var formData = new FormData();
-          $("#answersContainer .answer-val").each(function (el) {
+          $("#answersContainer .answer-primary").each(function (el) {
             formData.append(`en_answers[${el}][text]`, $(this).val());
             if (quizType == 1) {
               formData.append(`en_answers[${el}][score]`, $("#" + $(this).attr("id") + "-score-input").val());
+            }
+            if (is_admin) {
+              formData.append(`en_answers[${el}][ar_text]`, $("#" + $(this).attr("id") + "-second").val());
+              if (
+                (formData.get(`en_answers[${el}][text]`) == null || formData.get(`en_answers[${el}][text]`) == "") &&
+                (formData.get(`en_answers[${el}][ar_text]`) != null && formData.get(`en_answers[${el}][ar_text]`) != "")
+              ) {
+                formData.append(`en_answers[${el}][text]`, formData.get(`en_answers[${el}][ar_text]`));
+              }
             }
             formData.append(`en_answers[${el}][order]`, $(this).parent().data("order"));
           });
@@ -999,6 +1277,18 @@
           }
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+          }
           formData.append("multi_select", document.getElementById("multiSelect").checked == true ? 1 : 0);
           formData.append("order", $("#contentItemsContainer .question").length + 1);
 
@@ -1011,7 +1301,8 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              createQuestion($("#contentItemsContainer .question").length + 1, $("#EnQuestionTitleInput").val(), res, type, "contentItemsContainer");
+              let title = formData.get(LANG + "_question_title") ?? formData.get("en_question_title");
+              createQuestion($("#contentItemsContainer .question").length + 1, title, res, type, "contentItemsContainer");
               $("#contentRemovableInfo").addClass("d-none");
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Added Successfully");
@@ -1020,6 +1311,7 @@
               }, 2000);
             },
             error: function(res) {
+              console.error(res)
               if (res.responseJSON.errors["question_title"] != null && res.responseJSON.errors["question_title"][0] != null) {
                 $("#EnQuestionTitleInput").addClass("is-invalid");
                 $("<div class='invalid-feedback'>" + res.responseJSON.errors["question_title"][0] + "</div>").insertAfter("#EnQuestionTitleInput");
@@ -1037,10 +1329,19 @@
         }else if (type == 2) {
 
           var formData = new FormData();
-          $("#answersContainer .answer-val").each(function (el) {
+          $("#answersContainer .answer-primary").each(function (el) {
             formData.append(`en_answers[${el}][text]`, $(this).val());
             if (quizType == 1) {
               formData.append(`en_answers[${el}][score]`, $("#" + $(this).attr("id") + "-score-input").val());
+            }
+            if (is_admin) {
+              formData.append(`en_answers[${el}][ar_text]`, $("#" + $(this).attr("id") + "-second").val());
+              if (
+                (formData.get(`en_answers[${el}][text]`) == null || formData.get(`en_answers[${el}][text]`) == "") &&
+                (formData.get(`en_answers[${el}][ar_text]`) != null && formData.get(`en_answers[${el}][ar_text]`) != "")
+              ) {
+                formData.append(`en_answers[${el}][text]`, formData.get(`en_answers[${el}][ar_text]`));
+              }
             }
             formData.append(`en_answers[${el}][order]`, $(this).parent().data("order"));
             let imageValue = $(`#${$(this).attr('id')}-file`).prop("files")[0];
@@ -1058,6 +1359,18 @@
           formData.append("type_id", type);
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+          }
           formData.append("multi_select", document.getElementById("multiSelect").checked == true ? 1 : 0);
           formData.append("order", $("#contentItemsContainer .question").length + 1);
 
@@ -1070,7 +1383,8 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              createQuestion($("#contentItemsContainer .question").length + 1, $("#EnQuestionTitleInput").val(), res, type, "contentItemsContainer");
+              let title = formData.get(LANG + "_question_title") ?? formData.get("en_question_title");
+              createQuestion($("#contentItemsContainer .question").length + 1, title, res, type, "contentItemsContainer");
               $("#contentRemovableInfo").addClass("d-none");
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Added Successfully");
@@ -1079,6 +1393,7 @@
               }, 2000);
             },
             error: function(res) {
+              console.error(res)
               if (res.responseJSON.errors["question_title"] != null && res.responseJSON.errors["question_title"][0] != null) {
                 $("#EnQuestionTitleInput").addClass("is-invalid");
                 $("<div class='invalid-feedback'>" + res.responseJSON.errors["question_title"][0] + "</div>").insertAfter("#EnQuestionTitleInput");
@@ -1113,11 +1428,68 @@
             formData.append("video", $("#videoUrlInput").val());
           }
 
+          if ($("#fields-holder-preview .field").length > 0) {
+            $("#fields-holder-preview .field").each(function (i) {
+
+              if ($(this).data("id") != null && $(this).data("id") != undefined) {
+                formData.append(`fields[${i}][id]`, $(this).data("id"));
+              }
+              formData.append(`fields[${i}][label]`, $(this).data("title"));
+              formData.append(`fields[${i}][type]`, $(this).data("type"));
+              formData.append(`fields[${i}][order]`, $(this).data("order"));
+
+              if ([1, 2, 3, 4, 5, 6, 8, 11, 12].includes($(this).data("type"))) {
+                formData.append(`fields[${i}][placeholder]`, $(this).data("placeholder"));
+              }
+              if ($(this).data("type") != 13) {
+                formData.append(`fields[${i}][is_required]`, $(this).data("is_required"));
+              }
+              if ($(this).data("type") == 3) {
+                formData.append(`fields[${i}][is_lead_email]`, $(this).data("is_lead_email"));
+              }
+              if ([7,8].includes($(this).data("type"))) {
+                //is_multiple_chooseing
+                if ($(this).data("type") == 7) {
+                  formData.append(`fields[${i}][is_multiple_chooseing]`, $(this)[0].dataset.is_multiple_chooseing);
+                }
+                $(this).find(".option-input").each(function (x) {
+                  formData.append(`fields[${i}][options][]`, $(this).val());
+                });
+              }
+              if ($(this).data("type") == 13) {
+                formData.append(`fields[${i}][hidden_value]`, $(this).data("hidden_value"));
+              }
+
+            });
+          }else {
+            $("#fields-holder-preview").html("<div class='alert alert-danger'>No Fields</div>").removeClass("d-none");
+            return;
+          }
+
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
+          formData.append("en_button_label", $("#EnQuestionButtonLabel").val());
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+            formData.append("ar_button_label", $("#ArQuestionButtonLabel").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+            if (
+              (formData.get("en_button_label") == null || formData.get("en_button_label") == "") &&
+              (formData.get("ar_button_label") != null && formData.get("ar_button_label") != "")
+            ) {
+              formData.set("en_button_label", formData.get("ar_button_label"));
+            }
+          }
           formData.append("show_policy", $("#showPrivacyCheckbox").prop("checked"));
           formData.append("is_skippable", $("#isSkippableCheckbox").prop("checked"));
-          formData.append("en_button_label", $("#EnbuttonLabelInput").val());
           formData.append("order", $("#contentItemsContainer .question").length + 1);
 
           $.ajax({
@@ -1129,7 +1501,8 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              createQuestion($("#contentItemsContainer .question").length + 1, $("#EnQuestionTitleInput").val(), res, type, "contentItemsContainer");
+              let title = formData.get(LANG + "_question_title") ?? formData.get("en_question_title");
+              createQuestion($("#contentItemsContainer .question").length + 1, title, res, type, "contentItemsContainer");
               $("#contentRemovableInfo").addClass("d-none");
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Added Successfully");
@@ -1138,6 +1511,69 @@
               }, 2000);
             },
             error: function(res) {
+              console.error(res)
+              if (res.responseJSON != null && res.responseJSON.errors != null) {
+
+                let errorsTable = {
+                  "en_button_label": "EnQuestionButtonLabel",
+                  "en_question_title": "EnQuestionTitleInput",
+                };
+
+                $("#modalSidebar input").removeClass("border border-danger");
+                Object.keys(res.responseJSON.errors).forEach(err => {
+                  $("#" + errorsTable[err]).addClass("border border-danger");
+                });
+
+              }
+              console.error(res);
+            }
+          });
+        }else if (type == 4) {
+
+          let data = {
+            "type_id": type,
+            "en_question_title": $("#EnQuestionTitleInput").val(),
+            "en_question_desc": $("#EnquestionDescInpiut").val(),
+            "en_button_label": $("#EnQuestionButtonLabel").val(),
+            "order": $("#contentItemsContainer .question").length + 1,
+          };
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            data["ar_question_title"] = $("#ArQuestionTitleInput").val();
+            data["ar_question_desc"] = $("#ArquestionDescInpiut").val();
+            data["ar_button_label"] = $("#ArQuestionButtonLabel").val();
+          }
+          if (is_admin) {
+            if (
+              (data["en_question_title"] == null || data["en_question_title"] == "") &&
+              (data["ar_question_title"] != null && data["ar_question_title"] != "")
+            ) {
+              data["en_question_title"] = data["ar_question_title"];
+            }
+            if (
+              (data["en_button_label"] == null || data["en_button_label"] == "") &&
+              (data["ar_button_label"] != null && data["ar_button_label"] != "")
+            ) {
+              data["en_button_label"] = data["ar_button_label"];
+            }
+          }
+          $.ajax({
+            type: 'POST', // For jQuery < 1.9
+            method: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            url: "{{ route("add_question", compact("quiz")) }}",
+            data: data,
+            success: function(res) {
+              let title = data[LANG + "en_question_title"] ?? data["en_question_title"];
+              createQuestion($("#contentItemsContainer .question").length + 1, title, res, type, "contentItemsContainer");
+              $("#contentRemovableInfo").addClass("d-none");
+              $(`#questionsModal`).modal("hide");
+              let alert = makeSuccessAlert("Question Added Successfully");
+              setTimeout(() => {
+                alert.close();
+              }, 2000);
+            },
+            error: function(res) {
+              console.error(res)
               if (res.responseJSON.errors["question_title"] != null && res.responseJSON.errors["question_title"][0] != null) {
                 $("#EnQuestionTitleInput").addClass("is-invalid");
                 $("<div class='invalid-feedback'>" + res.responseJSON.errors["question_title"][0] + "</div>").insertAfter("#EnQuestionTitleInput");
@@ -1145,40 +1581,6 @@
               if (res.responseJSON.errors["button_label"] != null && res.responseJSON.errors["button_label"][0] != null) {
                 $("#QuestionButtonLabel").addClass("is-invalid");
                 $("<div class='invalid-feedback'>" + res.responseJSON.errors["button_label"][0] + "</div>").insertAfter("#QuestionButtonLabel");
-              }
-            }
-          });
-        }else if (type == 4) {
-
-          $.ajax({
-            type: 'POST', // For jQuery < 1.9
-            method: "POST",
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            url: "{{ route("add_question", compact("quiz")) }}",
-            data: {
-              "type_id": type,
-              "en_question_title": $("#EnQuestionTitleInput").val(),
-              "en_question_desc": $("#EnquestionDescInpiut").val(),
-              "en_button_label": $("#EnQuestionButtonLabel").val(),
-              "order": $("#contentItemsContainer .question").length + 1,
-            },
-            success: function(res) {
-              createQuestion($("#contentItemsContainer .question").length + 1, $("#EnQuestionTitleInput").val(), res, type, "contentItemsContainer");
-              $("#contentRemovableInfo").addClass("d-none");
-              $(`#questionsModal`).modal("hide");
-              let alert = makeSuccessAlert("Question Added Successfully");
-              setTimeout(() => {
-                alert.close();
-              }, 2000);
-            },
-            error: function(res) {
-              if (res.responseJSON.errors["question_title"] != null && res.responseJSON.errors["question_title"][0] != null) {
-                $("#EnQuestionTitleInput").addClass("is-invalid");
-                $("<div class='invalid-feedback'>" + res.responseJSON.errors["question_title"][0] + "</div>").insertAfter("#EnQuestionTitleInput");
-              }
-              if (res.responseJSON.errors["button_label"] != null && res.responseJSON.errors["button_label"][0] != null) {
-                $("#EnQuestionButtonLabel").addClass("is-invalid");
-                $("<div class='invalid-feedback'>" + res.responseJSON.errors["button_label"][0] + "</div>").insertAfter("#EnQuestionButtonLabel");
               }
             }
           });
@@ -1203,6 +1605,25 @@
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
           formData.append("en_button_label", $("#EnQuestionButtonLabel").val());
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+            formData.append("ar_button_label", $("#ArQuestionButtonLabel").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+            if (
+              (formData.get("en_button_label") == null || formData.get("en_button_label") == "") &&
+              (formData.get("ar_button_label") != null && formData.get("ar_button_label") != "")
+            ) {
+              formData.set("en_button_label", formData.get("ar_button_label"));
+            }
+          }
           formData.append("order", $("#contentItemsContainer .question").length + 1);
 
           if (formData.get("image") != null || formData.get("video") != null) {
@@ -1215,7 +1636,8 @@
               processData: false,
               contentType: false,
               success: function(res) {
-                createQuestion($("#contentItemsContainer .question").length + 1, $("#EnQuestionTitleInput").val(), res, type, "contentItemsContainer");
+                let title = formData.get(LANG + "_question_title") ?? formData.get("en_question_title");
+                createQuestion($("#contentItemsContainer .question").length + 1, title, res, type, "contentItemsContainer");
                 $("#contentRemovableInfo").addClass("d-none");
                 $(`#questionsModal`).modal("hide");
                 let alert = makeSuccessAlert("Question Added Successfully");
@@ -1224,13 +1646,14 @@
                 }, 2000);
               },
               error: function(res) {
+                console.error(res)
                 if (res.responseJSON.errors["question_title"] != null && res.responseJSON.errors["question_title"][0] != null) {
                   $("#EnQuestionTitleInput").addClass("is-invalid");
                   $("<div class='invalid-feedback'>" + res.responseJSON.errors["question_title"][0] + "</div>").insertAfter("#EnQuestionTitleInput");
                 }
                 if (res.responseJSON.errors["button_label"] != null && res.responseJSON.errors["button_label"][0] != null) {
-                  $("#EnQuestionButtonLabel").addClass("is-invalid");
-                  $("<div class='invalid-feedback'>" + res.responseJSON.errors["button_label"][0] + "</div>").insertAfter("#EnQuestionButtonLabel");
+                  $("#QuestionButtonLabel").addClass("is-invalid");
+                  $("<div class='invalid-feedback'>" + res.responseJSON.errors["button_label"][0] + "</div>").insertAfter("#QuestionButtonLabel");
                 }
               }
             });
@@ -1244,13 +1667,33 @@
 
           formData.append("_token","{{ csrf_token() }}");
           formData.append("type_id", type - 5);
-
           formData.append("en_result_title", $("#resultTitleInput").val());
-          formData.append("en_result_desc", $("#resultDescInpiut").val());
+          formData.append("en_result_desc", $("#resultDescValue").val());
           formData.append("show_button", $("#showBtn").prop("checked"));
+          if (is_admin && $("#resultTitleInputAr").val().length > 0) {
+            formData.append("ar_result_title", $("#resultTitleInputAr").val());
+            formData.append("ar_result_desc", $("#resultDescValueAr").val());
+            if (formData.get("show_button")) {
+              formData.append("ar_button_label", $("#resultButtonLabelAr").val());
+            }
+            if (
+              (formData.get("en_button_label") == null || formData.get("en_button_label") == "") &&
+              (formData.get("ar_button_label") != null && formData.get("ar_button_label") != "")
+            ) {
+              formData.set("en_button_label", formData.get("ar_button_label"));
+            }
+          }
           if (formData.get("show_button")) {
-            formData.append("en_button_label", $("#resultButtonLabel").val());
             formData.append("result_link", $("#resultButtonLink").val());
+            formData.append("en_button_label", $("#resultButtonLabel").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_result_title") == null || formData.get("en_result_title") == "") &&
+              (formData.get("ar_result_title") != null && formData.get("ar_result_title") != "")
+            ) {
+              formData.set("en_result_title", formData.get("ar_result_title"));
+            }
           }
           formData.append("show_social", $("#social-sharing").prop("checked"));
 
@@ -1259,6 +1702,15 @@
             formData.append("max_score", $("#maxScoreInput").val());
             formData.append("show_score", $("#show-score").prop("checked"));
             formData.append("en_score_message", $("#scoreDisplayMsg").val());
+            if (is_admin) {
+              formData.append("ar_score_message", $("#scoreDisplayMsgAr").val());
+              if (
+                (formData.get("en_score_message") == null || formData.get("en_score_message") == "") &&
+                (formData.get("ar_score_message") != null && formData.get("ar_score_message") != "")
+              ) {
+                formData.set("en_score_message", formData.get("ar_score_message"));
+              }
+            }
           }
 
           $.ajax({
@@ -1270,7 +1722,8 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              createResult($("#resultTitleInput").val(), res, type, "resultItemsContainer", formData.get("min_score"), formData.get("max_score"));
+              let title = formData.get(LANG + "_result_title") ?? formData.get("en_result_title");
+              createResult(title, res, type, "resultItemsContainer", formData.get("min_score"), formData.get("max_score"));
               $("#resultRemovableInfo").addClass("d-none");
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Result Added Successfully");
@@ -1279,6 +1732,7 @@
               }, 2000);
             },
             error: function(res) {
+              console.error(res)
               for (const key in errTable) {
                 $(errTable[key]).removeClass("is-invalid");
                 $(errTable[key]).addClass("is-valid");
@@ -1320,7 +1774,8 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              createResult($("#resultTitleInput").val(), res, type, "resultItemsContainer", formData.get("min_score"), formData.get("max_score"));
+              let title = formData.get(LANG + "_result_title") ?? formData.get("en_result_title");
+              createResult(title, res, type, "resultItemsContainer", formData.get("min_score"), formData.get("max_score"));
               $("#resultRemovableInfo").addClass("d-none");
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Result Added Successfully");
@@ -1329,6 +1784,7 @@
               }, 2000);
             },
             error: function(res) {
+              console.error(res)
               for (const key in errTable) {
                 $(errTable[key]).removeClass("is-invalid");
                 $(errTable[key]).addClass("is-valid");
@@ -1345,6 +1801,81 @@
               }
             }
           });
+        }else if (type == 8) {
+
+          var formData = new FormData();
+          let errors = [];
+
+          formData.append("_token","{{ csrf_token() }}");
+          formData.append("type_id", type - 5);
+
+          let EnTitle = $("#resultTitleInput").val();
+          if (EnTitle != undefined && EnTitle != null && EnTitle.length > 0) {
+            formData.append("en_result_title", $("#resultTitleInput").val());
+          }else {
+            errors.push(["resultTitleInput", "title must exist"]);
+          }
+
+          formData.append("en_result_desc", $("#resultDescInpiut").val());
+
+          if (is_admin && $("#resultTitleInputAr").val().length > 0) {
+            formData.append("ar_result_title", $("#resultTitleInputAr").val());
+            formData.append("ar_result_desc", $("#resultDescInpiutAr").val());
+          }
+          if (
+            (formData.get("en_result_title") == null || formData.get("en_result_title") == "") &&
+            (formData.get("ar_result_title") != null && formData.get("ar_result_title") != "")
+          ) {
+            formData.set("en_result_title", formData.get("ar_result_title"));
+          }
+
+          if ($("#event-types").val() != null && $("#event-types").val() != undefined) {
+            formData.append("result_link", `https://calendly.com/${$("#event-types").data("url")}/${$("#event-types").val()}?hide_gdpr_banner=1&background_color={{ $quiz->background_color }}&text_color={{ $quiz->main_text_color }}&primary_color={{ $quiz->main_text_color }}`);
+            // console.log(`https://calendly.com/${$("#event-types").data("url")}/${$("#event-types").val()}?hide_gdpr_banner=1&background_color={{ $quiz->background_color }}&text_color={{ $quiz->main_text_color }}&primary_color={{ $quiz->main_text_color }}`);
+          }else {
+            errors.push(["event-types", "no value selected"]);
+          }
+
+          if (quizType == 1) {
+            formData.append("min_score", $("#minScoreInput").val());
+            formData.append("max_score", $("#maxScoreInput").val());
+            formData.append("show_score", $("#show-score").prop("checked"));
+            formData.append("en_score_message", $("#scoreDisplayMsg").val());
+          }
+
+          if (errors.length == 0) {
+            $.ajax({
+              type: 'POST', // For jQuery < 1.9
+              method: "POST",
+              url: "{{ route("add_result", compact("quiz")) }}",
+              data: formData,
+              cache: false,
+              processData: false,
+              contentType: false,
+              success: function(res) {
+                let title = formData.get(LANG + "_result_title") ?? formData.get("en_result_title");
+                createResult(title, res, type, "resultItemsContainer", formData.get("min_score"), formData.get("max_score"));
+                $("#resultRemovableInfo").addClass("d-none");
+                $(`#questionsModal`).modal("hide");
+                let alert = makeSuccessAlert("Result Added Successfully");
+                setTimeout(() => {
+                  alert.close();
+                }, 2000);
+              },
+              error: (res) => console.error(res)
+            });
+          }else {
+            errors.forEach(err => {
+              console.log(err);
+              $("#" + err[0]).addClass("border-danger", "border")
+              let trig = $("#" + err[0]).siblings(".text-danger");
+              if (trig.length > 0) {
+                trig.remove();
+              }
+              $("#" + err[0]).after("<div class='text-danger'>" + err[1] + "</div>");
+            });
+          }
+
         }
 
       });
@@ -1353,12 +1884,24 @@
     function updateQuestion(question, quizType) {
 
       $("#submit_modal").click(function () {
+        console.log(question.type);
         if (question.type == 1) {
 
           var formData = new FormData();
-          $("#answersContainer .answer-val").each(function (el) {
+          $("#answersContainer .answer-primary").each(function (el) {
             formData.append(`en_answers[${el}][id]`, $(this).data("id"));
             formData.append(`en_answers[${el}][text]`, $(this).val());
+            if (is_admin && $(this).val().length > 0) {
+              formData.append(`en_answers[${el}][ar_text]`, $(this).siblings(".answer-second").first().val());
+            }
+            if (is_admin) {
+              if (
+                (formData.get(`en_answers[${el}][text]`) == null || formData.get(`en_answers[${el}][text]`) == "") &&
+                (formData.get(`en_answers[${el}][ar_text]`) != null && formData.get(`en_answers[${el}][ar_text]`) != "")
+              ) {
+                formData.append(`en_answers[${el}][text]`, formData.get(`en_answers[${el}][ar_text]`));
+              }
+            }
             if (quizType == 1) {
               formData.append(`en_answers[${el}][score]`, $("#" + $(this).attr("id") + "-score-input").val());
             }
@@ -1374,10 +1917,20 @@
           if (imageValue != undefined) {
             formData.append("image", imageValue);
           }
-          formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
-          formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+          }
           formData.append("multi_select", document.getElementById("multiSelect").checked == true ? 1 : 0);
 
           $.ajax({
@@ -1389,7 +1942,7 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              $(`#question-${question.id}-title`).text($("#EnQuestionTitleInput").val());
+              $(`#question-${question.id}-title`).text(formData.get("en_question_title"));
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Updated Successfully");
               setTimeout(() => {
@@ -1397,6 +1950,7 @@
               }, 2000);
             },
             error: function(res) {
+              console.error(res)
               let alert = makeErrorAlert("Can't Update This Question");
               setTimeout(() => {
                 alert.close();
@@ -1409,9 +1963,20 @@
         }else if (question.type == 2) {
 
           var formData = new FormData();
-          $("#answersContainer .answer-val").each(function (el) {
+          $("#answersContainer .answer-primary").each(function (el) {
             formData.append(`en_answers[${el}][id]`, $(this).data("id"));
             formData.append(`en_answers[${el}][text]`, $(this).val());
+            if (is_admin && $(this).val().length > 0) {
+              formData.append(`en_answers[${el}][ar_text]`, $(this).siblings(".answer-second").first().val());
+            }
+            if (is_admin) {
+              if (
+                (formData.get(`en_answers[${el}][text]`) == null || formData.get(`en_answers[${el}][text]`) == "") &&
+                (formData.get(`en_answers[${el}][ar_text]`) != null && formData.get(`en_answers[${el}][ar_text]`) != "")
+              ) {
+                formData.append(`en_answers[${el}][text]`, formData.get(`en_answers[${el}][ar_text]`));
+              }
+            }
             if (quizType == 1) {
               formData.append(`en_answers[${el}][score]`, $("#" + $(this).attr("id") + "-score-input").val());
             }
@@ -1431,6 +1996,18 @@
           }
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+          }
           formData.append("multi_select", document.getElementById("multiSelect").checked == true ? 1 : 0);
 
           $.ajax({
@@ -1442,7 +2019,7 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              $(`#question-${question.id}-title`).text($("#EnQuestionTitleInput").val());
+              $(`#question-${question.id}-title`).text(formData.get("en_question_title"));
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Updated Successfully");
               setTimeout(() => {
@@ -1480,9 +2057,66 @@
 
           formData.append("en_question_title", $("#EnQuestionTitleInput").val());
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
+          formData.append("en_button_label", $("#EnQuestionButtonLabel").val());
+
+          if ($("#fields-holder-preview .field").length > 0) {
+            $("#fields-holder-preview .field").each(function (i) {
+              if ($(this).data("id") != null && $(this).data("id") != undefined) {
+                formData.append(`fields[${i}][id]`, $(this).data("id"));
+              }
+              formData.append(`fields[${i}][label]`, $(this).data("title"));
+              formData.append(`fields[${i}][type]`, $(this).data("type"));
+              formData.append(`fields[${i}][order]`, $(this).data("order"));
+
+              if ([1, 2, 3, 4, 5, 6, 8, 11, 12].includes($(this).data("type"))) {
+                formData.append(`fields[${i}][placeholder]`, $(this).data("placeholder"));
+              }
+              if ($(this).data("type") != 13) {
+                formData.append(`fields[${i}][is_required]`, $(this).data("is_required"));
+              }
+              if ($(this).data("type") == 3) {
+                formData.append(`fields[${i}][is_lead_email]`, $(this).data("is_lead_email"));
+              }
+              if ([7,8].includes($(this).data("type"))) {
+                //is_multiple_chooseing
+                if ($(this).data("type") == 7) {
+                  formData.append(`fields[${i}][is_multiple_chooseing]`, $(this)[0].dataset.is_multiple_chooseing);
+                }
+                $(this).find(".option-input").each(function (x) {
+                  formData.append(`fields[${i}][options][]`, $(this).val());
+                });
+              }
+              if ($(this).data("type") == 13) {
+                formData.append(`fields[${i}][hidden_value]`, $(this).data("hidden_value"));
+              }
+
+            });
+          }else {
+            $("#fields-holder-preview").html("<div class='alert alert-danger'>No Fields</div>").removeClass("d-none");
+            return;
+          }
+
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+            formData.append("ar_button_label", $("#ArQuestionButtonLabel").val());
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+            if (
+              (formData.get("en_button_label") == null || formData.get("en_button_label") == "") &&
+              (formData.get("ar_button_label") != null && formData.get("ar_button_label") != "")
+            ) {
+              formData.append("en_button_label", formData.get("ar_button_label"));
+            }
+          }
           formData.append("show_policy", $("#showPrivacyCheckbox").prop("checked"));
           formData.append("is_skippable", $("#isSkippableCheckbox").prop("checked"));
-          formData.append("en_button_label", $("#EnbuttonLabelInput").val());
 
           $.ajax({
             type: 'POST', // For jQuery < 1.9
@@ -1493,7 +2127,7 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              $(`#question-${question.id}-title`).text($("#EnQuestionTitleInput").val());
+              $(`#question-${question.id}-title`).text(formData.get("en_question_title"));
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Updated Successfully");
               setTimeout(() => {
@@ -1505,27 +2139,58 @@
               setTimeout(() => {
                 alert.close();
               }, 2000);
-              for (let error in res.responseJSON.errors) {
-                console.error(error);
+
+              if (res.responseJSON != null && res.responseJSON.errors != null) {
+
+                let errorsTable = {
+                  "en_button_label": "EnQuestionButtonLabel",
+                  "en_question_title": "EnQuestionTitleInput",
+                };
+
+                $("#modalSidebar input").removeClass("border border-danger");
+                Object.keys(res.responseJSON.errors).forEach(err => {
+                  $("#" + errorsTable[err]).addClass("border border-danger");
+                });
+
               }
             }
           });
 
         }else if (question.type == 4) {
 
+          let data = {
+            "type_id": question.type,
+            "en_question_title": $("#EnQuestionTitleInput").val(),
+            "en_question_desc": $("#EnquestionDescInpiut").val(),
+            "en_button_label": $("#EnQuestionButtonLabel").val(),
+          };
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            data["ar_question_title"] = $("#ArQuestionTitleInput").val();
+            data["ar_question_desc"] = $("#ArquestionDescInpiut").val();
+            data["ar_button_label"] = $("#ArQuestionButtonLabel").val();
+          }
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+            if (
+              (formData.get("en_button_label") == null || formData.get("en_button_label") == "") &&
+              (formData.get("ar_button_label") != null && formData.get("ar_button_label") != "")
+            ) {
+              formData.append("en_button_label", formData.get("ar_button_label"));
+            }
+          }
           $.ajax({
             type: 'POST', // For jQuery < 1.9
             method: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             url: `${question_ajax_route}/${question.id}`,
-            data: {
-              "type_id": question.type,
-              "en_question_title": $("#EnQuestionTitleInput").val(),
-              "en_question_desc": $("#EnquestionDescInpiut").val(),
-              "en_button_label": $("#EnQuestionButtonLabel").val(),
-            },
+            data: data,
             success: function(res) {
-              $(`#question-${question.id}-title`).text($("#EnQuestionTitleInput").val());
+              $(`#question-${question.id}-title`).text(formData.get("en_question_title"));
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Updated Successfully");
               setTimeout(() => {
@@ -1542,8 +2207,8 @@
                 }
               }
               if (res.responseJSON.errors["button_label"] != null && res.responseJSON.errors["button_label"][0] != null) {
-                $("#EnQuestionButtonLabel").addClass("is-invalid");
-                $("<div class='invalid-feedback'>" + res.responseJSON.errors["button_label"][0] + "</div>").insertAfter("#EnQuestionButtonLabel");
+                $("#QuestionButtonLabel").addClass("is-invalid");
+                $("<div class='invalid-feedback'>" + res.responseJSON.errors["button_label"][0] + "</div>").insertAfter("#QuestionButtonLabel");
               }
             }
           });
@@ -1571,6 +2236,27 @@
           formData.append("en_question_desc", $("#EnquestionDescInpiut").val());
           formData.append("en_button_label", $("#EnQuestionButtonLabel").val());
 
+          if (is_admin && $("#ArQuestionTitleInput").val().length > 0) {
+            formData.append("ar_question_title", $("#ArQuestionTitleInput").val());
+            formData.append("ar_question_desc", $("#ArquestionDescInpiut").val());
+            formData.append("ar_button_label", $("#ArQuestionButtonLabel").val());
+          }
+
+          if (is_admin) {
+            if (
+              (formData.get("en_question_title") == null || formData.get("en_question_title") == "") &&
+              (formData.get("ar_question_title") != null && formData.get("ar_question_title") != "")
+            ) {
+              formData.set("en_question_title", formData.get("ar_question_title"));
+            }
+            if (
+              (formData.get("en_button_label") == null || formData.get("en_button_label") == "") &&
+              (formData.get("ar_button_label") != null && formData.get("ar_button_label") != "")
+            ) {
+              formData.append("en_button_label", formData.get("ar_button_label"));
+            }
+          }
+
           $.ajax({
             type: 'POST', // For jQuery < 1.9
             method: "POST",
@@ -1580,7 +2266,7 @@
             processData: false,
             contentType: false,
             success: function(res) {
-              $(`#question-${question.id}-title`).text($("#EnQuestionTitleInput").val());
+              $(`#question-${question.id}-title`).text(formData.get("en_question_title"));
               $(`#questionsModal`).modal("hide");
               let alert = makeSuccessAlert("Question Updated Successfully");
               setTimeout(() => {
@@ -1603,21 +2289,42 @@
           var data = {
             "type_id": question.type - 5,
             "en_result_title": $("#resultTitleInput").val(),
-            "en_result_desc": $("#resultDescInpiut").val(),
+            "en_result_desc": $("#resultDescValue").val(),
             "show_social": $("#social-sharing").prop("checked"),
             "show_button": $("#showBtn").prop("checked"),
           };
-
+          if (is_admin && $("#resultTitleInputAr").val().length > 0) {
+            data["ar_result_title"] = $("#resultTitleInputAr").val();
+            data["ar_result_desc"]  = $("#resultDescValueAr").val();
+            data["ar_button_label"] = $("#resultButtonLabelAr").val();
+          }
           if (quizType == 1) {
             data["min_score"] = $("#minScoreInput").val();
             data["max_score"] = $("#maxScoreInput").val();
             data["show_score"] = $("#show-score").prop("checked");
             data["en_score_message"] = $("#scoreDisplayMsg").val();
+            if (is_admin) {
+              data["ar_score_message"] = $("#scoreDisplayMsgAr").val();
+            }
           }
-
           if ($("#showBtn").prop("checked")) {
             data["en_button_label"] = $("#resultButtonLabel").val();
             data["result_link"] = $("#resultButtonLink").val();
+          }
+
+          if (is_admin) {
+            if (
+              (data["en_result_title"] == null || data["en_result_title"] == "") &&
+              (data["ar_result_title"] != null && data["ar_result_title"] != "")
+            ) {
+              data["en_result_title"] = data["ar_result_title"];
+            }
+            if (
+              (data["en_button_label"] == null || data["en_button_label"] == "") &&
+              (data["ar_button_label"] != null && data["ar_button_label"] != "")
+            ) {
+              data["en_button_label"] = data["ar_button_label"];
+            }
           }
 
           $.ajax({
@@ -1629,7 +2336,7 @@
             },
             data: data,
             success: function(res) {
-              $(`#result-${question.id}-title`).text($("#resultTitleInput").val());
+              $(`#result-${question.id}-title`).text(data["en_result_title"]);
               let minScore = $("#minScoreInput").val();
               let maxScore = $("#maxScoreInput").val();
               $(`#result-${question.id} .score-title`).html(
@@ -1710,29 +2417,133 @@
             }
           });
 
+        }else if (question.type == 8) {
+
+          let errors = [];
+          var data = {
+            "id": question.id,
+            "type_id": question.type - 5,
+            "en_result_desc": $("#resultDescInpiut").val(),
+          };
+          let EnTitle = $("#resultTitleInput").val();
+          if (EnTitle != undefined && EnTitle != null && EnTitle.length > 0) {
+            data["en_result_title"] = $("#resultTitleInput").val();
+          }else {
+            errors.push(["resultTitleInput", "title must exist"]);
+          }
+
+          if ($("#event-types").val() != null && $("#event-types").val() != undefined) {
+            // data["result_link"] = $("#event-types").val();
+            data["result_link"] = `https://calendly.com/${$("#event-types").data("url")}/${$("#event-types").val()}?hide_gdpr_banner=1&background_color={{ $quiz->background_color }}&text_color={{ $quiz->main_text_color }}&primary_color={{ $quiz->main_text_color }}`;
+            // console.log(`https://calendly.com/${$("#event-types").data("url")}/${$("#event-types").val()}?hide_gdpr_banner=1&background_color={{ $quiz->background_color }}&text_color={{ $quiz->main_text_color }}&primary_color={{ $quiz->main_text_color }}`);
+          }else {
+            errors.push(["event-types", "no value selected"]);
+          }
+
+          if (is_admin && $("#resultTitleInputAr").val().length > 0) {
+            data["ar_result_title"] = $("#resultTitleInputAr").val();
+            data["ar_result_desc"]  = $("#resultDescInpiutAr").val();
+          }
+          if (quizType == 1) {
+
+            if ($("#minScoreInput").val() != null && $("#minScoreInput").val() != undefined) {
+              data["min_score"] = $("#minScoreInput").val();
+            }else {
+              errors.push(["minScoreInput", "min score is required"]);
+            }
+            if ($("#maxScoreInput").val() != null && $("#maxScoreInput").val() != undefined) {
+              data["max_score"] = $("#maxScoreInput").val();
+            }else {
+              errors.push(["maxScoreInput", "max score is required"]);
+            }
+            data["show_score"] = $("#show-score").prop("checked");
+            data["en_score_message"] = $("#scoreDisplayMsg").val();
+
+            if (is_admin && $("#scoreDisplayMsgAr").val().length > 0) {
+              data["ar_score_message"] = $("#scoreDisplayMsgAr").val();
+            }
+            if (is_admin) {
+              if (
+                (data["en_result_title"] == null || data["en_result_title"] == "") &&
+                (data["ar_result_title"] != null && data["ar_result_title"] != "")
+              ) {
+                data["en_result_title"] = data["ar_result_title"];
+              }
+              if (
+                (data["en_score_message"] == null || data["en_score_message"] == "") &&
+                (data["ar_score_message"] != null && data["ar_score_message"] != "")
+              ) {
+                data["en_score_message"] = data["ar_score_message"];
+              }
+            }
+          }
+
+          console.log(errors);
+          if (errors.length == 0) {
+
+            $.ajax({
+              type: 'POST', // For jQuery < 1.9
+              method: "POST",
+              url: `${get_result}/${question.id}`,
+              headers: {
+                "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content"),
+              },
+              data: data,
+              success: function(res) {
+                $(`#result-${question.id}-title`).text(data["en_result_title"]);
+                let minScore = $("#minScoreInput").val();
+                let maxScore = $("#maxScoreInput").val();
+                $(`#result-${question.id} .score-title`).html(
+                  `Score: <b id="result-${question.id}-max-score">${minScore}</b> to <b id="result-${question.id}-max-score">${maxScore}</b>`
+                );
+                $(`#questionsModal`).modal("hide");
+                let alert = makeSuccessAlert("Result Updated Successfully");
+                setTimeout(() => {
+                  alert.close();
+                }, 2000);
+              },
+              error: (res) => console.error(res)
+            });
+          }else {
+            errors.forEach(err => {
+              console.log(err);
+              $("#" + err[0]).addClass("border-danger", "border")
+              let trig = $("#" + err[0]).siblings(".text-danger");
+              if (trig.length > 0) {
+                trig.remove();
+              }
+              $("#" + err[0]).after("<div class='text-danger'>" + err[1] + "</div>");
+            });
+          }
+
         }
       });
     }
 
-    function reorderQuestions(orders) {
+    function reorderQuestions(orders, questions) {
       $.ajax({
-          method: "POST",
-          url: "{{ route("reorder_quiz_questions", compact("quiz")) }}",
-          headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          },
-          data: {
-            "questions": orders,
-          },
-          success: function(res) {
-            let alert = makeSuccessAlert("Questions Reordered Successfully");
-            setTimeout(() => {
-              alert.close();
-            }, 2000);
-          },
-          error: function(res) {
-            console.error(res);
-          }
+        method: "POST",
+        url: "{{ route("reorder_quiz_questions", compact("quiz")) }}",
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+          "questions": orders,
+        },
+        success: function(res) {
+          let alert = makeSuccessAlert("Questions Reordered Successfully");
+          setTimeout(() => {
+            alert.close();
+          }, 2000);
+        },
+        complete: function() {
+          questions.forEach(el => {
+            el.classList.remove("filtered");
+          })
+        },
+        error: function(res) {
+          console.error(res);
+        }
       });
     }
 

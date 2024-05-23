@@ -16,6 +16,6 @@ class Admin extends Middleware {
       }
       return $next($request);
     }
-    return redirect()->route('user.login');
+    return redirect()->route('login');
   }
 }

@@ -11,10 +11,12 @@ return new class extends Migration {
         Schema::create('integrations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('website_id');
+            $table->string("username")->nullable();
             $table->string("name");
             $table->string("email")->nullable();
             $table->text("key")->nullable();
-            $table->string("url")->nullable();
+            $table->text("value")->nullable();
+            // $table->string("url")->nullable();
             $table->unique(['website_id', 'name']);
             $table->foreign('website_id')->references('id')->on('websites')->onDelete('cascade');
         });

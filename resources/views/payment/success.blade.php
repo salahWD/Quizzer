@@ -12,8 +12,8 @@
           </svg>
         </div>
         <div class="text-center">
-          <h1>Thank You !</h1>
-          <p>We've send the link to your inbox. Lorem ipsum dolor sit,lorem lorem </p>
+          <h1>{{ __('Thank You') }} !</h1>
+          <p>{{ __("We've send the link to your inbox") }}.</p>
           <a href="{{ route("show_websites") }}" class="btn btn-outline-success">{{ __('Go To Dashboard') }}</a>
         </div>
       </div>

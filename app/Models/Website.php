@@ -44,7 +44,7 @@ class Website extends Model
   }
 
   public function get_quizzes() {
-    return $this->quizzes;
+    return $this->quizzes()->orderBy("created_at", "DESC")->get();
   }
 
 }

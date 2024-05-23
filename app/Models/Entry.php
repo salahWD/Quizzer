@@ -15,6 +15,8 @@ class Entry extends Model {
   protected $fillable = [
     "question_id",
     "submission_id",
+    "utm_name",
+    "utm_value",
   ];
 
   public function submittion() {
@@ -35,7 +37,7 @@ class Entry extends Model {
 
   public function fields_label_value($lang="en") {
     return $this->belongsToMany(Field::class)
-        ->select("entry_field.value", "field_translations.label AS field_label")
+        ->select("fields.type", "entry_field.value", "field_translations.label AS field_label")
         ->leftJoin("field_translations", "field_translations.field_id", "=", "entry_field.field_id")
         ->where("locale", $lang);
   }

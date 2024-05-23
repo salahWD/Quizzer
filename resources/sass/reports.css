@@ -130,6 +130,10 @@
   transition: transform 0.3s linear;
   transition: transform 0.3s linear, -webkit-transform 0.3s linear;
 }
+html[lang="ar"] .small-box .icon > i {
+  left: 15px;
+  right: unset;
+}
 
 .small-box .icon > i.fa,
 .small-box .icon > i.fas,

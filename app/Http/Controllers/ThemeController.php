@@ -10,16 +10,18 @@ use Illuminate\Http\Request;
 class ThemeController extends Controller {
 
     public function __construct() {
-      $this->middleware(['auth', 'is_admin']);
+      $this->middleware(['auth', 'is_admin'])->except("copy");
     }
 
     public function create() {
 
       $themes = Theme::all();
+      $theme = Theme::create_default_theme();
       $default = Theme::Default;
       $fonts = Theme::fontFamilies;
+      $fonts_ar = Theme::ArabicFontFamilies;
 
-      return view("themes.create", compact("themes", "default", "fonts"));
+      return view("themes.create", compact("themes", "theme", "default", "fonts", "fonts_ar"));
 
     }
 
@@ -30,6 +32,7 @@ class ThemeController extends Controller {
         $request->validate([
           "is_public"             => "sometimes|numeric|in:1,0",
           "font_family"           => "required|numeric",
+          "font_family_ar"        => "sometimes|nullable|numeric",
           "main_text_color"       => "required|max:7|starts_with:#",
           "background_color"      => "required|max:7|starts_with:#",
           "btn_color"             => "required|max:7|starts_with:#",
@@ -49,6 +52,7 @@ class ThemeController extends Controller {
         // set Theme info
         $theme->is_public             = request("is_public") ?? 0;
         $theme->font_family           = request("font_family");
+        $theme->font_family_ar        = request("font_family_ar") ?? 0;
         $theme->main_text_color       = request("main_text_color");
         $theme->background_color      = request("background_color");
         $theme->btn_color             = request("btn_color");
@@ -83,9 +87,10 @@ class ThemeController extends Controller {
     public function edit(Theme $theme, Request $request) {
 
       $fonts = Theme::fontFamilies;
+      $fonts_ar = Theme::ArabicFontFamilies;
       $themes = Theme::all();
 
-      return view("themes.update", compact("themes", "theme", "fonts"));
+      return view("themes.update", compact("themes", "theme", "fonts", "fonts_ar"));
 
     }
 
@@ -97,6 +102,7 @@ class ThemeController extends Controller {
           "id"                => "required|exists:themes",
           "is_public"         => "sometimes|numeric|in:1,0",
           "font_family"       => "required|numeric",
+          "font_family_ar"    => "sometimes|nullable|numeric",
           "main_text_color"   => "required|max:7|starts_with:#",
           "background_color"  => "required|max:7|starts_with:#",
           "btn_color"         => "required|max:7|starts_with:#",
@@ -114,6 +120,7 @@ class ThemeController extends Controller {
         // set Theme info
         $theme->is_public             = request("is_public") ?? 0;
         $theme->font_family           = request("font_family");
+        $theme->font_family_ar        = request("font_family_ar") ?? 0;
         $theme->main_text_color       = request("main_text_color");
         $theme->background_color      = request("background_color");
         $theme->btn_color             = request("btn_color");
@@ -164,7 +171,7 @@ class ThemeController extends Controller {
 
     public function copy(Quiz $quiz, Request $request) {
 
-      if ($quiz->website->user->id == auth()->user()->id) {
+      if (auth()->user()->is_admin() || $quiz->website->user_id == auth()->user()->id) {
 
         $request->validate([
           "theme_id" => "required|exists:themes,id",
@@ -174,6 +181,7 @@ class ThemeController extends Controller {
 
         // set Theme info
         $quiz->font_family           = $design_info->font_family;
+        $quiz->font_family_ar        = $design_info->font_family_ar;
         $quiz->main_text_color       = $design_info->main_text_color;
         $quiz->background_color      = $design_info->background_color;
         $quiz->btn_color             = $design_info->btn_color;
@@ -190,7 +198,9 @@ class ThemeController extends Controller {
 
           $quiz->image = str_replace(" ", "", date('mdYHis') . uniqid() . substr($design_info->image, -10));
 
-          File::copy(public_path("images/uploads/$design_info->image") , public_path("images/uploads/$quiz->image"));
+          if (File::exists(public_path("images/uploads/$design_info->image") , public_path("images/uploads/$quiz->image"))) {
+            File::copy(public_path("images/uploads/$design_info->image") , public_path("images/uploads/$quiz->image"));
+          }
 
         }
 

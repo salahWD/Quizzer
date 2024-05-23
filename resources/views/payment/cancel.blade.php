@@ -12,8 +12,8 @@
           </svg>
         </div>
         <div class="text-center">
-          <h1 class="text-danger">Error Occurred !</h1>
-          <p>somthing went wrong, please try agin or contact us</p>
+          <h1 class="text-danger">{{ __('Error Occurred') }} !</h1>
+          <p>{{ __('somthing went wrong, please try agin or contact us') }}</p>
           <a href="{{ route("home") }}" class="btn btn-danger">{{ __('Home') }}</a>
         </div>
       </div>

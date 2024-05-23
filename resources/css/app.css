@@ -49,3 +49,14 @@ html[lang="ar"] {
 .nav-item.active a {
   color: inherit !important;
 }
+
+html[lang="ar"] .progress .progress-bar p {
+  margin-left: unset;
+  margin-right: 15px;
+}
+
+@media screen and (max-width: 959px) {
+  .mx-md-text-center {
+    text-align: center;
+  }
+}

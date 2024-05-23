@@ -18,7 +18,8 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/home';
+    // public const HOME = '/home';// the default value of quizzer
+    public const HOME = '/websites';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.

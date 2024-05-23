@@ -19,45 +19,50 @@ class PayController extends Controller {
 
   public function success(Request $request) {
 
-    dd($request->all());
+    // $request->validate([
+    //   "payment_intent" => "string",
+    // ]);
 
     $request->validate([
-      "token" => "required|string|exists:payments,payment_id",
+      "subscription_id" => "string|exists:payments,payment_id",
     ]);
 
-    $payment = DB::table("payments")
+    // dd(request("payment_intent")->all()/* , auth()->user()->subscribed() */);
+
+    if (request("subscription_id") != null) {
+      $payment = DB::table("payments")
+        ->where("payment_id", request("subscription_id"))
+        ->first();
+    } else {
+      $request->validate([
+        "token" => "required|string|exists:payments,payment_id",
+      ]);
+      $payment = DB::table("payments")
         ->where("payment_id", request("token"))
         ->first();
-
-    dd("success", $payment);
+    }
 
     if (!$payment) {
       return abort(404);
-    }else {
+    } else {
 
-      if ($payment->method == "paypal") {
+      if ($payment->method == "paypal" || $payment->method == "stripe") {
+        if ($payment->is_viewed != 1) {
 
-        DB::table("payments")->where("payment_id", request("token"))->where("status", "pending")->update(["status" => "completed"]);
+          DB::table("payments")->where("id", $payment->id)->where("status", "pending")->update(["status" => "completed", "is_viewed" => 1]);
 
-        auth()->user()->upgrade_or_renew_package($payment->package_id);// upgrade package
+          auth()->user()->upgrade_or_renew_package($payment->package_id); // upgrade package
 
-        return view("payment.success");
-
-      }else if ($payment->method == "stripe") {
-
-        StripePayment::where("payment_id", request("token"))->where("status", "pending")->update(["status" => "completed"]);
-
-        auth()->user()->upgrade_or_renew_package($payment->package_id);// upgrade package
-
-        return view("payment.success");
-
-      }else if ($payment->method == "bank") {
+          return view("payment.success");
+        } else {
+          return redirect()->route("pricing");
+        }
+      } else if ($payment->method == "bank") {
         return redirect()->route("pending_payment");
-      }else {
+      } else {
         redirect()->route("cancel_payment");
       }
     }
-
   }
 
   public function process(Plan $plan, Request $request) {
@@ -65,8 +70,8 @@ class PayController extends Controller {
     $request->validate(
       [
         "payment_method" => "required|string|in:paypal,stripe,bank",
-        "bank_bill" => "required_if:payment_method,bank|image|mimes:png,jpg,jpeg|max:2048",// max = 2 mega byte
-        "coupon" => "sometimes|nullable|string|min:6|max:6",
+        "bank_bill" => "required_if:payment_method,bank|image|mimes:png,jpg,jpeg|max:2048", // max = 2 mega byte
+        "coupon" => "sometimes|nullable|string|min:4|max:14",
       ],
       [
         "payment_method" => "No payment method has been selected",
@@ -77,19 +82,24 @@ class PayController extends Controller {
     $package = $plan->package();
     $price = $package["PRICE"];
     $package_id = $package["ID"];
+    $coupon_price = 0;
 
     if (request('coupon') != null && !empty(request('coupon'))) {
 
       $coupon = Coupon::where("code", request('coupon'))
-          ->where("expire_date", ">", now())
-          ->first();
+        ->where("expire_date", ">", now())
+        ->first();
 
       if ($coupon != null && (($coupon->package_id != null && $coupon->package_id == $package_id) || $coupon->package_id == null)) {
-        $price = $price - $coupon->amount > 0 ? $price - $coupon->amount : 0;
+        if ($coupon->type == 2 && $coupon->amount > 0) { // percent and larger then 0
+          $coupon_price = ($coupon->amount / 100) * $price;
+        } else {
+          $coupon_price = $coupon->amount;
+        }
+        $price -= $coupon_price;
         $coupon->usage = $coupon->usage + 1;
         $coupon->save();
       }
-
     }
 
     // if (auth()->user()->get_remaining_paid_value() > 0) {
@@ -111,25 +121,24 @@ class PayController extends Controller {
       $stripe = new StripePayment([
         "token" => request('token'),
         "package_id" => $package_id,
+        "coupon" => request()->has('coupon') ? request('coupon') : null,
         "stripe_plan" => $plan->stripe_plan,
-        "price" => $plan->price,
+        "price" => $plan->price, // original price of plan
       ]);
 
-      // if ($price > 0 && $this->took_trial == 1) {
       $stripe->pay();
-      // }
-    }else if (request("payment_method") == "paypal") {
-
+    } else if (request("payment_method") == "paypal") {
       $paypal = new Paypal([
-        "price" => $price,
+        "price" => $price, // price after discount
         "package_id" => $package_id,
         "paypal_plan" => $plan->paypal_plan,
+        "coupon" => isset($coupon) && !empty($coupon) ? $coupon : "",
+        "coupon_price" => $coupon_price,
         "package_name" => $plan->name,
       ]);
 
       $paypal->pay();
-
-    }else if (request("payment_method") == "bank") {
+    } else if (request("payment_method") == "bank") {
 
       $image_name = date('mdYHis') . uniqid() . $request->file('bank_bill')->getClientOriginalName();
       $request->bank_bill->move(public_path('images/bills'), $image_name);
@@ -145,29 +154,34 @@ class PayController extends Controller {
       }
 
       return redirect()->route("cancel_payment");
-
-    }else {
+    } else {
       return abort(404);
     }
-
+    return abort(404);
   }
 
   public function upgrade($package_id) {
 
     if (auth()->user()->change_trial_package($package_id)) {
       return redirect()->route("show_websites");
-    }elseif (!auth()->user()->took_trail()) {
+    } elseif (!auth()->user()->took_trail()) {
       auth()->user()->open_free_trial($package_id);
       return redirect()->route("show_websites");
     }
     return abort(404);
-
   }
 
   public function manage() {
 
     $payments = Payment::where("method", "bank")->orderBy("status")->paginate(20);
     return view("payment.approve", compact("payments"));
+  }
+
+  public function payment_info($payment_id) {
+
+    $payment = Payment::where("id", $payment_id)->with("user")->first();
+
+    return view("payment.info", compact("payment"));
   }
 
   public function approve($payment_id) {
@@ -187,5 +201,17 @@ class PayController extends Controller {
     }
     return redirect()->route('manage_payments');
   }
+
+  // public function check_subscription(Request $request) {
+
+  //   $payment = auth()->user()->payments()->orderBy("created_at", "DESC")->first();
+
+  //   $paypal = new Paypal([
+  //     "token" => $payment->payment_id,
+  //   ]);
+
+  //   $paypal->is_active_subscription();// is active subscription
+
+  // }
 
 }

@@ -29,7 +29,7 @@ body {
 }
 .table-title {
   padding-bottom: 15px;
-  background: #299be4;
+  background: #6e3e98;
   color: $color_2;
   padding: 16px 30px;
   margin: -20px -25px 10px;
@@ -38,7 +38,7 @@ body {
     margin: 5px 0 0;
     font-size: 24px;
   }
-  .btn {
+  .btn:not(.real-btn) {
     color: $color_1;
     float: right;
     font-size: 13px;
@@ -68,6 +68,9 @@ body {
     }
   }
 }
+html[lang="ar"] .table-title .btn {
+  float: left;
+}
 .table {
   display: flex;
   flex-direction: column;
@@ -75,8 +78,20 @@ body {
   &.table-7-col .row .cell {
     flex-basis: calc(100% / 7);
   }
+  &.table-4-col .row .cell {
+    flex-basis: calc(100% / 4) !important;
+  }
+  &.table-5-col .row .cell {
+    flex-basis: calc(100% / 5) !important;
+  }
+  &.table-2-col .row .cell {
+    flex-basis: calc(100% / 2) !important;
+  }
   &.table-8-col .row .cell {
     flex-basis: calc(100% / 8);
+  }
+  &.table-8-col .row .cell {
+    flex-basis: calc(100% / 9);
   }
   .row {
     display: flex;
@@ -220,13 +235,13 @@ body {
   }
   li.active {
     a {
-      background: #03a9f4;
+      background: #6e3e98;
       &:hover {
-        background: #0397d6;
+        background: #63318f;
       }
     }
     a.page-link {
-      background: #03a9f4;
+      background: #6e3e98;
     }
   }
   li.disabled {

@@ -15,9 +15,9 @@ class ResultController extends Controller {
 
       $request->validate(["type_id" => "required|integer|min:1|max:3"]);
 
-      if ($quiz->type == 1) {// type 1 => scoring
+      if ($quiz->type == 1) { // type 1 => scoring
 
-        if (request("type_id") == 1) {// type_id 1 => result builder
+        if (request("type_id") == 1) { // type_id 1 => result builder
 
           $validator = Validator::make(request()->all(), [
             "min_score"     => "required|integer|lt:max_score",
@@ -26,9 +26,13 @@ class ResultController extends Controller {
             "en_score_message" => "nullable|required_if:show_score,true|string|min:1|max:40",
             "en_result_title" => "required|string|max:200",
             "en_result_desc"  => "nullable|string",
-            "en_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:20",
+            "en_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:120",
+            "ar_score_message"  => "nullable",
+            "ar_result_title"   => "nullable",
+            "ar_result_desc"    => "nullable",
+            "ar_button_label"   => "nullable",
             "show_button"     => "required|string|in:true,false",
-            "result_link"   => "nullable|required_if:show_buttin,true|url",
+            "result_link"   => "nullable|required_if:show_buttin,true|string",
             "show_social"   => "required|string|in:true,false",
           ]);
 
@@ -40,7 +44,8 @@ class ResultController extends Controller {
               (request("max_score") >= $DBresult->min_score  && request("max_score") <= $DBresult->max_score)
             ) {
               $validator->errors()->add(
-                'min_score', 'there is a collapse between result scores!!'
+                'min_score',
+                'there is a collapse between result scores!!'
               );
             }
           }
@@ -51,7 +56,7 @@ class ResultController extends Controller {
               "errors" => $validator->errors(),
             ], 500);
             exit();
-          }else {
+          } else {
             $resultInfo = [
               "quiz_id" => $quiz->id,
               "type" => request("type_id"),
@@ -61,14 +66,14 @@ class ResultController extends Controller {
                 "button_label" => request("en_button_label"),
                 "score_message" => request("en_score_message"),
               ],
-              "show_button" => request("show_button") == "true" ? 1: 0,
+              "show_button" => request("show_button") == "true" ? 1 : 0,
               "result_link" => request("result_link"),
-              "show_social" => request("show_social") == "true" ? 1: 0,
+              "show_social" => request("show_social") == "true" ? 1 : 0,
               "min_score" => request("min_score"),
               "max_score" => request("max_score"),
-              "show_score" => request("show_score") == "true" ? 1: 0,
+              "show_score" => request("show_score") == "true" ? 1 : 0,
             ];
-            if (auth()->user()->is_admin() && null !== request("ar_result_title")) {
+            if (auth()->user()->can_translate() && null !== request("ar_result_title")) {
               $resultInfo["ar"] = [
                 "title" => request("ar_result_title"),
                 "description" => request("ar_result_desc"),
@@ -78,14 +83,13 @@ class ResultController extends Controller {
             }
             $result = Result::create($resultInfo);
           }
-
-        }elseif (request("type_id") == 2) {// type_id 2 => redirect result
+        } elseif (request("type_id") == 2) { // type_id 2 => redirect result
 
           $validator = Validator::make(request()->all(), [
             "min_score" => "required|integer|lt:max_score",
             "max_score" => "required|integer",
             "en_result_title" => "required|string|max:200",
-            "result_link"  => "required|url",
+            "result_link"  => "required|string",
             "send_data"    => "required|string|in:true,false",
             "send_utm"     => "required|string|in:true,false",
           ]);
@@ -98,7 +102,8 @@ class ResultController extends Controller {
               (request("max_score") >= $DBresult->min_score  && request("max_score") <= $DBresult->max_score)
             ) {
               $validator->errors()->add(
-                'min_score', 'there is a collapse between result scores!!'
+                'min_score',
+                'there is a collapse between result scores!!'
               );
             }
           }
@@ -109,7 +114,7 @@ class ResultController extends Controller {
               "errors" => $validator->errors(),
             ], 500);
             exit();
-          }else {
+          } else {
             $result = Result::create([
               "quiz_id"     => $quiz->id,
               "type"        => request("type_id"),
@@ -119,12 +124,11 @@ class ResultController extends Controller {
               "result_link" => request("result_link"),
               "min_score"   => request("min_score"),
               "max_score"   => request("max_score"),
-              "send_data"   => request("send_data") == "true" ? 1: 0,
-              "send_UTM"    => request("send_utm") == "true" ? 1: 0,
+              "send_data"   => request("send_data") == "true" ? 1 : 0,
+              "send_UTM"    => request("send_utm") == "true" ? 1 : 0,
             ]);
           }
-
-        }elseif (request("type_id") == 3) {// 3 => calendly
+        } elseif (request("type_id") == 3) { // 3 => calendly
 
           $validator = Validator::make(request()->all(), [
             "min_score" => "required|integer|lt:max_score",
@@ -143,7 +147,8 @@ class ResultController extends Controller {
               (request("max_score") >= $DBresult->min_score  && request("max_score") <= $DBresult->max_score)
             ) {
               $validator->errors()->add(
-                'min_score', 'there is a collapse between result scores!!'
+                'min_score',
+                'there is a collapse between result scores!!'
               );
             }
           }
@@ -154,7 +159,7 @@ class ResultController extends Controller {
               "errors" => $validator->errors(),
             ], 500);
             exit();
-          }else {
+          } else {
 
             $resultInfo = [
               "quiz_id"     => $quiz->id,
@@ -170,7 +175,7 @@ class ResultController extends Controller {
               "max_score"   => request("max_score"),
             ];
 
-            if (auth()->user()->is_admin() && request("ar_result_title") !== null) {
+            if (auth()->user()->can_translate() && request("ar_result_title") !== null) {
               $resultInfo["ar"] = [
                 "title"         => request("ar_result_title"),
                 "description"   => request("ar_result_desc"),
@@ -182,20 +187,19 @@ class ResultController extends Controller {
         }
 
         return isset($result) ? $result->id : false;
+      } else if ($quiz->type == 2) { // type 2 => outcome
 
-      }else if ($quiz->type == 2) {// type 2 => outcome
-
-        if (request("type_id") == 1) {// 1 => result builder
+        if (request("type_id") == 1) { // 1 => result builder
 
           $validated = $request->validate([
             "en_result_title" => "required|string|max:200",
             "en_result_desc"  => "nullable|string",
-            "en_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:20",
+            "en_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:120",
             "ar_result_title" => "nullable|string|max:200",
             "ar_result_desc"  => "nullable|string",
-            "ar_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:20",
+            "ar_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:120",
             "show_button"     => "required|string|in:true,false",
-            "result_link"   => "nullable|required_if:show_buttin,true|url",
+            "result_link"   => "nullable|required_if:show_buttin,true|string",
             "show_social"   => "required|string|in:true,false",
           ]);
 
@@ -207,11 +211,11 @@ class ResultController extends Controller {
               "description"  => request("en_result_desc"),
               "button_label" => request("en_button_label"),
             ],
-            "show_button" => request("show_button") == "true" ? 1: 0,
+            "show_button" => request("show_button") == "true" ? 1 : 0,
             "result_link" => request("result_link"),
-            "show_social" => request("show_social") == "true" ? 1: 0,
+            "show_social" => request("show_social") == "true" ? 1 : 0,
           ];
-          if (auth()->user()->is_admin() && null !== request("ar_result_title")) {
+          if (auth()->user()->can_translate() && null !== request("ar_result_title")) {
             $resultInfo["ar"] = [
               "title" => request("ar_result_title"),
               "description" => request("ar_result_desc"),
@@ -221,19 +225,18 @@ class ResultController extends Controller {
 
           $result = Result::create($resultInfo);
 
-          if (auth()->user()->is_admin() && null !== request("ar_result_title")) {
+          if (auth()->user()->can_translate() && null !== request("ar_result_title")) {
             $ar = $result->translateOrNew("ar");
             $ar->title        = request("ar_result_title") ?? "";
             $ar->description  = request("ar_result_desc") ?? "";
             $ar->button_label = request("ar_button_label") ?? "";
             $ar->save();
           }
-
-        }elseif (request("type_id") == 2) {// 2 => redirect result
+        } elseif (request("type_id") == 2) { // 2 => redirect result
 
           $validated = $request->validate([
             "en_result_title" => "required|string|max:200",
-            "result_link"  => "required|url",
+            "result_link"  => "required|string",
             "send_data"    => "required|string|in:true,false",
             "send_utm"     => "required|string|in:true,false",
           ]);
@@ -245,11 +248,10 @@ class ResultController extends Controller {
               "title"    => request("en_result_title"),
             ],
             "result_link" => request("result_link"),
-            "send_data"   => request("send_data") == "true" ? 1: 0,
-            "send_UTM"    => request("send_utm") == "true" ? 1: 0,
+            "send_data"   => request("send_data") == "true" ? 1 : 0,
+            "send_UTM"    => request("send_utm") == "true" ? 1 : 0,
           ]);
-
-        }elseif (request("type_id") == 3) {// 3 => calendly
+        } elseif (request("type_id") == 3) { // 3 => calendly
 
           $validated = $request->validate([
             "en_result_title" => "required|string|max:200",
@@ -266,7 +268,7 @@ class ResultController extends Controller {
             "result_link" => request("result_link"),
           ];
 
-          if (auth()->user()->is_admin() && request("ar_result_title") !== null) {
+          if (auth()->user()->can_translate() && request("ar_result_title") !== null) {
             $resultInfo["ar"] = [
               "title"         => request("ar_result_title"),
               "description"   => request("ar_result_desc"),
@@ -274,19 +276,15 @@ class ResultController extends Controller {
           }
 
           $result = Result::create($resultInfo);
-
         }
 
         return isset($result) ? $result->id : false;
-
-      }else {// quiz type is not scoring or outcome
+      } else { // quiz type is not scoring or outcome
         return false;
       }
-
-    }else {// not admin
+    } else { // not admin
       return false;
     }
-
   }
 
   public function copy(Result $result, Request $request) {
@@ -305,14 +303,14 @@ class ResultController extends Controller {
 
       $newResult->min_score = null;
       $newResult->max_score = null;
+      $newResult->views = 0;
 
       $newResult->save();
 
       return $newResult->id;
-    }else {
+    } else {
       return false;
     }
-
   }
 
   public function show(Result $result) {
@@ -325,9 +323,9 @@ class ResultController extends Controller {
 
       $request->validate(["type_id" => "required|integer|min:1|max:3"]);
 
-      if ($result->quiz->type == 1) {// 1 => scoring
+      if ($result->quiz->type == 1) { // 1 => scoring
 
-        if (request("type_id") == 1) {// 1 => result builder
+        if (request("type_id") == 1) { // 1 => result builder
 
           $validator = Validator::make(request()->all(), [
             "min_score"         => "required|integer|lt:max_score",
@@ -336,13 +334,13 @@ class ResultController extends Controller {
             "en_score_message"  => "nullable|required_if:show_score,true|string|min:1|max:40",
             "en_result_title"   => "required|string|max:200",
             "en_result_desc"    => "nullable|string",
-            "en_button_label"   => "nullable|required_if:show_buttin,true|string|min:1|max:20",
+            "en_button_label"   => "nullable|required_if:show_buttin,true|string|min:1|max:120",
             "ar_score_message"  => "nullable",
             "ar_result_title"   => "nullable",
             "ar_result_desc"    => "nullable",
             "ar_button_label"   => "nullable",
             "show_button"       => "required|string|in:true,false",
-            "result_link"       => "nullable|required_if:show_buttin,true|url",
+            "result_link"       => "nullable|required_if:show_buttin,true|string",
             "show_social"       => "required|string|in:true,false",
           ]);
 
@@ -354,7 +352,8 @@ class ResultController extends Controller {
               (request("max_score") >= $DBresult->min_score  && request("max_score") <= $DBresult->max_score)
             )) {
               $validator->errors()->add(
-                'min_score', 'there is a collapse between result scores!!'
+                'min_score',
+                'there is a collapse between result scores!!'
               );
             }
           }
@@ -365,12 +364,12 @@ class ResultController extends Controller {
               "errors" => $validator->errors(),
             ], 500);
             exit();
-          }else {
+          } else {
             $result->translateOrNew("en")->title        = request("en_result_title");
             $result->translateOrNew("en")->description  = request("en_result_desc");
             $result->translateOrNew("en")->button_label = request("en_button_label");
             $result->translateOrNew("en")->score_message = request("en_score_message");
-            if (auth()->user()->is_admin() && null !== request("ar_result_title")) {
+            if (auth()->user()->can_translate() && null !== request("ar_result_title")) {
               $result->translateOrNew("ar")->title        = request("ar_result_title");
               $result->translateOrNew("ar")->description  = request("ar_result_desc");
               $result->translateOrNew("ar")->button_label = request("ar_button_label");
@@ -383,14 +382,13 @@ class ResultController extends Controller {
             $result->max_score   = request("max_score");
             $result->show_score  = request("show_score") == "true" ? 1 : 0;
           }
-
-        }elseif (request("type_id") == 2) {// 2 => redirect result
+        } elseif (request("type_id") == 2) { // 2 => redirect result
 
           $validator = Validator::make(request()->all(), [
             "min_score"       => "required|integer|lt:max_score",
             "max_score"       => "required|integer",
             "en_result_title" => "required|string|max:200",
-            "result_link"     => "required|url",
+            "result_link"     => "required|string",
             "send_data"       => "required|string|in:true,false",
             "send_utm"        => "required|string|in:true,false",
           ]);
@@ -403,7 +401,8 @@ class ResultController extends Controller {
               (request("max_score") >= $DBresult->min_score  && request("max_score") <= $DBresult->max_score)
             )) {
               $validator->errors()->add(
-                'min_score', 'there is a collapse between result scores!!'
+                'min_score',
+                'there is a collapse between result scores!!'
               );
             }
           }
@@ -414,16 +413,15 @@ class ResultController extends Controller {
               "errors" => $validator->errors(),
             ], 500);
             exit();
-          }else {
+          } else {
             $result->translateOrNew("en")->title = $request["en_result_title"];
             $result->result_link = request("result_link");
             $result->min_score   = request("min_score");
             $result->max_score   = request("max_score");
-            $result->send_data   = request("send_data") == "true" ? 1: 0;
-            $result->send_UTM    = request("send_utm") == "true" ? 1: 0;
+            $result->send_data   = request("send_data") == "true" ? 1 : 0;
+            $result->send_UTM    = request("send_utm") == "true" ? 1 : 0;
           }
-
-        }elseif (request("type_id") == 3) {// 3 => calendly
+        } elseif (request("type_id") == 3) { // 3 => calendly
 
           $validator = Validator::make(request()->all(), [
             "result_link"     => "required|string",
@@ -442,7 +440,8 @@ class ResultController extends Controller {
               (request("max_score") >= $DBresult->min_score  && request("max_score") <= $DBresult->max_score)
             )) {
               $validator->errors()->add(
-                'min_score', 'there is a collapse between result scores!!'
+                'min_score',
+                'there is a collapse between result scores!!'
               );
             }
           }
@@ -453,7 +452,7 @@ class ResultController extends Controller {
               "errors" => $validator->errors(),
             ], 500);
             exit();
-          }else {
+          } else {
             $result->translateOrNew("en")->title = request("en_result_title");
             $result->translateOrNew("en")->description = request("en_result_desc");
             $result->translateOrNew("en")->score_message = request("en_score_message");
@@ -461,7 +460,7 @@ class ResultController extends Controller {
             $result->min_score   = request("min_score");
             $result->max_score   = request("max_score");
             $result->show_score   = request("show_score");
-            if (auth()->user()->is_admin() && request("ar_result_title") !== null) {
+            if (auth()->user()->can_translate() && request("ar_result_title") !== null) {
               $result->translateOrNew("ar")->title = request("ar_result_title");
               $result->translateOrNew("ar")->description = request("ar_result_desc");
               $result->translateOrNew("ar")->score_message = request("ar_score_message");
@@ -470,20 +469,19 @@ class ResultController extends Controller {
         }
 
         return isset($result) ? $result->save() : false;
+      } else if ($result->quiz->type == 2) { // 2 => outcome
 
-      }else if ($result->quiz->type == 2) {// 2 => outcome
-
-        if (request("type_id") == 1) {// 1 => result builder
+        if (request("type_id") == 1) { // 1 => result builder
 
           $validated = $request->validate([
             "en_result_title" => "required|string|max:200",
             "en_result_desc"  => "nullable|string",
-            "en_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:20",
+            "en_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:120",
             "ar_result_title" => "nullable|string|max:200",
             "ar_result_desc"  => "nullable|string",
-            "ar_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:20",
+            "ar_button_label" => "nullable|required_if:show_buttin,true|string|min:1|max:120",
             "show_button"     => "required|string|in:true,false",
-            "result_link"     => "nullable|required_if:show_buttin,true|url",
+            "result_link"     => "nullable|required_if:show_buttin,true|string",
             "show_social"     => "required|string|in:true,false",
           ]);
 
@@ -491,7 +489,7 @@ class ResultController extends Controller {
           $en->title           = request("en_result_title");
           $en->description     = request("en_result_desc");
           $en->button_label    = request("en_button_label");
-          if (auth()->user()->is_admin() && request("ar_result_title") !== null) {
+          if (auth()->user()->can_translate() && request("ar_result_title") !== null) {
             $ar = $result->translateOrNew("ar");
             $ar->title        = request("ar_result_title") ?? "";
             $ar->description  = request("ar_result_desc") ?? "";
@@ -500,22 +498,20 @@ class ResultController extends Controller {
           $result->show_button = request("show_button") == "true" ? 1 : 0;
           $result->result_link = request("result_link");
           $result->show_social = request("show_social") == "true" ? 1 : 0;
-
-        }elseif (request("type_id") == 2) {// 2 => redirect result
+        } elseif (request("type_id") == 2) { // 2 => redirect result
 
           $validated = $request->validate([
             "en_result_title" => "required|string|max:200",
-            "result_link"  => "required|url",
+            "result_link"  => "required|string",
             "send_data"    => "required|string|in:true,false",
             "send_utm"     => "required|string|in:true,false",
           ]);
 
           $result->translateOrNew("en")->title = request("en_result_title");
           $result->result_link = request("result_link");
-          $result->send_data   = request("send_data") == "true" ? 1: 0;
-          $result->send_UTM    = request("send_utm") == "true" ? 1: 0;
-
-        }elseif (request("type_id") == 3) {// 3 => calendly
+          $result->send_data   = request("send_data") == "true" ? 1 : 0;
+          $result->send_UTM    = request("send_utm") == "true" ? 1 : 0;
+        } elseif (request("type_id") == 3) { // 3 => calendly
 
           $validated = $request->validate([
             "en_result_title" => "required|string|max:200",
@@ -526,31 +522,26 @@ class ResultController extends Controller {
           $result->translateOrNew("en")->description = request("en_result_desc");
           $result->result_link = request("result_link");
 
-          if (auth()->user()->is_admin() && request("ar_result_title") !== null) {
+          if (auth()->user()->can_translate() && request("ar_result_title") !== null) {
             $result->translateOrNew("ar")->title = request("ar_result_title");
             $result->translateOrNew("ar")->description = request("ar_result_desc");
           }
-
         }
 
         return isset($result) ? $result->save() : false;
-
-      }else {// quiz type is not scoring or outcome
+      } else { // quiz type is not scoring or outcome
         return false;
       }
-
-    }else {
+    } else {
       return false;
     }
-
   }
 
   public function destroy(Result $result) {
     if (auth()->user()->is_admin() || auth()->user()->id == $result->quiz->website->user->id) {
       return $result->delete();
-    }else {
+    } else {
       return false;
     }
   }
-
 }

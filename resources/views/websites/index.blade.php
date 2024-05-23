@@ -3,11 +3,9 @@
 @section("content")
 
   <div class="info-bar d-flex align-items-center justify-content-center bg-light py-2 gap-3">
-    <p class="websites m-0">website Account: <b>{{ auth()->user()->websites()->count() }}/{{ auth()->user()->allowed_websites() }}</b></p>
-    <p class="responses m-0">Monthly Responses: <b>{{ auth()->user()->total_responses_count() }}/{{ auth()->user()->allowed_responses() }}</b></p>
-    @if(!auth()->user()->is_admin() && auth()->user()->get_package_id() != 3)
-      <a href="{{ route("pricing") }}" class="btn btn-primary upgrade">Upgrade Plane</a>
-    @endif
+    <p class="websites m-0">{{ __('website Account') }}: <b>{{ auth()->user()->websites()->count() }}/{{ auth()->user()->allowed_websites() }}</b></p>
+    <p class="responses m-0">{{ __('Monthly Responses') }}: <b>{{ auth()->user()->total_responses_count() }}/{{ auth()->user()->allowed_responses() }}</b></p>
+    <a href="{{ route("pricing") }}" class="btn btn-primary upgrade">{{ __('Upgrade Plane') }}</a>
   </div>
 
   <div class="container mt-5 mb-3">
@@ -21,8 +19,8 @@
         {!! auth()->user()->can_open_quiz_err() !!}
       </div>
     @endif
-    <h1 class="title my-5 text-center">@lang('Websites')</h1>
-    <a href="{{ route("create_website") }}" class="btn btn-primary px-4 py-2 mb-5">Add Website <i class="fa fa-plus"></i></a>
+    <h1 class="title my-5 text-center">{{ __('Accounts') }}</h1>
+    <a href="{{ route("create_website") }}" class="btn btn-primary px-4 py-2 mb-5">{{ __('Add Account') }} <i class="fa fa-plus"></i></a>
     @if (count($websites))
     <div class="row">
       @foreach ($websites as $web)
@@ -31,7 +29,7 @@
             <a href="{{ route("edit_website", ["lang" => app()->getLocale(), "website" => $web->id]) }}" class="align-self-end"><i class="fa fa-1x fa-gear"></i></a>
             <div class="card-body">
               <h5 class="card-title mb-4">{{ preg_replace("(^https?://)", "", $web->url ); }}</h5>
-              <a href="{{ route("show_website", ["lang" => app()->getLocale(), "website" => $web->id]) }}" class="btn text-light border-light">Manage</a>
+              <a href="{{ route("show_website", ["lang" => app()->getLocale(), "website" => $web->id]) }}" class="btn text-light border-light">{{ __('Manage') }}</a>
             </div>
           </div>
         </div>

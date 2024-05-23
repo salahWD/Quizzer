@@ -26,9 +26,9 @@
 
               <div class="col-sm-12">
                 @if(isset($user) && $user !== null)
-                  <h2>Edit User ({{ $user->name }})</h2>
+                  <h2>{{ __('Edit User') }} ({{ $user->name }})</h2>
                 @else
-                  <h2>Add User</h2>
+                  <h2>{{ __('Add User') }}</h2>
                 @endif
               </div>
             </div>
@@ -70,14 +70,14 @@
             <div class="row">
               <div class="col-sm-6">
                 <div class="inputBox">
-                  <input type="text" id="expire-date" name="subscription_end" class="input" placeholder="Subscription Finish Date" value="{{ old("subscription_end") ?? $user->subscription_end ?? "" }}">
+                  <input type="text" id="expire-date" name="subscription_end" class="input" placeholder="{{ __('Subscription Finish Date') }}" value="{{ old("subscription_end") ?? (isset($user) ? $user->subscription_end->format('m/d/Y') : "") }}">
                 </div>
               </div>
 
               <div class="col-sm-6">
                 <div class="inputBox">
                   <select name="status" class="select">
-                    <option value="0">Inactive</option>
+                    <option value="0">{{ __('Inactive') }}</option>
                     @php $largest_id = 0; @endphp
                     @foreach ($packages as $package)
                     @php
@@ -85,9 +85,9 @@
                         $largest_id = $package["ID"];
                       }
                     @endphp
-                      <option value="{{ $package["ID"] }}" {{ old("status") == $package["ID"] ? "selected" : (isset($user) && null !== $user && $user->get_package_id() == $package["ID"] ? "selected" : "") }}>{{ $package["NAME"] }}</option>
+                      <option value="{{ $package["ID"] }}" {{ old("status") == $package["ID"] ? "selected" : (isset($user) && null !== $user && $user->get_package_id() == $package["ID"] ? "selected" : "") }}>{{ __($package["NAME"]) }} ({{ $package["YEARLY"] == 1 ? __("Yearly") : __("Monthly") }})</option>
                     @endforeach
-                    <option value="{{ $largest_id + 1 }}">Admin</option>
+                    <option value="{{ $largest_id + 1 }}">{{ __('Admin') }}</option>
                   </select>
                 </div>
               </div>
@@ -102,7 +102,9 @@
                       name="password"
                       placeholder="{{ __('Enter Password') }}"
                       value="{{ old('password') }}"
+                      @if(!isset($user) || $user == null)
                       required
+                      @endif
                       autocomplete="current-password"/>
                   @error('password')
                     <span class="invalid-feedback" role="alert">
@@ -114,7 +116,7 @@
             </div>
             <div class="row">
               <div class="col-sm-12">
-                <input type="submit" name="" class="button" value="Send Message">
+                <input type="submit" name="" class="button" value="Save">
               </div>
             </div>
           </form>

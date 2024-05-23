@@ -25,6 +25,10 @@ class Submission extends Model {
     return $this->hasMany(Entry::class);
   }
 
+  public function result() {
+    return $this->belongsTo(Result::class);
+  }
+
   public function form_entries() {
     return $this->hasMany(Entry::class)->with("fields_value");
   }
@@ -56,6 +60,19 @@ class Submission extends Model {
         ->join("question_translations AS en", "en.question_id", "=", DB::raw("entries.question_id AND en.locale = 'en'"))
         ->leftJoin("question_translations AS ar", "ar.question_id", "=", DB::raw("entries.question_id AND ar.locale = 'ar'"))
         ->orderBy("questions.order");
+  }
+
+  public function report_entry() {
+    $questions_entries = $this->hasMany(Entry::class)
+      ->select(["entries.*", "en.title AS en_question_title", "ar.title AS ar_question_title"])
+      ->join("questions", "questions.id", "=", "entries.question_id")
+      ->join("question_translations AS en", "en.question_id", "=", DB::raw("entries.question_id AND en.locale = 'en'"))
+      ->leftJoin("question_translations AS ar", "ar.question_id", "=", DB::raw("entries.question_id AND ar.locale = 'ar'"))
+      ->orderBy("questions.order")->get();
+    $utm_entries = $this->hasMany(Entry::class)->whereNotNull(["utm_name", "utm_value"])->orderBy("utm_name")->get();
+
+    return collect()->merge($utm_entries)->merge($questions_entries);
+
   }
 
 }

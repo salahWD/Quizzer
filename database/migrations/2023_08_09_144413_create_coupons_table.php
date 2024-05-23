@@ -15,6 +15,7 @@ return new class extends Migration {
       $table->date("expire_date")->nullable()->default(null);
       $table->unique('code');
       $table->integer('usage')->default(0);
+      $table->tinyInteger('type')->default(1);
       $table->timestamps();
     });
   }

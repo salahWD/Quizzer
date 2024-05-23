@@ -15,7 +15,7 @@
   align-items: center;
   flex-direction: column;
   .bg {
-    background-color: rgb(186 243 230);
+    background-image: linear-gradient(45deg, #6e3e98, #4abfe4, #99d5c6);
     position: absolute;
     margin: -24px;
     width: 100%;
@@ -23,15 +23,15 @@
     height: 75%;
   }
   .title {
-    color: rgb(0 73 86);
+    color: #6c3e98;
   }
   .desc {
-    font-size: 1.35rem;
+    color: #000;
+    font-size: 18px;
     line-height: 32px;
   }
   .btn {
-    background-color: rgb(0 73 86);
-    color: rgb(207 247 238);
+    background-color: #6e3e98 !important;
     font-size: 1.35rem;
     font-weight: 700;
     line-height: 32px;
@@ -46,9 +46,9 @@
       margin: 0 25px;
     }
     &.btn-outline {
-      border: 1px solid rgb(0 77 90);
-      color: rgb(0 77 90);
-      background-color: transparent;
+      border: 1px solid black;
+      color: black;
+      background-color: transparent !important;
     }
   }
 }
@@ -70,18 +70,18 @@
         width: 70px;
         height: 70px;
         align-items: center;
-        color: rgb(0 77 90);
+        color: black;
         display: flex;
         font-size: 1.8rem;
         justify-content: center;
         line-height: 40px;
-        border: 3px solid rgb(186 243 230);
+        border: 3px solid #96d4c7;
         border-radius: 0.75rem;
       }
       .title {
         font-size: 2.188rem;
         line-height: 45px;
-        color: rgb(0 73 86);
+        color: black;
       }
     }
   }
@@ -122,12 +122,12 @@
         height: 65px;
         flex-shrink: 0;
         align-items: center;
-        color: rgb(0 77 90);
+        color: black;
         display: flex;
         font-size: 1.6rem;
         justify-content: center;
         line-height: 40px;
-        border: 3px solid rgb(186 243 230);
+        border: 3px solid #96d4c7;
         border-radius: 0.75rem;
       }
       .title {
@@ -135,7 +135,7 @@
         font-size: 1.35rem;
         font-weight: 700;
         line-height: 45px;
-        color: rgb(0 73 86);
+        color: black;
       }
       .lead {
         text-align: start;
@@ -157,7 +157,7 @@
     line-height: 45px;
     font-weight: 700;
     .title {
-      color: rgb(0 73 86);
+      color: black;
     }
     .lead {
       font-weight: 500;
@@ -184,6 +184,23 @@
   }
 }
 
+html[lang="ar"] {
+  .section-3,
+  .section-4,
+  .section-5,
+  .section-6 {
+    .content li {
+      padding-left: auto;
+      padding-right: var(--icon-space);
+      &::before {
+        transform: rotate(180deg) translateX(-8px);
+        margin-left: 0;
+        margin-right: calc(var(--icon-space) * -1);
+      }
+    }
+  }
+}
+
 .section-4 {
   padding-top: 6rem;
   padding-bottom: 6rem;
@@ -196,7 +213,7 @@
     line-height: 45px;
     font-weight: 700;
     .title {
-      color: rgb(0 73 86);
+      color: black;
     }
     .lead {
       font-weight: 500;
@@ -235,7 +252,7 @@
     line-height: 45px;
     font-weight: 700;
     .title {
-      color: rgb(0 73 86);
+      color: black;
     }
     .lead {
       font-weight: 500;
@@ -274,7 +291,7 @@
     line-height: 45px;
     font-weight: 700;
     .title {
-      color: rgb(0 73 86);
+      color: black;
     }
     .lead {
       font-weight: 500;
@@ -305,11 +322,11 @@
   padding-top: 6rem;
   padding-bottom: 6rem;
   .title {
-    color: rgb(0 73 86);
+    color: black;
     margin-bottom: 5rem;
   }
   .logos {
-    height: 300px;
+    min-height: 300px;
   }
   .logo {
     max-height: 33.3333333333%;
@@ -329,20 +346,22 @@
     padding: 2.5rem;
     border-radius: 0.75rem;
     border: none;
-    background: rgb(186 243 230);
-    color: rgb(0 77 90);
+    background-image: linear-gradient(45deg, #6e3e98, #4abfe4, #99d5c6);
+    color: #5fc9db;
     .title {
       font-size: 35px;
+      color: black;
     }
     .lead {
       margin: 16px 0 0;
-      font-size: 23px;
-      color: #444444;
+      font-size: 18px;
+      color: black;
+      font-weight: bold;
       line-height: 32px;
     }
     .btn {
-      background-color: rgb(0 73 86);
-      color: rgb(207 247 238);
+      background-color: black;
+      color: #cef7ee;
       font-size: 1.35rem;
       font-weight: 700;
       line-height: 32px;

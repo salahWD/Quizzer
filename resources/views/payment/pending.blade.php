@@ -11,8 +11,8 @@
           </svg>
         </div>
         <div class="text-center">
-          <h1 class="text-warning"><strong>Pending Request !</strong></h1>
-          <p>Your request has been sent, We will approve it as fast as possible</p>
+          <h1 class="text-warning"><strong>{{ __('Pending Request') }} !</strong></h1>
+          <p>{{ __('Your request has been sent, We will approve it as fast as possible') }}</p>
           <a href="{{ route("show_websites") }}" class="btn btn-warning">{{ __('Dashboard') }}</a>
         </div>
       </div>

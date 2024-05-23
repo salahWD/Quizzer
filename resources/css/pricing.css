@@ -1,94 +1,4 @@
-/* .pricing-table {
-  font-family: "Montserrat", sans-serif;
-}
-
-.pricing-table .block-heading {
-  padding-top: 50px;
-  margin-bottom: 40px;
-  text-align: center;
-}
-
-.pricing-table .block-heading h2 {
-  color: #3b99e0;
-}
-
-.pricing-table .block-heading p {
-  text-align: center;
-  max-width: 420px;
-  margin: auto;
-  opacity: 0.7;
-}
-
-.pricing-table .heading {
-  text-align: center;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.pricing-table .item {
-  background-color: #ffffff;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.075);
-  border-top: 2px solid #5ea4f3;
-  padding: 30px;
-  overflow: hidden;
-  position: relative;
-}
-
-.pricing-table .col-md-5:not(:last-child) .item {
-  margin-bottom: 30px;
-}
-
-.pricing-table .item button {
-  font-weight: 600;
-}
-
-.pricing-table .ribbon {
-  width: 160px;
-  height: 32px;
-  font-size: 12px;
-  text-align: center;
-  color: #fff;
-  font-weight: bold;
-  box-shadow: 0px 2px 3px rgba(136, 136, 136, 0.25);
-  background: #4dbe3b;
-  transform: rotate(45deg);
-  position: absolute;
-  right: -42px;
-  top: 20px;
-  padding-top: 7px;
-}
-
-.pricing-table .item p {
-  text-align: center;
-  margin-top: 20px;
-  opacity: 0.7;
-}
-
-.pricing-table .features .feature {
-  font-weight: 600;
-}
-
-.pricing-table .features h4 {
-  text-align: center;
-  font-size: 18px;
-  padding: 5px;
-}
-
-.pricing-table .price h4 {
-  margin: 15px 0;
-  font-size: 45px;
-  text-align: center;
-  color: #2288f9;
-}
-
-.pricing-table .buy-now button {
-  text-align: center;
-  margin: auto;
-  font-weight: 600;
-  padding: 9px 0;
-} */
-
-/* ======================== */ /*   Syed Sahar Ali Raza   	*/ /* ========================	*/
+/* ======================== */ /*   Salah Malek Backhach https://github.com/salahWD   	*/ /* ========================	*/
 @import url(https://fonts.googleapis.com/css?family=Lato:400,100,100italic,300,300italic,400italic,700italic,700,900italic,900);
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,100,200,300,500,600,700,800,900);
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,100,200,300,500,600,700,800,900);
@@ -158,11 +68,11 @@ body {
 }
 #generic_price_table .generic_content .generic_feature_list ul li:hover {
   background-color: #e4e4e4;
-  border-left: 5px solid #2ecc71;
+  border-left: 5px solid #8c43a8;
 }
 #generic_price_table .generic_content .generic_price_btn a {
-  border: 1px solid #2ecc71;
-  color: #2ecc71;
+  border: 1px solid #8c43a8;
+  color: #8c43a8;
 }
 #generic_price_table
   .generic_content.active
@@ -174,7 +84,7 @@ body {
   .generic_head_price
   .generic_head_content
   .head_bg {
-  border-color: #2ecc71 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #2ecc71;
+  border-color: #9b59b6 rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #9b59b6;
   color: #fff;
 }
 #generic_price_table
@@ -193,14 +103,14 @@ body {
 }
 #generic_price_table .generic_content:hover .generic_price_btn a,
 #generic_price_table .generic_content.active .generic_price_btn a {
-  background-color: #2ecc71;
+  background-color: #964bb4;
   color: #fff;
 }
 #generic_price_table {
   margin: 50px 0 50px 0;
   font-family: "Raleway", sans-serif;
 }
-.row .table {
+.pricing .row .table {
   padding: 28px 0;
 } /*PRICE BODY CODE START*/
 #generic_price_table .generic_content {
@@ -524,4 +434,12 @@ body {
   color: #666;
   margin: 0;
   padding: 0 0 50px 0;
+}
+html[lang="ar"]
+  #generic_price_table
+  .generic_content
+  .generic_head_price
+  .generic_head_content
+  .head_bg {
+  transform: scaleX(-1);
 }

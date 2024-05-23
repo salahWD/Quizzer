@@ -16,6 +16,7 @@ use App\Http\Controllers\PayController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\CasestudyController;
 use App\Models\StripePayment;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\Auth\LoginController;
@@ -23,15 +24,7 @@ use App\Http\Middleware\SetAppLang;
 use Illuminate\Support\Facades\DB;
 use App\Models\Quiz;
 use App\Models\Question;
-
-
-// \Event::listen('Illuminate\Database\Events\QueryExecuted', function ($query) {
-//   echo "<pre>";
-//   var_dump($query->sql);
-//   var_dump($query->bindings);
-//   var_dump($query->time);
-//   echo "</pre>";
-// });
+use App\Models\Result;
 
 
 Route::redirect('/', "/home");
@@ -41,20 +34,42 @@ Auth::routes();
 
 // =================================
 
-Route::get('/home', function () {return view('home');})->name('home');
+Route::get('/getresponse', function (Request $request) {
+  dd($request);
+})->name('getresponse');
+Route::get('/home', function () {
+  return view('home');
+})->name('home');
+Route::get('/Privacy-Policy', function () {
+  return view('Privacy-Policy');
+})->name('PrivacyPolicy');
+Route::get('/TermsandConditions', function () {
+  return view('TermsandConditions');
+})->name('TermsandConditions');
 
 Route::view('/features', 'features')->name("features");
 
-Route::view('/case-studies', 'case-studies')->name("case-studies");
-
-Route::middleware("auth")->group(function () {
-  Route::get('/pricing', [PlanController::class, 'index'])->name("pricing");
-  Route::get('/pricing/{plan}', [PlanController::class, 'show'])->name("offer");
-  Route::post('/payment/{plan}/process', [PayController::class, "process"])->name("process_payment");
-  // Route::post('subscription', [PlanController::class, 'subscription'])->name("subscription.create");
+Route::group(['prefix' => 'case-studies'], function () {
+  Route::get('/', [CasestudyController::class, 'index'])->name("case-studies");
+  Route::get('/create', [CasestudyController::class, 'create'])->name("case-studies.create");
+  Route::post('/create', [CasestudyController::class, 'store'])->name("case-studies.store");
+  Route::get('/{casestudy}', [CasestudyController::class, 'show'])->name("case-studies.show");
+  Route::get('/{casestudy}/edit', [CasestudyController::class, 'edit'])->name("case-studies.edit");
+  Route::post('/{casestudy}/update', [CasestudyController::class, 'update'])->name("case-studies.update");
+  Route::get('/{casestudy}/delete', [CasestudyController::class, 'destroy'])->name("case-studies.delete");
 });
 
-Route::get('/admin/reports', [DashboardController::class, 'reports'])->name("admin_reports")->middleware(["auth", "is_admin"]);
+Route::get('/pricing', [PlanController::class, 'index'])->name("pricing");
+Route::middleware("auth")->group(function () {
+  Route::get('/pricing/{plan}', [PlanController::class, 'show'])->name("offer");
+  Route::post('/payment/{plan}/process', [PayController::class, "process"])->name("process_payment");
+  Route::get('/payment/{plan}', [PayController::class, 'payment_info'])->name('payment_info');
+});
+
+Route::middleware(["auth", "is_admin"])->group(function () {
+  Route::get('/admin/reports', [DashboardController::class, 'reports'])->name("dash_general_reports");
+  Route::get('/admin/payments', [DashboardController::class, 'payments_reports'])->name("dash_payments_reports");
+});
 
 Route::get('/package/upgrade/{package}', [PayController::class, "upgrade"])->middleware('auth')->name("change_package");
 Route::get('/payment/success', [PayController::class, "success"])->name("success_payment");
@@ -72,7 +87,12 @@ Route::get('/websites', [WebsiteController::class, 'index'])->name('show_website
 Route::get('/websites/create', [WebsiteController::class, 'create'])->name('create_website');
 Route::get('/websites/{website}/templates', [WebsiteController::class, 'templates'])->name('website_templates');
 Route::get('/websites/{website}/config', [WebsiteController::class, 'config'])->name('website_config');
+Route::get('/websites/{website}/custom_domain', [WebsiteController::class, 'custom_domain'])->name('website_custom_domain');
+Route::post('/websites/{website}/custom_domain', [WebsiteController::class, 'update_custom_domain'])->name('website_update_custom_domain');
+Route::get('/websites/manage_domains', [WebsiteController::class, 'manage_domains'])->name('website_manage_domains');
+Route::post('/websites/{website}/manage_domains', [WebsiteController::class, 'update_manage_domains'])->name('website_update_domains_status');
 Route::post('/websites/{website}/config', [WebsiteController::class, 'update_config'])->name('website_update_config');
+Route::post('/websites/{website}/delete_logo', [WebsiteController::class, 'delete_logo'])->name('delete_website_logo')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 Route::get('/websites/{website}', [WebsiteController::class, 'show'])->name('show_website');
 Route::get('/websites/{website}/edit', [WebsiteController::class, 'edit'])->name('edit_website');
 Route::post('/websites', [WebsiteController::class, 'store'])->name('store_website');
@@ -82,19 +102,28 @@ Route::post('/websites/{website}/delete', [WebsiteController::class, 'destroy'])
 // =================================
 
 /* Users Routes */
-Route::get('/users', [UserController::class, 'index'])->name('show_users');
-Route::get('/users/create', [UserController::class, 'create'])->name('create_user');
-Route::get('/users/{user}', [UserController::class, 'show'])->name('show_user');
-Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('edit_user');
+Route::get('users/search', [UserController::class, 'search'])->name('users_search');
+Route::get('users/create', [UserController::class, 'create'])->name('create_user');
+Route::middleware("auth")->group(function () {
+  Route::get("users/me", [UserController::class, "show"])->name('profile');
+  Route::get('/users/{user}', [UserController::class, 'user_info'])->name('user_info');
+  Route::post("users/me", [UserController::class, "update_profile"])->name('update_profile');
+  Route::get('/users/me/subscription', [UserController::class, 'subscription'])->name('subscription_info');
+  Route::get('/users/me/subscription/cancel', [UserController::class, 'subscription_cancel'])->name('subscription_cancel');
+});
+Route::get('users', [UserController::class, 'index'])->name('show_users');
+// Route::get('users/{user}', [UserController::class, 'show'])->name('show_user');
 Route::post('/users', [UserController::class, 'store'])->name('store_user');
 Route::post('/users/{user}', [UserController::class, 'update'])->name('update_user');
+Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('edit_user');
 Route::post('/users/{user}/delete', [UserController::class, 'destroy'])->name('delete_user');
 
 // =================================
 
 /* Coupon Routes */
 Route::get('/coupons', [CouponController::class, 'index'])->name("show_coupons");
-Route::view('/coupon/create', "coupons.create", ["packages"=> config("pricing.PRICING_PACKAGES")])->name("create_coupon");
+Route::view('/coupon/create', "coupons.create", ["packages" => config("pricing.PRICING_PACKAGES")])->name("create_coupon");
+Route::get('/coupon/{coupon}', [CouponController::class, 'show'])->name("coupon_info");
 Route::get('/coupon/{coupon}/edit', [CouponController::class, 'edit'])->name("edit_coupon");
 Route::get('/coupon/{coupon}/delete', [CouponController::class, 'destroy'])->name("delete_coupon");
 Route::post('ajax/coupon/check', [CouponController::class, 'check'])->name("check_coupon");
@@ -104,14 +133,12 @@ Route::post('/coupon/{coupon}', [CouponController::class, 'update'])->name("upda
 // =================================
 
 /* questions Routes */
-Route::post('/question/{quiz}', [QuizController::class, 'update'])->name("update_quiz");
+// Route::post('/question/{quiz}', [QuizController::class, 'update'])->name("update_quiz");
 
 // =================================
 
 /* Quiz Routes */
-// Route::get('/test', function (Request $request) {
-//   dd($request->all());
-// })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+// Route::get('/test', [PayController::class, 'test'])->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 // Route::post('/test', function (Request $request) {
 //   dd($request->all());
 // })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
@@ -120,13 +147,17 @@ Route::get('/websites/{website}/quizzes', [QuizController::class, 'index'])->nam
 Route::get('/websites/{website}/quizzes/create', [QuizController::class, 'create'])->name("create_quiz");
 Route::get('/tq/{quiz}', [QuizController::class, 'show'])->name("show_quiz");
 Route::get('/ajax/add-view/{question}', [Question::class, 'add_view']);
+Route::get('/ajax/add-view-result/{result}', [Result::class, 'add_view']);
 Route::post('ajax/tq/{quiz}', [AnswerController::class, 'answering'])->name('answering');
+Route::post('ajax/store-result', [AnswerController::class, 'storeResult']);
 Route::post('ajax/tq/form/{quiz}', [AnswerController::class, 'formEntry'])->name("form_entry");
 Route::get('/quizzes/{quiz}/build', [QuizController::class, 'build'])->name("build_quiz");
+Route::get('/quizzes/copy/{website}/{quiz}', [QuizController::class, 'copy'])->name("copy_quiz");
 Route::get('/quizzes/{quiz}/design', [QuizController::class, 'design'])->name("design_quiz");
 Route::get('/quizzes/{quiz}/config', [QuizController::class, 'config'])->name("config_quiz");
 Route::get('/quizzes/{quiz}/share', [QuizController::class, 'share'])->name("sharing_quiz");
 Route::get('/quizzes/{quiz}/report', [QuizController::class, 'report'])->name("report_quiz");
+Route::get('/admin/quizzes', [DashboardController::class, 'quizzes_reports'])->name("dash_quizzes_reports");
 Route::get('/quizzes/{quiz}/translate', [QuizController::class, 'translate'])->name("translate_quiz");
 Route::get('/export/{quiz}/submissions', [QuizController::class, 'export_submissions'])->name("export_submissions_data");
 Route::post('/quizzes/{quiz}/design', [QuizController::class, 'update_design'])->name("update_design_quiz");
@@ -138,9 +169,27 @@ Route::post('/quizzes/{quiz}/publish', [QuizController::class, 'update_status'])
 Route::post('/websites/{website}/quizzes', [QuizController::class, 'store'])->name("store_quiz");
 Route::post('/quizzes/{quiz}', [QuizController::class, 'update'])->name("update_quiz");
 Route::get('/quizzes/{quiz}/delete', [QuizController::class, 'destroy'])->name("delete_quiz");
+Route::post('/quizzes/{quiz}/popup-images', [QuizController::class, 'popup_images'])->name("share_popup_images");
 
 Route::get('/ajax/quiz/{quiz}/ac/{list}/fields', [IntegrationController::class, 'ac_fields'])->name("ac_field");
-Route::post('/quiz/{quiz}/integrations', [IntegrationController::class, 'update'])->name("update_integrations");
+Route::post('/quiz/{quiz}/integrations/fb', [IntegrationController::class, 'update_fb'])->name("update_integrations_fb");
+Route::post('/quiz/{quiz}/integrations/tk', [IntegrationController::class, 'update_tk'])->name("update_integrations_tk");
+Route::post('/quiz/{quiz}/integrations/sc', [IntegrationController::class, 'update_sc'])->name("update_integrations_sc");
+Route::post('/quiz/{quiz}/integrations/ac', [IntegrationController::class, 'update_ac'])->name("update_integrations_ac");
+Route::post('/quiz/{quiz}/integrations/ck', [IntegrationController::class, 'update_ck'])->name("update_integrations_ck");
+Route::post('/quiz/{quiz}/integrations/gr', [IntegrationController::class, 'update_gr'])->name("update_integrations_gr");
+Route::post('/quiz/{quiz}/integrations/ga', [IntegrationController::class, 'update_ga'])->name("update_integrations_ga");
+Route::post('/quiz/{quiz}/integrations/tm', [IntegrationController::class, 'update_tm'])->name("update_integrations_tm");
+Route::post('/quiz/{quiz}/integrations/tw', [IntegrationController::class, 'update_tw'])->name("update_integrations_tw");
+Route::post('/quiz/{quiz}/integrations/fb/delete', [IntegrationController::class, 'delete_fb'])->name("delete_integrations_fb");
+Route::post('/quiz/{quiz}/integrations/tk/delete', [IntegrationController::class, 'delete_tk'])->name("delete_integrations_tk");
+Route::post('/quiz/{quiz}/integrations/sc/delete', [IntegrationController::class, 'delete_sc'])->name("delete_integrations_sc");
+Route::post('/quiz/{quiz}/integrations/ac/delete', [IntegrationController::class, 'delete_ac'])->name("delete_integrations_ac");
+Route::post('/quiz/{quiz}/integrations/ck/delete', [IntegrationController::class, 'delete_ck'])->name("delete_integrations_ck");
+Route::post('/quiz/{quiz}/integrations/gr/delete', [IntegrationController::class, 'delete_gr'])->name("delete_integrations_gr");
+Route::post('/quiz/{quiz}/integrations/ga/delete', [IntegrationController::class, 'delete_ga'])->name("delete_integrations_ga");
+Route::post('/quiz/{quiz}/integrations/tm/delete', [IntegrationController::class, 'delete_tm'])->name("delete_integrations_tm");
+Route::post('/quiz/{quiz}/integrations/tw/delete', [IntegrationController::class, 'delete_tw'])->name("delete_integrations_tw");
 
 // =================================
 
@@ -160,6 +209,7 @@ Route::get('/templates/', [TemplateController::class, 'show'])->name("show_templ
 Route::get('/templates/create', [TemplateController::class, 'create'])->name("create_template");
 Route::post('/templates/', [TemplateController::class, 'store'])->name("store_template");
 Route::get('/templates/{quiz}/delete', [TemplateController::class, 'destroy'])->name("delete_template");
+Route::get('/templates/info/manage', [TemplateController::class, 'manage_info'])->name("info_manage");
 Route::get('/templates/{quiz}', [TemplateController::class, 'edit'])->name("edit_template");
 Route::post('/templates/{quiz}', [TemplateController::class, 'update'])->name("update_template");
 Route::get('/templates/{quiz}/theme', [TemplateController::class, 'theme'])->name("template_theme");
@@ -182,10 +232,9 @@ Route::group(['prefix' => 'ajax', 'middleware' => 'auth'], function () {
       $quiz->translateOrNew(app()->getLocale())->name = request("name");
       $quiz->save();
       return "Quiz Title Updated Successfully";
-    }else {
+    } else {
       return "Update Failed !!";
     }
-
   })->name("edit_quiz_name");
   Route::post('/quizzes/{quiz}/add_question', [QuestionController::class, 'store'])->name("add_question");
   Route::post('/quizzes/{quiz}/reorder', [QuestionController::class, 'reorder'])->name("reorder_quiz_questions");
@@ -211,4 +260,4 @@ Route::group(['prefix' => 'ajax'], function () {
 });
 // =================================
 
-Route::get('logout', [LoginController::class,'logout'])->name('logout');
+Route::get('logout', [LoginController::class, 'logout'])->name('logout');

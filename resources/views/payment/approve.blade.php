@@ -18,18 +18,18 @@
         </div>
         <div class="table table-striped table-hover w-100 table-7-col">
           <div class="row">
-            <div class="cell">Image</div>
-            <div class="cell">Method</div>
-            <div class="cell code">Date</div>
-            <div class="cell">Package</div>
-            <div class="cell">Amount</div>
-            <div class="cell">Is Approved</div>
-            <div class="cell">Action</div>
+            <div class="cell">{{ __('Image') }}</div>
+            <div class="cell">{{ __('Method') }}</div>
+            <div class="cell code">{{ __('Date') }}</div>
+            <div class="cell">{{ __('Package') }}</div>
+            <div class="cell">{{ __('Amount') }}</div>
+            <div class="cell">{{ __('Is Approved') }}</div>
+            <div class="cell">{{ __('Action') }}</div>
           </div>
           @foreach($payments as $i => $payment)
             <div class="row">
               <div class="cell p-0">
-                <img src="{{ url("/images/bills/" . $payment->bank_bill) }}" class="img img-fluid">
+                <img src="{{ url("images/bills/" . $payment->bank_bill) }}" class="img img-fluid">
               </div>
               <div class="cell">{{ $payment->method }}</div>
               <div class="cell code">{{ $payment->created_at ?? "-" }}</div>
@@ -37,9 +37,9 @@
               <div class="cell">{{ config('pricing.CURRENCY') . $payment->amount }}</div>
               <div class="cell">
                 @if($payment->is_approved())
-                  <span class="status text-success">&bull;</span> Approved
+                  <span class="status text-success">&bull;</span> {{ __('Approved') }}
                 @else
-                  <span class="status text-danger">&bull;</span> Not Approved
+                  <span class="status text-danger">&bull;</span> {{ __('Not Approved') }}
                 @endif
               </div>
               <div class="cell">
@@ -50,10 +50,10 @@
           @endforeach
         </div>
         <div class="clearfix">
-          <div class="hint-text">Showing <b>{{ count($payments->items()) }}</b> out of <b>{{ $payments->total() }}</b> entries</div>
+          <div class="hint-text">{{ __('Showing') }} <b>{{ count($payments->items()) }}</b> {{ __('out of') }} <b>{{ $payments->total() }}</b> {{ __('entries') }}</div>
           @if($payments->hasPages())
             <ul class="pagination">
-              <li class="page-item"><a href="{{ $payments->previousPageUrl() }}" class="page-link">Previous</a></li>
+              <li class="page-item"><a href="{{ $payments->previousPageUrl() }}" class="page-link">{{ __('Previous') }}</a></li>
 
               @if($payments->currentPage() == 1)
                 <li class="page-item active"><a class="page-link">{{ $payments->currentPage() }}</a></li>
@@ -78,7 +78,7 @@
                 @endif
               @endif
 
-              <li class="page-item"><a href="{{ $payments->nextPageUrl() }}" class="page-link">Next</a></li>
+              <li class="page-item"><a href="{{ $payments->nextPageUrl() }}" class="page-link">{{ __('Next') }}</a></li>
             </ul>
           @endif
         </div>

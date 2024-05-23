@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->bigInteger("user_id")->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string("custom_domain")->nullable();
+            $table->tinyInteger("domain_status")->nullable();/* 0 => denied | 1 => will check | 2 => allowed */
             $table->string("url");
             $table->string("company");
             $table->boolean("show_watermark")->default(1);

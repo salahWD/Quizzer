@@ -14,6 +14,7 @@ return new class extends Migration {
         $table->string('stripe_plan');
         $table->string('paypal_plan');
         $table->integer('price');
+        $table->boolean('is_yearly')->default(0);
         $table->boolean('best_seller')->nullable();
         $table->string('description');
         $table->timestamps();

@@ -1,4 +1,4 @@
-const AlertsTimeout = 2000;
+const AlertsTimeout = 5000;
 
 function create(el, attributes, content = "") {
   if (el == false) {
@@ -31,6 +31,11 @@ function bindInput(
   let target = document.getElementById(input.dataset.target);
   input.addEventListener(event, function () {
     target.innerText = this.value;
+    // if (this.value.length > 0) {
+    //   target.classList.remove("d-none");
+    // } else {
+    //   target.classList.add("d-none");
+    // }
     if (targetClass != false) {
       if (this.value.length > 0) {
         this.className = this.className.replace(inputClass, "");
@@ -210,6 +215,9 @@ function createMappingAnswer(id, letterText, text, color = null) {
   let letterInfo = {
     class: "letter mr-3 rounded",
   };
+  if (LANG == "ar") {
+    letterInfo.class = "letter ml-3 rounded";
+  }
 
   if (color != null) {
     if (letterText == null) {
@@ -271,6 +279,7 @@ function createAnswer(count, previewId, sidebarId, value = null) {
       class: "form-control answer-val answer-second",
       style: "display: none",
       placeholder: "الجواب",
+      "data-target": `Answer-${count}-preview`,
       value: ARTrans != null && ARTrans.text != null ? ARTrans.text : "",
       "data-id": value != null && value.id != null ? value.id : "",
     });
@@ -360,6 +369,16 @@ function createAnswer(count, previewId, sidebarId, value = null) {
   });
 
   bindAnswer(answerInput);
+  if (typeof answerInputSecond != "undefined") {
+    bindAnswer(answerInputSecond);
+    if ($("#ar-answer-link") && $("#ar-answer-link").hasClass("active")) {
+      $(answerInputSecond).show();
+      $(answerInput).hide();
+    } else {
+      $(answerInputSecond).hide();
+      $(answerInput).show();
+    }
+  }
 }
 
 function createImageAnswer(count, previewId, sidebarId, value = null) {
@@ -410,6 +429,7 @@ function createImageAnswer(count, previewId, sidebarId, value = null) {
       style: `display: none`,
       class: "form-control answer-val answer-second",
       placeholder: "الجواب",
+      "data-target": `Answer-${count}-preview`,
       value: ARTrans != null && ARTrans.text != undefined ? ARTrans.text : "",
       "data-id": value != null && value.id != null ? value.id : "",
     });
@@ -534,6 +554,16 @@ function createImageAnswer(count, previewId, sidebarId, value = null) {
   });
 
   bindAnswer(answerInput);
+  if (typeof answerInputAR != "undefined") {
+    bindAnswer(answerInputAR);
+    if ($("#ar-answer-link") && $("#ar-answer-link").hasClass("active")) {
+      $(answerInputAR).show();
+      $(answerInput).hide();
+    } else {
+      $(answerInputAR).hide();
+      $(answerInput).show();
+    }
+  }
 
   answerImageInput.addEventListener("change", function () {
     let [file] = this.files;
@@ -579,59 +609,6 @@ function createQuestion(count, text, id, type, containerId) {
 
   let actions = create("ul", { class: "actions" });
   body.append(actions);
-
-  if (quizType == 2 && [1, 2].includes(type)) {
-    let li1 = create("li", {});
-    actions.append(li1);
-
-    let btn1 = create("button", {
-      class: "btn action-btn px-1",
-      id: `Q-${count}-edit`,
-    });
-    li1.append(btn1);
-    $(btn1).click(function () {
-      var btn = $(this);
-      btn.prop("disabled", true);
-      setTimeout(function () {
-        btn.prop("disabled", false);
-      }, actionCoolDownTime);
-      questionMapping($(question).data("id"));
-    });
-
-    let icon1 = create("i", {
-      class: "fa fa-map-o",
-      title: "Question Mapping",
-      id: `Q-${count}-mapping`,
-    });
-    btn1.append(icon1);
-  }
-
-  let li2 = create("li", {
-    "data-target": "#logic-branching",
-    "data-toggle": "modal",
-  });
-  actions.append(li2);
-
-  let btn2 = create("button", {
-    class: "btn action-btn px-1",
-    id: `Q-${count}-edit`,
-  });
-  li2.append(btn2);
-  $(btn2).click(function () {
-    var btn = $(this);
-    btn.prop("disabled", true);
-    setTimeout(function () {
-      btn.prop("disabled", false);
-    }, actionCoolDownTime);
-    questionConditions($(question).data("id"));
-  });
-
-  let icon2 = create("i", {
-    class: "fa fa-code-fork",
-    title: "Logic Branching",
-    id: `Q-${count}-branching`,
-  });
-  btn2.append(icon2);
 
   let li3 = create("li", {});
   actions.append(li3);
@@ -727,6 +704,12 @@ const fields_types = [
   { type: 11, icon: "fa-television" },
   { type: 12, icon: "fa-hashtag" },
   { type: 13, icon: "fa-low-vision" },
+  { type: 14, icon: "fa-low-vision" },
+  { type: 15, icon: "fa-low-vision" },
+  { type: 16, icon: "fa-low-vision" },
+  { type: 17, icon: "fa-low-vision" },
+  { type: 18, icon: "fa-low-vision" },
+  { type: 19, icon: "fa-low-vision" },
 ];
 
 function createField(values) {
@@ -744,7 +727,7 @@ function createField(values) {
     is_multiple_chooseing = "",
     hidden_value = "",
   } = values;
-
+  type = parseInt(type);
   let container = document.getElementById("fields-holder-preview");
   let fieldInfo = {
     class: "field",
@@ -834,7 +817,8 @@ function createField(values) {
     setTimeout(function () {
       btn.prop("disabled", false);
     }, actionCoolDownTime);
-
+    console.log(field.dataset.placeholder);
+    console.log(fieldInfo["data-placeholder"]);
     let editInfo = {
       label: field.dataset.title,
       placeholder: field.dataset.placeholder,
@@ -906,6 +890,95 @@ function createField(values) {
   });
   btn6.append(icon6);
   return fieldInfo.id;
+}
+
+function customSelect(select, is_answer = 1, hasDelteBtn = 0) {
+  select.classList.add("d-none");
+  let customSelectBox = create("div", {
+    class: "custom-select-box",
+  });
+  select.parentElement.append(customSelectBox);
+  customSelectBox.appendChild(select);
+
+  customSelectBox.append(create("div", { class: "styledSelect" }));
+  let $styledSelect = customSelectBox.querySelector("div.styledSelect");
+  if (
+    typeof select.querySelector("option[selected]") != "undefined" &&
+    select.querySelector("option[selected]") != null
+  ) {
+    $styledSelect.innerHTML =
+      select.querySelector("option[selected]").innerHTML;
+  } else {
+    $styledSelect.innerHTML = select.querySelector("option").innerHTML;
+  }
+  let $list = create("ul", {
+    class: "options d-none",
+  });
+  customSelectBox.append($list);
+  select.querySelectorAll(`option`).forEach((el) => {
+    let content = "";
+    if (is_answer == 1) {
+      content = el.innerText;
+    } else {
+      content = `<span class='badge ${el.dataset.badge}'>${el.dataset.type}</span>`;
+      content += " " + el.dataset.text;
+    }
+    $list.append(
+      create(
+        "li",
+        {
+          rel: el.value,
+        },
+        content
+      )
+    );
+  });
+
+  if (hasDelteBtn == true) {
+    let deleteBtn = create(
+      "button",
+      {
+        style: "height: 42px;width: 42px;",
+        class: "btn btn-danger",
+      },
+      "<i class='fa fa-trash'></i>"
+    );
+    select.parentElement.append(deleteBtn);
+    deleteBtn.addEventListener("click", function () {
+      customSelectBox.remove();
+    });
+  } else {
+    $styledSelect.style = "margin-right: 61px";
+  }
+
+  // Show the unordered list when the styled div is clicked (also hides it if the div is clicked again)
+  $styledSelect.addEventListener("click", function (e) {
+    e.stopPropagation();
+    document.querySelectorAll("div.styledSelect.active").forEach((el) => {
+      el.classList.remove("active");
+      el.parentElement.querySelector("ul.options").classList.add("d-none");
+    });
+    this.classList.toggle("active");
+    this.parentElement.querySelector("ul.options").classList.toggle("d-none");
+  });
+
+  // Hides the unordered list when a list item is clicked and updates the styled div to show the selected list item
+  // Updates the select element to have the value of the equivalent option
+  $list.querySelectorAll("li").forEach((el) => {
+    el.addEventListener("click", function (e) {
+      e.stopPropagation();
+      $styledSelect.innerHTML = this.innerHTML;
+      $styledSelect.classList.remove("active");
+      select.value = this.getAttribute("rel");
+      $list.classList.add("d-none");
+    });
+  });
+
+  // Hides the unordered list when clicking outside of it
+  document.addEventListener("click", function () {
+    $styledSelect.classList.remove("active");
+    $list.classList.add("d-none");
+  });
 }
 
 var resultsCount = 0;
@@ -1033,6 +1106,7 @@ function createCondition(
   question_id = null,
   values = null
 ) {
+  type = parseInt(type);
   let container = document.getElementById("conditions-container");
 
   let condition = create("div", {
@@ -1054,7 +1128,7 @@ function createCondition(
     role: "switch",
     id: `condition-${count}-is-on`,
   };
-  if (values != null && values.is_on == 1) {
+  if (values == null || values.is_on != 0) {
     isOnSwitchInfo["checked"] = true;
   }
   let isOnSwitch = create("input", isOnSwitchInfo);
@@ -1068,7 +1142,7 @@ function createCondition(
   options.append(deleteBtn);
 
   if ([1, 2].includes(type)) {
-    let textLine = create("p", { class: "lead mb-3" }, "People who meet");
+    let textLine = create("p", { class: "lead mb-3" }, __["People who meet"]);
     condition.append(textLine);
 
     let andOrSelect = create("select", {
@@ -1076,36 +1150,53 @@ function createCondition(
       id: `condition-${count}-any-or`,
     });
     textLine.append(andOrSelect);
+    // customSelectBox.append(andOrSelect);
 
     let optionAnyInfo = { value: 0 };
     if (values != null && values.any_or != null && values.any_or == 0) {
       optionAnyInfo["selected"] = true;
     }
-    let optionAny = create("option", optionAnyInfo, "any");
+    let optionAny = create("option", optionAnyInfo, __["any"]);
     andOrSelect.append(optionAny);
 
     let optionOrInfo = { value: 1 };
     if (values != null && values.any_or != null && values.any_or == 1) {
       optionOrInfo["selected"] = true;
     }
-    let optionOr = create("option", optionOrInfo, "all");
+    let optionOr = create("option", optionOrInfo, __["all"]);
     andOrSelect.append(optionOr);
 
-    let textLineEnd = create("span", {}, "of the following criteria:");
+    let textLineEnd = create("span", {}, __["of the following criteria:"]);
     textLine.append(textLineEnd);
 
     condition.append(
       create(
         "p",
         { class: "lead" },
-        "<b>If answer to question is:</b> (you can add multiple answers)"
+        "<b style='font-weight: 600;'>" +
+          __["If answer to question is:"] +
+          "</b> " +
+          __["(you can add multiple answers)"]
       )
     );
 
     let row1 = create("div", { class: "row mb-2" });
     condition.append(row1);
 
-    var left = create("div", { class: "col-10" });
+    let right = create("div", { class: "mb-2" });
+    row1.append(right);
+
+    var addAnswerBtn = create(
+      "button",
+      {
+        class: "btn-add-answer btn border text-white btn-lg",
+        style: "background: #6e3e98;min-width: 150px;",
+      },
+      '<i class="fa fa-plus"></i>'
+    );
+    right.append(addAnswerBtn);
+
+    var left = create("div", { class: "col-12" });
     row1.append(left);
 
     function createAnswerSelect(options, selected) {
@@ -1116,6 +1207,7 @@ function createCondition(
       if (options != null && options.length > 0) {
         options.forEach((opt) => {
           let optionInfo = { value: opt.id };
+          optionInfo["data-text"] = opt.text;
           if (selected != null && selected == opt.id) {
             optionInfo["selected"] = true;
           }
@@ -1123,29 +1215,32 @@ function createCondition(
           answersSelect.append(el);
         });
       }
+
       return answersSelect;
     }
 
     if (values != null && values.answers != null && answers != null) {
       values.answers.forEach((answer) => {
-        left.append(createAnswerSelect(answers, answer));
+        let hasDelteBtn =
+          left.querySelectorAll(".custom-select-box").length > 0;
+        select = createAnswerSelect(answers, answer);
+        left.append(select);
+        customSelect(select, 1, hasDelteBtn); // 3rd param for delete btn
       });
     } else if (answers != null) {
-      left.append(createAnswerSelect(answers, null));
+      let hasDelteBtn = left.querySelectorAll(".custom-select-box").length > 0;
+      let select = createAnswerSelect(answers, null);
+      left.append(select);
+      customSelect(select, 1, hasDelteBtn); // 3rd param for delete btn
     }
-
-    let right = create("div", { class: "col-2" });
-    row1.append(right);
-
-    var addAnswerBtn = create(
-      "button",
-      { class: "btn-add-answer btn border btn-lg bg-white" },
-      '<i class="fa fa-plus"></i>'
-    );
-    right.append(addAnswerBtn);
   }
-
-  condition.append(create("P", { class: "lead mb-1" }, "Jump to:"));
+  condition.append(
+    create(
+      "P",
+      { class: "lead mb-1" },
+      `<b style='font-weight: 600;'>${__["Jump to:"]}</b>`
+    )
+  );
 
   let row2 = create("div", { class: "row" });
   condition.append(row2);
@@ -1161,6 +1256,17 @@ function createCondition(
     "Image Or Video",
     "result",
     "result",
+    "result",
+  ];
+  let badges = [
+    "bg-primary",
+    "bg-primary",
+    "bg-secondary",
+    "bg-success",
+    "bg-warning",
+    "bg-dark",
+    "bg-dark",
+    "bg-dark",
   ];
 
   if (targets != null) {
@@ -1171,7 +1277,13 @@ function createCondition(
     targetSelectContainer.append(targetSelect);
 
     targets.forEach((target) => {
-      let targetOptionInfo = { value: target.id, "data-type": target.type };
+      let targetOptionInfo = {
+        value: target.id,
+        "data-typeid": target.type,
+        "data-type": __[typeToString[target.type - 1]],
+        "data-badge": badges[target.type - 1],
+        "data-text": target.title,
+      };
       if (
         values != null &&
         values.target_id != null &&
@@ -1179,11 +1291,10 @@ function createCondition(
       ) {
         targetOptionInfo["selected"] = true;
       }
-      let targetOption = create(
-        "option",
-        targetOptionInfo,
-        `((${typeToString[target.type - 1]}))  ${target.title}`
-      );
+      label = `<span class='badge ${badges[target.type - 1]}'>${
+        __[typeToString[target.type - 1]]
+      }</span> ${target.title}`;
+      let targetOption = create("option", targetOptionInfo, label);
       targetSelect.append(targetOption);
     });
 
@@ -1197,6 +1308,7 @@ function createCondition(
       "type",
       $(targetSelect).find(":selected").data("type")
     );
+    customSelect(targetSelect, 0);
   }
 
   container.append(condition);
@@ -1220,7 +1332,11 @@ function createCondition(
 
       if (answers != null) {
         answers.forEach((answer) => {
-          let optinoInfo = { value: answer.id, "data-type": answer.type };
+          let optinoInfo = {
+            value: answer.id,
+            "data-type": answer.type,
+            "data-text": answer.text,
+          };
           if (
             values != null &&
             values.answers != null &&
@@ -1234,6 +1350,11 @@ function createCondition(
       }
 
       x++;
+      customSelect(
+        newAnswersSelect,
+        1,
+        left.querySelectorAll(".custom-select-box").length > 0
+      );
     });
   }
 }
@@ -1290,9 +1411,13 @@ function editQuestion(questionId, modalId = "questionsModal") {
       "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
     },
     success: function (res) {
+      let modalTitle = `Edit (${res.title})`;
+      if (LANG == "ar") {
+        modalTitle = `تعديل (${res.title})`;
+      }
       let modalInfo = JSON.stringify({
         itemType: res.type,
-        itemName: `Edit ${res.title}`,
+        itemName: modalTitle,
         isEdit: true,
         data: res,
       });
@@ -1301,7 +1426,7 @@ function editQuestion(questionId, modalId = "questionsModal") {
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("you can't edit this Question ):");
+      let alert = makeErrorAlert(__["you can't edit this Question ):"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1317,9 +1442,13 @@ function editResult(resultId, modalId = "questionsModal") {
       "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
     },
     success: function (res) {
+      let modalTitle = `Edit (${res.title})`;
+      if (LANG == "ar") {
+        modalTitle = `تعديل (${res.title})`;
+      }
       let info = {
         itemType: +res.type + 5,
-        itemName: `Edit ${res.title}`,
+        itemName: modalTitle,
         isEdit: true,
         data: res,
       };
@@ -1332,7 +1461,7 @@ function editResult(resultId, modalId = "questionsModal") {
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("you can't edit this Result ):");
+      let alert = makeErrorAlert(__["you can't edit this Result ):"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1357,14 +1486,14 @@ function deleteQuestion(id) {
           $("#contentRemovableInfo").removeClass("d-none");
         }
       });
-      let alert = makeSuccessAlert("Question Deleted Successfully");
+      let alert = makeSuccessAlert(__["Question Deleted Successfully"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("Somthing Went Wrong !!");
+      let alert = makeErrorAlert(__["Somthing Went Wrong !!"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1389,14 +1518,14 @@ function deleteResult(id) {
           $("#resultRemovableInfo").removeClass("d-none");
         }
       });
-      let alert = makeSuccessAlert("Result Deleted Successfully");
+      let alert = makeSuccessAlert(__["Result Deleted Successfully"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("Somthing Went Wrong !!");
+      let alert = makeErrorAlert(__["Somthing Went Wrong !!"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1418,15 +1547,15 @@ function copyQuestion(id) {
       let count = $("#contentItemsContainer .question").length + 1;
       let name = $(`#question-${id}-title`).text();
       let type = $("#question-" + id).data("type");
-      createQuestion(count, name, res, type, "contentItemsContainer");
-      let alert = makeSuccessAlert("Question has been duplicated");
+      createQuestion(count, name, res, type, "contentItemsContainer", res);
+      let alert = makeSuccessAlert(__["Question has been duplicated"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("Somthing Went Wrong !!");
+      let alert = makeErrorAlert(__["Somthing Went Wrong !!"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1450,13 +1579,13 @@ function copyResult(id) {
       let minScore = null; // $("#result-" + id + "-min-score").text() ?? null;
       let maxScore = null; // $("#result-" + id + "-min-score").text() ?? null;
       createResult(name, res, type, "resultItemsContainer", minScore, maxScore);
-      let alert = makeSuccessAlert("Result has been duplicated");
+      let alert = makeSuccessAlert(__["Result has been duplicated"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
     },
     error: function (res) {
-      let alert = makeErrorAlert("Somthing Went Wrong !!");
+      let alert = makeErrorAlert(__["Somthing Went Wrong !!"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1472,10 +1601,16 @@ function questionMapping(questionId) {
       "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
     },
     success: function (res) {
-      let modalInfo = JSON.stringify({
-        itemName: `Answers Mapping (${$(
+      let modalTitle = `Answers Mapping (${$(
+        "#question-" + questionId + "-title"
+      ).text()})`;
+      if (LANG == "ar") {
+        modalTitle = `ربط الإجابة بالنتيجة (${$(
           "#question-" + questionId + "-title"
-        ).text()})`,
+        ).text()})`;
+      }
+      let modalInfo = JSON.stringify({
+        itemName: modalTitle,
         // data: { answers: res.answers, abx: res.results },
         results: res.results,
         answers: res.answers,
@@ -1485,7 +1620,7 @@ function questionMapping(questionId) {
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("you can't Map this Question ):");
+      let alert = makeErrorAlert(__["you can't Map this Question ):"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1513,7 +1648,7 @@ function questionConditions(questionId) {
     },
     error: function (res) {
       console.error(res);
-      let alert = makeErrorAlert("you can't Map this Question ):");
+      let alert = makeErrorAlert(__["you can't Map this Question ):"]);
       setTimeout(() => {
         alert.close();
       }, AlertsTimeout);
@@ -1540,8 +1675,14 @@ function textQuestionModal(
   };
   let imgInput = create("input", attrs);
   py.append(imgInput);
-  let imageTitle = create("p", {}, "Add Image:");
+  let imageTitle = create("p", {}, __["Add Image:"]);
   py.append(imageTitle);
+  let uploadImageNote = create(
+    "p",
+    { class: "lead" },
+    `${__["For the image to be of a suitable size for musaad, please compress it on this site"]}: <a target="_blank" href="https://tinypng.com/">tinypng.com</a></p>`
+  );
+  py.append(uploadImageNote);
   let uploadImageBtn = create(
     "button",
     {
@@ -1549,7 +1690,7 @@ function textQuestionModal(
       class: "btn btn-success",
       onclick: "imageInput.click()",
     },
-    "Upload Image"
+    __["Upload Image"]
   );
   py.append(uploadImageBtn);
   let imageNameContainerClass =
@@ -1591,7 +1732,9 @@ function textQuestionModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-option": "en-question-translation",
         id: "en-intro-link",
       },
@@ -1602,7 +1745,9 @@ function textQuestionModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-option": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -1675,12 +1820,13 @@ function textQuestionModal(
       "عنوان السؤال *"
     );
     ARinputContainer1.append(ARinputLabel1);
-    let ARinput1 = create("input", {
+    var ARinput1 = create("input", {
       type: "text",
       class: "form-control",
       id: "ArQuestionTitleInput",
       placeholder: "أدخل عنواناً",
       maxlength: "400",
+      "data-target": "questionTitlePreview",
       value: ARTrans != null && ARTrans.title != null ? ARTrans.title : "",
     });
     ARinputContainer1.append(ARinput1);
@@ -1692,15 +1838,21 @@ function textQuestionModal(
       "وصف السؤال"
     );
     ARinputContainer2.append(ARinputLabel2);
-    let ARinput2 = create(
+    var ARinput2 = create(
       "textarea",
       {
         class: "form-control",
         id: "ArquestionDescInpiut",
         placeholder: "أدخل وصفاً",
         maxlength: "400",
+        "data-target": "questionDescPreview",
       },
-      ARTrans != null && ARTrans.description != null ? ARTrans.description : ""
+      ARTrans != null &&
+        ARTrans != "" &&
+        ARTrans.description != null &&
+        ARTrans.description != ""
+        ? ARTrans.description
+        : ""
     );
     ARinputContainer2.append(ARinput2);
   } else {
@@ -1749,7 +1901,7 @@ function textQuestionModal(
 
   let inputContainer3 = create("div", { class: "mb-3" });
   modalSidebar.append(inputContainer3);
-  let inputLabel3 = create("label", { class: "mb-2" }, "Answers:");
+  let inputLabel3 = create("label", { class: "mb-1" }, __["Answers:"]);
   inputContainer3.append(inputLabel3);
 
   if (is_admin) {
@@ -1761,7 +1913,9 @@ function textQuestionModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center answer-link active",
+        class:
+          "nav-link w-50 text-center answer-link" +
+          (LANG == "en" ? " active" : ""),
         id: "en-answer-link",
       },
       "English"
@@ -1771,7 +1925,9 @@ function textQuestionModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center answer-link",
+        class:
+          "nav-link w-50 text-center answer-link" +
+          (LANG == "ar" ? " active" : ""),
         id: "ar-answer-link",
       },
       "العربية"
@@ -1793,12 +1949,12 @@ function textQuestionModal(
       class: "btn btn-secondary",
       placeholder: "Answer",
     },
-    'Add Answer <i style="margin-left: 8px" class="fa fa-plus"></i>'
+    `${__["Add Answer"]} <i style="margin-left: 8px" class="fa fa-plus"></i>`
   );
   inputContainer3.append(addAnswerBtn);
   let inputContainer4 = create("div", { class: "mb-3" });
   modalSidebar.append(inputContainer4);
-  let sectoinTitle1 = create("h5", { class: "title" }, "SETTING");
+  let sectoinTitle1 = create("h5", { class: "title" }, __["SETTING"]);
   inputContainer4.append(sectoinTitle1);
   let checkBoxContainer = create("div", {
     class: "form-check form-switch p-0 my-4 d-flex gap-3",
@@ -1807,7 +1963,7 @@ function textQuestionModal(
   let inputLabel4 = create(
     "label",
     { class: "form-check-label", for: "multiSelect" },
-    "Allow multiple selections:"
+    __["Allow multiple choices:"]
   );
   checkBoxContainer.append(inputLabel4);
   let checkBoxInfo = {
@@ -1879,8 +2035,8 @@ function textQuestionModal(
   centerHolder.append(answersContainerPreview);
   let nextQuestionBtnClass =
     values != null && values.multi_select != null && values.multi_select == 1
-      ? "btn d-inline-block ml-auto"
-      : "btn d-inline-block ml-auto d-none";
+      ? "btn d-inline-block mt-3 ml-auto"
+      : "btn d-inline-block mt-3 ml-auto d-none";
   let nextQuestionBtn = create(
     "button",
     {
@@ -1893,13 +2049,19 @@ function textQuestionModal(
       type: "button",
       id: "nextQuestionBtn",
     },
-    "Submit"
+    __["Submit"]
   );
   centerHolder.append(nextQuestionBtn);
 
   bindInput(input1, "input", "d-none", "is-invalid");
   bindInput(input2, "input", "d-none");
   bindCheck(input3);
+  if (typeof ARinput1 != "undefined") {
+    bindInput(ARinput1, "input", "d-none", "is-invalid");
+  }
+  if (typeof ARinput2 != "undefined") {
+    bindInput(ARinput2, "input", "d-none");
+  }
 
   $(modalSidebar)
     .find(".option-link")
@@ -1914,6 +2076,11 @@ function textQuestionModal(
           .siblings(".option-page")
           .fadeOut(100);
       });
+      $(this).addClass("active").siblings(".option-link").removeClass("active");
+      $("#" + $(this).data("option"))
+        .show()
+        .siblings(".option-page")
+        .hide();
     });
 
   $("#en-answer-link").click(function () {
@@ -1945,6 +2112,13 @@ function textQuestionModal(
   } else {
     createAnswer(++answersCount, "answersContainerPreview", "answersContainer");
     createAnswer(++answersCount, "answersContainerPreview", "answersContainer");
+  }
+  if ($("#ar-answer-link").hasClass("active")) {
+    $("#answersContainer .answer .answer-primary").hide();
+    $("#answersContainer .answer .answer-second").show();
+  } else {
+    $("#answersContainer .answer .answer-second").hide();
+    $("#answersContainer .answer .answer-primary").show();
   }
 
   addAnswerBtn.addEventListener("click", function () {
@@ -1988,8 +2162,14 @@ function imageQuestionModal(
 
   let imgInput = create("input", attrs);
   py.append(imgInput);
-  let imageTitle = create("p", {}, "Add Image:");
+  let imageTitle = create("p", {}, __["Add Image:"]);
   py.append(imageTitle);
+  let uploadImageNote = create(
+    "p",
+    { class: "lead" },
+    `${__["For the image to be of a suitable size for musaad, please compress it on this site"]}: <a target="_blank" href="https://tinypng.com/">tinypng.com</a></p>`
+  );
+  py.append(uploadImageNote);
   let uploadImageBtn = create(
     "button",
     {
@@ -1997,7 +2177,7 @@ function imageQuestionModal(
       class: "btn btn-success",
       onclick: "imageInput.click()",
     },
-    "Upload Image"
+    __["Upload Image"]
   );
   py.append(uploadImageBtn);
   let imageNameContainerClass =
@@ -2032,7 +2212,9 @@ function imageQuestionModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-option": "en-question-translation",
         id: "en-intro-link",
       },
@@ -2043,7 +2225,9 @@ function imageQuestionModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-option": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -2125,7 +2309,7 @@ function imageQuestionModal(
       "عنوان السؤال *"
     );
     ARinputContainer1.append(ARinputLabel1);
-    let ARinput1 = create("input", {
+    var ARinput1 = create("input", {
       type: "text",
       class: "form-control",
       id: "ArQuestionTitleInput",
@@ -2143,7 +2327,7 @@ function imageQuestionModal(
       "وصف السؤال"
     );
     ARinputContainer2.append(ARinputLabel2);
-    let ARinput2 = create(
+    var ARinput2 = create(
       "textarea",
       {
         class: "form-control",
@@ -2210,7 +2394,9 @@ function imageQuestionModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center answer-link active",
+        class:
+          "nav-link w-50 text-center answer-link" +
+          (LANG == "en" ? " active" : ""),
         id: "en-answer-link",
       },
       "English"
@@ -2220,7 +2406,9 @@ function imageQuestionModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center answer-link",
+        class:
+          "nav-link w-50 text-center answer-link" +
+          (LANG == "ar" ? " active" : ""),
         id: "ar-answer-link",
       },
       "العربية"
@@ -2228,8 +2416,14 @@ function imageQuestionModal(
     translationPagesBtnsHolder.append(translationPagesBtn2);
   }
 
-  let inputLabel3 = create("label", { class: "mb-2" }, "Answers:");
+  let inputLabel3 = create("label", { class: "mb-2" }, __["Answers:"]);
   inputContainer3.append(inputLabel3);
+  let LabelP3 = create(
+    "p",
+    { class: "mb-2 lead" },
+    __["largest image size is: 2mb"]
+  );
+  inputContainer3.append(LabelP3);
 
   let answersContainer = create("div", {
     class: "answers-order-container list-group",
@@ -2244,12 +2438,12 @@ function imageQuestionModal(
       class: "btn btn-secondary",
       placeholder: "Answer",
     },
-    'Add Answer <i style="margin-left: 8px" class="fa fa-plus"></i>'
+    `${__["Add Answer"]} <i style="margin-left: 8px" class="fa fa-plus"></i>`
   );
   inputContainer3.append(addAnswerBtn);
   let inputContainer4 = create("div", { class: "mb-3" });
   modalSidebar.append(inputContainer4);
-  let sectoinTitle1 = create("h5", { class: "title" }, "SETTING");
+  let sectoinTitle1 = create("h5", { class: "title" }, __["SETTING"]);
   inputContainer4.append(sectoinTitle1);
   let checkBoxContainer = create("div", {
     class: "form-check form-switch p-0 my-4 d-flex gap-3",
@@ -2258,7 +2452,7 @@ function imageQuestionModal(
   let inputLabel4 = create(
     "label",
     { class: "form-check-label", for: "multiSelect" },
-    "Allow multiple selections:"
+    __["Allow multiple choices:"]
   );
   checkBoxContainer.append(inputLabel4);
   let checkBoxInfo = {
@@ -2346,12 +2540,14 @@ function imageQuestionModal(
       type: "button",
       id: "nextQuestionBtn",
     },
-    "Submit"
+    __["Submit"]
   );
   centerHolder.append(nextQuestionBtn);
 
   bindInput(input1, "input", "d-none", "is-invalid");
   bindInput(input2, "input", "d-none");
+  bindInput(ARinput1, "input", "d-none", "is-invalid");
+  bindInput(ARinput2, "input", "d-none");
   bindCheck(input3);
   if (values != null && values.id != null) {
     bindImage(imgInput, values.id);
@@ -2373,6 +2569,14 @@ function imageQuestionModal(
             .siblings(".option-page")
             .fadeOut(100);
         });
+        $(this)
+          .addClass("active")
+          .siblings(".option-link")
+          .removeClass("active");
+        $("#" + $(this).data("option"))
+          .fadeIn()
+          .siblings(".option-page")
+          .fadeOut();
       });
 
     $("#en-answer-link").click(function () {
@@ -2407,6 +2611,13 @@ function imageQuestionModal(
       "answersContainerPreview",
       "answersContainer"
     );
+  }
+  if ($("#ar-answer-link").hasClass("active")) {
+    $("#answersContainer .answer .answer-primary").hide();
+    $("#answersContainer .answer .answer-second").show();
+  } else {
+    $("#answersContainer .answer .answer-second").hide();
+    $("#answersContainer .answer .answer-primary").show();
   }
 
   addAnswerBtn.addEventListener("click", function () {
@@ -2453,7 +2664,9 @@ function textModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-target": "en-question-translation",
         id: "en-intro-link",
       },
@@ -2464,7 +2677,9 @@ function textModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-target": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -2539,14 +2754,14 @@ function textModal(
     let inputLabel3 = create(
       "label",
       { class: "mb-2", for: "EnQuestionButtonLabel" },
-      "Button: *"
+      __["Button: *"]
     );
     inputContainer3.append(inputLabel3);
     var input3 = create("input", {
       type: "text",
       class: "form-control",
       id: "EnQuestionButtonLabel",
-      maxlength: "20",
+      maxlength: "40",
       placeholder: "Button Label",
       "data-target": "nextQuestionBtn",
       value:
@@ -2570,12 +2785,13 @@ function textModal(
       "العنوان: *"
     );
     inputContainer1Ar.append(inputLabel1Ar);
-    let input1Ar = create("input", {
+    var input1Ar = create("input", {
       type: "text",
       class: "form-control",
       id: "ArQuestionTitleInput",
       placeholder: "ادخل عنواناً",
       maxlength: "200",
+      "data-target": "questionTitlePreview",
       value: ARTrans != null && ARTrans.title != undefined ? ARTrans.title : "",
     });
     inputContainer1Ar.append(input1Ar);
@@ -2588,13 +2804,14 @@ function textModal(
       "الوصف"
     );
     inputContainer2Ar.append(inputLabel2Ar);
-    let input2Ar = create(
+    var input2Ar = create(
       "textarea",
       {
         class: "form-control",
         id: "ArquestionDescInpiut",
         placeholder: "ادخل وصفاً",
         maxlength: "400",
+        "data-target": "questionDescPreview",
       },
       ARTrans != null && ARTrans.description != undefined
         ? ARTrans.description
@@ -2610,12 +2827,13 @@ function textModal(
       "الزر: *"
     );
     inputContainer3Ar.append(inputLabel3Ar);
-    let input3Ar = create("input", {
+    var input3Ar = create("input", {
       type: "text",
       class: "form-control",
       id: "ArQuestionButtonLabel",
-      maxlength: "20",
+      maxlength: "40",
       placeholder: "عنوان الزر",
+      "data-target": "nextQuestionBtn",
       value:
         ARTrans != null && ARTrans.button_label != undefined
           ? ARTrans.button_label
@@ -2669,14 +2887,14 @@ function textModal(
     let inputLabel3 = create(
       "label",
       { class: "mb-2", for: "EnQuestionTitleInput" },
-      "Button: *"
+      __["Button: *"]
     );
     inputContainer3.append(inputLabel3);
     var input3 = create("input", {
       type: "text",
       class: "form-control",
       id: "EnQuestionButtonLabel",
-      maxlength: "20",
+      maxlength: "40",
       placeholder: "Button Label",
       "data-target": "nextQuestionBtn",
       value:
@@ -2719,8 +2937,8 @@ function textModal(
 
   let nextQuestionBtnClass =
     values != null && values.button_label != null
-      ? "btn d-inline-block ml-auto"
-      : "btn d-inline-block ml-auto d-none";
+      ? "btn d-inline-block mt-3 ml-auto"
+      : "btn d-inline-block mt-3 ml-auto d-none";
   let nextQuestionBtn = create(
     "button",
     {
@@ -2740,9 +2958,25 @@ function textModal(
   bindInput(input1, "input", "d-none", "is-invalid");
   bindInput(input2, "input", "d-none");
   bindInput(input3, "input", "d-none", "is-invalid");
+  if (typeof input1Ar != "undefined") {
+    bindInput(input1Ar, "input", "d-none", "is-invalid");
+  }
+  if (typeof input2Ar != "undefined") {
+    bindInput(input2Ar, "input", "d-none");
+  }
+  if (typeof input3Ar != "undefined") {
+    bindInput(input3Ar, "input", "d-none", "is-invalid");
+  }
 
   $("#modalSidebar .option-link").click(function () {
     $(this).addClass("active").siblings(".option-link").removeClass("active");
+    $("#" + $(this).data("target"))
+      .show()
+      .siblings(".option-page")
+      .hide();
+  });
+  $("#modalSidebar .option-link.active").each(function () {
+    $(this).siblings(".option-link").removeClass("active");
     $("#" + $(this).data("target"))
       .show()
       .siblings(".option-page")
@@ -2754,21 +2988,21 @@ let fields = [
   [
     {
       type: "text",
-      label: "Label",
+      label: __["Label"],
       id: "label-input",
-      placeholder: "enter a label",
-      content: "First Name",
+      placeholder: __["enter a label"],
+      content: __["First Name"],
     },
     {
       type: "text",
-      label: "Placeholder",
+      label: __["Placeholder"],
       id: "placeholder-input",
-      placeholder: "Enter Placeholder",
+      placeholder: __["Enter Placeholder"],
       content: "",
     },
     {
       type: "checkbox",
-      label: "is required",
+      label: __["is required"],
       id: "is-required-input",
       is_required: 0,
     },
@@ -2788,7 +3022,7 @@ function formModal(
       <div class="my-3">
         <div id="filed-inputs-box"></div>
         <div class="px-3">
-          <button id="save-field-btn" class="btn btn-primary save-btn w-100">save <i class="fa fa-save"></i></button>
+          <button id="save-field-btn" class="btn btn-primary save-btn w-100">${__["save"]} <i class="fa fa-save"></i></button>
         </div>
       </div>
     </div>`
@@ -2804,7 +3038,7 @@ function formModal(
       "data-option": "image",
       id: "image-link",
     },
-    "Image"
+    __["Image"]
   );
   navTaps.append(tap1);
 
@@ -2822,7 +3056,12 @@ function formModal(
     "data-target": "img-preview",
   });
   option1.append(imgInput);
-
+  let uploadImageNote = create(
+    "p",
+    { class: "lead" },
+    `${__["For the image to be of a suitable size for musaad, please compress it on this site"]}: <a target="_blank" href="https://tinypng.com/">tinypng.com</a></p>`
+  );
+  option1.append(uploadImageNote);
   let uploadImageBtn = create(
     "button",
     {
@@ -2830,7 +3069,7 @@ function formModal(
       class: "btn btn-success",
       onclick: "imageInput.click()",
     },
-    "Upload Image"
+    __["Upload Image"]
   );
   option1.append(uploadImageBtn);
   let imageNameContainerClass =
@@ -2863,7 +3102,7 @@ function formModal(
       "data-option": "video",
       id: "video-link",
     },
-    "Video"
+    __["Video"]
   );
   navTaps.append(tap2);
 
@@ -2879,18 +3118,31 @@ function formModal(
       class: "form-label",
       for: "videoUrlInput",
     },
-    "Video URL:"
+    __["Video URL:"]
   );
   option2.append(videoLabel);
+
+  let flexholder = create("div", { class: "d-flex" });
+  option2.append(flexholder);
 
   let videoUrlInput = create("input", {
     class: "form-control",
     type: "url",
     "data-target": "img-preview",
-    placeholder: "Enter A Youtube Video URL",
+    placeholder: __["Enter A Youtube Video URL"],
     id: "videoUrlInput",
   });
-  option2.append(videoUrlInput);
+  flexholder.append(videoUrlInput);
+
+  let deleteBtn = create(
+    "button",
+    {
+      class: "btn btn-danger delete-value-url",
+      onclick: "videoUrlInput.value = '';",
+    },
+    "<i class='fa fa-trash'></i>"
+  );
+  flexholder.append(deleteBtn);
 
   if (is_admin) {
     let translationPagesBtnsHolder = create("ul", {
@@ -2901,7 +3153,9 @@ function formModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-target": "en-question-translation",
         id: "en-intro-link",
       },
@@ -2912,7 +3166,9 @@ function formModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-target": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -2988,13 +3244,13 @@ function formModal(
       create(
         "label",
         { class: "form-label", for: "EnQuestionButtonLabel" },
-        "Button Label:"
+        __["Button Label:"]
       )
     );
 
     var formButton = create("input", {
       class: "form-control",
-      placeholder: "submit",
+      placeholder: __["submit"],
       type: "text",
       id: "EnQuestionButtonLabel",
       "data-target": "nextQuestionBtn",
@@ -3022,12 +3278,13 @@ function formModal(
       ARTrans = values.translations.find((x) => x.locale == "ar");
     }
 
-    let input1Ar = create("input", {
+    var input1Ar = create("input", {
       type: "text",
       class: "form-control",
       id: "ArQuestionTitleInput",
       placeholder: "ادخل عنواناً",
       maxlength: "200",
+      "data-target": "questionTitlePreview",
       value: ARTrans != null && ARTrans.title != undefined ? ARTrans.title : "",
     });
     inputContainer1Ar.append(input1Ar);
@@ -3040,13 +3297,14 @@ function formModal(
       "الوصف"
     );
     inputContainer2Ar.append(inputLabel2Ar);
-    let input2Ar = create(
+    var input2Ar = create(
       "textarea",
       {
         class: "form-control",
         id: "ArquestionDescInpiut",
         placeholder: "ادخل وصفاً",
         maxlength: "400",
+        "data-target": "questionDescPreview",
       },
       ARTrans != null && ARTrans.description != undefined
         ? ARTrans.description
@@ -3069,6 +3327,7 @@ function formModal(
       placeholder: "إرسال",
       type: "text",
       id: "ArQuestionButtonLabel",
+      "data-target": "nextQuestionBtn",
       value:
         ARTrans != null &&
         ARTrans.button_label != undefined &&
@@ -3131,7 +3390,7 @@ function formModal(
 
     var formButton = create("input", {
       class: "form-control",
-      placeholder: "submit",
+      placeholder: __["submit"],
       type: "text",
       id: "EnQuestionButtonLabel",
       "data-target": "nextQuestionBtn",
@@ -3158,85 +3417,91 @@ function formModal(
       id: 1,
       type: "text",
       name: "first_name",
-      title: "First Name",
+      title: __["First Name"],
       icon: "fa fa-user",
     },
     {
       id: 2,
       type: "text",
       name: "last_name",
-      title: "Last Name",
+      title: __["Last Name"],
       icon: "fa fa-user",
     },
     {
       id: 3,
       type: "email",
       name: "email",
-      title: "Email",
+      title: __["Email"],
       icon: "fa fa-envelope",
     },
     {
       id: 4,
       type: "number",
       name: "phone_number",
-      title: "Phone Number",
+      title: __["Phone Number"],
       icon: "fa fa-phone",
     },
     {
       id: 5,
       type: "textarea",
       name: "long_answer",
-      title: "Long Answer",
+      title: __["Long Answer"],
       icon: "fa fa-bars",
     },
     {
       id: 6,
       type: "text",
       name: "short_answer",
-      title: "Short Answer",
+      title: __["Short Answer"],
       icon: "fa fa-align-center",
     },
     {
       id: 7,
       type: "checkbox",
       name: "checkbox",
-      title: "Checkbox",
+      title: __["Checkbox"],
       icon: "fa fa-check-square-o",
     },
     {
       id: 8,
       type: "select",
       name: "dropdown",
-      title: "Dropdown",
+      title: __["Dropdown"],
       icon: "fa fa-caret-square-o-down",
     },
-    { id: 9, type: "time", name: "time", title: "Time", icon: "fa fa-clock-o" },
+    {
+      id: 9,
+      type: "time",
+      name: "time",
+      title: __["Time"],
+      icon: "fa fa-clock-o",
+    },
     {
       id: 10,
       type: "date",
       name: "date",
-      title: "Date",
+      title: __["Date"],
       icon: "fa fa-calendar",
     },
     {
       id: 11,
       type: "url",
       name: "url",
-      title: "Website",
+      title: __["Website"],
       icon: "fa fa-television",
     },
     {
       id: 12,
       type: "number",
       name: "number",
-      title: "Number",
+      title: __["Number"],
       icon: "fa fa-hashtag",
     },
     {
       id: 13,
       type: "hidden",
       name: "hidden",
-      title: "Hidden",
+      title: __["Hidden"],
       icon: "fa fa-low-vision",
     },
   ];
@@ -3258,7 +3523,7 @@ function formModal(
 
   let inputContainer3 = create("div", { class: "mb-3" });
   modalSidebar.append(inputContainer3);
-  let sectoinTitle1 = create("h5", { class: "title" }, "Settings:");
+  let sectoinTitle1 = create("h5", { class: "title" }, __["Settings:"]);
   inputContainer3.append(sectoinTitle1);
 
   let checkBoxContainer = create("div", {
@@ -3268,7 +3533,7 @@ function formModal(
   let inputLabel3 = create(
     "label",
     { class: "form-check-label", for: "isSkippableCheckbox" },
-    "Enable skip form option:"
+    __["Enable skip form option:"]
   );
   checkBoxContainer.append(inputLabel3);
   let checkBoxInfo = {
@@ -3295,7 +3560,7 @@ function formModal(
   let inputLabel4 = create(
     "label",
     { class: "form-check-label", for: "showPrivacyCheckbox" },
-    "show Privacy Policy:"
+    __["show Privacy Policy:"]
   );
   checkBoxContainer2.append(inputLabel4);
   let checkBoxInfo2 = {
@@ -3380,7 +3645,7 @@ function formModal(
     values.fields.forEach((field, i) => {
       let info = {
         count: i + 1,
-        type: field.type,
+        type: parseInt(field.type),
         label: field.label,
         id: field.id,
         placeholder: field.placeholder ?? "",
@@ -3390,6 +3655,7 @@ function formModal(
         is_multiple_chooseing: field.is_multiple_chooseing ?? "",
         hidden_value: field.value ?? "",
       };
+      field.type = parseInt(field.type);
 
       if (field.type == 3) {
         info["is_lead_email"] = field.is_lead_email ?? 0;
@@ -3440,10 +3706,13 @@ function formModal(
   ) {
     policyElement.classList.remove("d-none");
   }
-
-  let buttonsContainer = create("div", {
+  let buttonsContainerInfo = {
     class: "ml-auto mt-2",
-  });
+  };
+  if (LANG == "ar") {
+    buttonsContainerInfo["class"] = "ml-auto mt-2 d-flex flex-row-reverse";
+  }
+  let buttonsContainer = create("div", buttonsContainerInfo);
 
   let skippableInputInfo = {
     class: "btn ml-auto",
@@ -3455,13 +3724,13 @@ function formModal(
     skippableInputInfo["class"] += " d-none ";
   }
 
-  let isSkippable = create("button", skippableInputInfo, "skip");
+  let isSkippable = create("button", skippableInputInfo, __["skip"]);
   buttonsContainer.append(isSkippable);
 
   let nextQuestionBtn = create(
     "button",
     {
-      class: "btn d-inline-block ml-auto",
+      class: "btn d-inline-block mt-3 ml-auto",
       style:
         "background: " +
         modalPreview.dataset.btnColor +
@@ -3473,7 +3742,7 @@ function formModal(
     },
     values != null && values.button_label != null
       ? values.button_label
-      : "submit"
+      : __["submit"]
   );
   buttonsContainer.append(nextQuestionBtn);
 
@@ -3481,9 +3750,20 @@ function formModal(
 
   bindInput(input1, "input", "d-none", "is-invalid");
   bindInput(input2, "input", "d-none");
+  bindInput(formButton, "input", "d-none");
+
+  if (typeof input1Ar != "undefined") {
+    bindInput(input1Ar, "input", "d-none", "is-invalid");
+  }
+  if (typeof input2Ar != "undefined") {
+    bindInput(input2Ar, "input", "d-none");
+  }
+  if (typeof formButtonAr != "undefined") {
+    bindInput(formButtonAr, "input", "d-none");
+  }
+
   bindCheck(input3);
   bindCheck(input4);
-  bindInput(formButton, "input", "d-none");
 
   if (values != null && values.id != null) {
     bindImage(imgInput, values.id);
@@ -3589,6 +3869,12 @@ function formModal(
     //   $("#sidebarOption").remove();
     // }
   });
+  $("#modalSidebar .option-link.active").each(function () {
+    $("#" + $(this).data("target"))
+      .show()
+      .siblings(".option-page")
+      .hide();
+  });
 }
 
 function createNewOption(container, optionVal = null) {
@@ -3597,7 +3883,7 @@ function createNewOption(container, optionVal = null) {
   let val = {
     type: "text",
     class: "form-control",
-    placeholder: "Please add an option",
+    placeholder: __["Please add an option"],
   };
   if (optionVal != null) {
     val["value"] = optionVal;
@@ -3642,6 +3928,7 @@ function createNewOption(container, optionVal = null) {
 }
 
 function openField(type, values = null) {
+  type = parseInt(type);
   // reset the sidebar
   $("#filed-inputs-box").html("");
   $("#save-field-btn").off("click");
@@ -3650,7 +3937,7 @@ function openField(type, values = null) {
 
   /* -------- Label -------- */
   $(holder).append(
-    create("label", { class: "form-label", for: "label-input" }, "Label:")
+    create("label", { class: "form-label", for: "label-input" }, __["Label:"])
   );
   $(holder).append(
     create(
@@ -3663,31 +3950,31 @@ function openField(type, values = null) {
           values != null && values.label != null
             ? values.label
             : type == 1
-            ? "First Name"
+            ? __["First Name"]
             : type == 2
-            ? "Last Name"
+            ? __["Last Name"]
             : type == 3
-            ? "Email address"
+            ? __["Email address"]
             : type == 4
-            ? "Phone number"
+            ? __["Phone number"]
             : type == 5
-            ? "Long answer"
+            ? __["Long answer"]
             : type == 6
-            ? "Short answer"
+            ? __["Short answer"]
             : type == 7
-            ? "Checkbox"
+            ? __["Checkbox"]
             : type == 8
-            ? "Dropdown"
+            ? __["Dropdown"]
             : type == 9
-            ? "Time"
+            ? __["Time"]
             : type == 10
-            ? "Date"
+            ? __["Date"]
             : type == 11
-            ? "Website"
+            ? __["Website"]
             : type == 12
-            ? "Number"
-            : "Hidden Field",
-        placeholder: "enter a label",
+            ? __["Number"]
+            : __["Hidden Field"],
+        placeholder: __["enter a label"],
       },
       ""
     )
@@ -3700,24 +3987,20 @@ function openField(type, values = null) {
       create(
         "label",
         { class: "form-label", for: "input-placeholder" },
-        "Placeholder"
+        __["Placeholder"]
       )
     );
     $(holder).append(
-      create(
-        "input",
-        {
-          type: "text",
-          class: "form-control mb-2",
-          id: "input-placeholder",
-          value:
-            values != null && values.placeholder != null
-              ? values.placeholder
-              : "",
-          placeholder: "Enter a Placeholder",
-        },
-        ""
-      )
+      create("input", {
+        type: "text",
+        class: "form-control mb-2",
+        id: "input-placeholder",
+        value:
+          values != null && values.placeholder != null
+            ? values.placeholder
+            : "",
+        placeholder: __["Enter a Placeholder"],
+      })
     );
   }
   if ([7, 8].includes(type)) {
@@ -3726,7 +4009,7 @@ function openField(type, values = null) {
         create(
           "label",
           { class: "form-label", for: "input-placeholder" },
-          "Checkbox options:"
+          __["Checkbox options:"]
         )
       );
     }
@@ -3735,7 +4018,7 @@ function openField(type, values = null) {
         create(
           "label",
           { class: "form-label", for: "input-placeholder" },
-          "Dropdown options:"
+          __["Dropdown options:"]
         )
       );
     }
@@ -3756,7 +4039,7 @@ function openField(type, values = null) {
       create(
         "label",
         { class: "form-label", for: "input-hidden_value" },
-        "Hidden field input:"
+        `${__["Hidden field input"]}:`
       )
     );
     $(holder).append(
@@ -3766,7 +4049,7 @@ function openField(type, values = null) {
           type: "text",
           class: "form-control mb-2",
           id: "input-hidden_value",
-          placeholder: "Enter Hidden Value",
+          placeholder: __["Enter Hidden Value"],
           value:
             values != null && values.hidden_value != null
               ? values.hidden_value
@@ -3785,7 +4068,7 @@ function openField(type, values = null) {
       create(
         "label",
         { class: "form-label", for: "input-is-multiple" },
-        "Allow multiple choice:"
+        __["Allow multiple choices:"]
       )
     );
     let info = {
@@ -3812,7 +4095,9 @@ function openField(type, values = null) {
         values.is_lead_email == 1);
     $(holder).append(
       `<div class="d-block my-2">
-        <label for="is_lead_email" class="form-label">Make this field lead email field:</label>
+        <label for="is_lead_email" class="form-label">${
+          __["Make this field lead email field"]
+        }:</label>
         <input type="checkbox" id="is_lead_email" class="form-check-input m-2" ${
           is_lead_email ? "checked disabled" : ""
         }>
@@ -3824,14 +4109,14 @@ function openField(type, values = null) {
       create(
         "label",
         { class: "form-label", for: "input-is_required" },
-        "Field Is Required"
+        __["Field Is Required"]
       )
     );
     let info = {
       type: "checkbox",
       class: "form-check-input m-2",
       id: "input-is_required",
-      placeholder: "Enter a Placeholder",
+      placeholder: __["Enter a Placeholder"],
     };
     if (
       values != null &&
@@ -3924,7 +4209,11 @@ function openField(type, values = null) {
         } else {
           if ($(".options-holder .error").length == 0) {
             $(".options-holder").append(
-              create("div", { class: "alert alert-danger error" }, "no options")
+              create(
+                "div",
+                { class: "alert alert-danger error" },
+                __["no options"]
+              )
             );
           }
           return null;
@@ -3952,78 +4241,86 @@ function openField(type, values = null) {
     });
   } else {
     $("#save-field-btn").click(function () {
-      let info = {
-        count: $("#fields-holder-preview .field").length + 1,
-        type: type,
-        label: $("#label-input").val(),
-      };
+      if ($("#label-input").val().length > 0) {
+        let info = {
+          count: $("#fields-holder-preview .field").length + 1,
+          type: type,
+          label: $("#label-input").val(),
+        };
 
-      if (type != 13) {
-        info["is_required"] =
-          $("#input-is_required").prop("checked") == true ? 1 : 0;
-      }
-      if ([1, 2, 3, 4, 5, 6, 8, 11, 12].includes(type)) {
-        info["placeholder"] = $("#input-placeholder").val();
-        // info["ar_label"] = ""; // $("#label-input-ar").val();
-        // info["ar_placeholder"] = "";
-      }
-      if (type == 3) {
-        info["is_lead_email"] =
-          $("#is_lead_email").prop("checked") == true ? 1 : 0;
-      }
-      if (type == 7) {
-        info["is_multiple_chooseing"] =
-          $("#input-is-multiple").prop("checked") == true ? 1 : 0;
-      }
-      if ([7, 8].includes(type)) {
-        info["options"] = [];
+        if (type != 13) {
+          info["is_required"] =
+            $("#input-is_required").prop("checked") == true ? 1 : 0;
+        }
+        if ([1, 2, 3, 4, 5, 6, 8, 11, 12].includes(type)) {
+          info["placeholder"] = $("#input-placeholder").val();
+          // info["ar_label"] = ""; // $("#label-input-ar").val();
+          // info["ar_placeholder"] = "";
+        }
+        if (type == 3) {
+          info["is_lead_email"] =
+            $("#is_lead_email").prop("checked") == true ? 1 : 0;
+        }
+        if (type == 7) {
+          info["is_multiple_chooseing"] =
+            $("#input-is-multiple").prop("checked") == true ? 1 : 0;
+        }
+        if ([7, 8].includes(type)) {
+          info["options"] = [];
 
-        // check options count
-        if ($(".options-holder .input-holder").length > 1) {
-          if (
-            $(".options-holder .input-holder input").first().val().length > 0
-          ) {
-            $(".options-holder .input-holder").each(function () {
-              info["options"].push($(this).find("input").first().val());
-            });
+          // check options count
+          if ($(".options-holder .input-holder").length > 1) {
+            if (
+              $(".options-holder .input-holder input").first().val().length > 0
+            ) {
+              $(".options-holder .input-holder").each(function () {
+                info["options"].push($(this).find("input").first().val());
+              });
+            } else {
+              if ($(".options-holder .error").length == 0) {
+                $(".options-holder").append(
+                  create(
+                    "div",
+                    { class: "alert alert-danger error" },
+                    "no options"
+                  )
+                );
+              }
+              return null;
+            }
           } else {
             if ($(".options-holder .error").length == 0) {
               $(".options-holder").append(
                 create(
                   "div",
                   { class: "alert alert-danger error" },
-                  "no options"
+                  __["no options"]
                 )
               );
             }
             return null;
           }
-        } else {
-          if ($(".options-holder .error").length == 0) {
-            $(".options-holder").append(
-              create("div", { class: "alert alert-danger error" }, "no options")
-            );
-          }
-          return null;
         }
-      }
-      if (type == 13) {
-        info["hidden_value"] = $("#input-hidden_value").val();
-      }
+        if (type == 13) {
+          info["hidden_value"] = $("#input-hidden_value").val();
+        }
 
-      createField(info);
+        createField(info);
 
-      // reset
-      $("#filed-inputs-box").html("");
-      $("#modalSidebar").show();
-      $("#sidebarOption").hide();
-      $(this).off("click");
+        // reset
+        $("#filed-inputs-box").html("");
+        $("#modalSidebar").show();
+        $("#sidebarOption").hide();
+        $(this).off("click");
 
-      // show fields container or not
-      if ($("#fields-holder-preview").find(".field").length > 0) {
-        $("#fields-holder-preview").removeClass("d-none");
+        // show fields container or not
+        if ($("#fields-holder-preview").find(".field").length > 0) {
+          $("#fields-holder-preview").removeClass("d-none");
+        } else {
+          $("#fields-holder-preview").addClass("d-none");
+        }
       } else {
-        $("#fields-holder-preview").addClass("d-none");
+        $("#label-input").addClass("is-invalid");
       }
     });
   }
@@ -4053,7 +4350,7 @@ function mediaModal(
       "data-option": "image",
       id: "image-link",
     },
-    "Image"
+    __["Image"]
   );
   navTaps.append(tap1);
 
@@ -4072,6 +4369,13 @@ function mediaModal(
   });
   option1.append(imgInput);
 
+  let uploadImageNote = create(
+    "p",
+    { class: "lead" },
+    `${__["For the image to be of a suitable size for musaad, please compress it on this site"]}: <a target="_blank" href="https://tinypng.com/">tinypng.com</a></p>`
+  );
+  option1.append(uploadImageNote);
+
   let uploadImageBtn = create(
     "button",
     {
@@ -4079,7 +4383,7 @@ function mediaModal(
       class: "btn btn-success",
       onclick: "imageInput.click()",
     },
-    "Upload Image"
+    __["Upload Image"]
   );
   option1.append(uploadImageBtn);
   let imageNameContainerClass =
@@ -4112,7 +4416,7 @@ function mediaModal(
       "data-option": "video",
       id: "video-link",
     },
-    "Video"
+    __["Video"]
   );
   navTaps.append(tap2);
 
@@ -4128,7 +4432,7 @@ function mediaModal(
       class: "form-label",
       for: "videoUrlInput",
     },
-    "Video URL:"
+    __["Video URL:"]
   );
   option2.append(videoLabel);
 
@@ -4136,7 +4440,7 @@ function mediaModal(
     class: "form-control",
     type: "url",
     "data-target": "img-preview",
-    placeholder: "Enter A Youtube Video URL",
+    placeholder: __["Enter A Youtube Video URL"],
     id: "videoUrlInput",
   });
   option2.append(videoUrlInput);
@@ -4150,7 +4454,9 @@ function mediaModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-target": "en-question-translation",
         id: "en-intro-link",
       },
@@ -4161,7 +4467,9 @@ function mediaModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-target": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -4236,14 +4544,14 @@ function mediaModal(
     let inputLabel3 = create(
       "label",
       { class: "mb-2", for: "EnQuestionButtonLabel" },
-      "Button: *"
+      __["Button: *"]
     );
     inputContainer3.append(inputLabel3);
     var input3 = create("input", {
       type: "text",
       class: "form-control",
       id: "EnQuestionButtonLabel",
-      maxlength: "20",
+      maxlength: "40",
       placeholder: "Button Label",
       "data-target": "nextQuestionBtn",
       value:
@@ -4273,6 +4581,7 @@ function mediaModal(
       id: "ArQuestionTitleInput",
       placeholder: "ادخل عنواناً",
       maxlength: "200",
+      "data-target": "questionTitlePreview",
       value: ARTrans != null && ARTrans.title != undefined ? ARTrans.title : "",
     });
     inputContainer1Ar.append(input1Ar);
@@ -4292,6 +4601,7 @@ function mediaModal(
         id: "ArquestionDescInpiut",
         placeholder: "ادخل وصفاً",
         maxlength: "400",
+        "data-target": "questionDescPreview",
       },
       ARTrans != null && ARTrans.description != undefined
         ? ARTrans.description
@@ -4311,7 +4621,8 @@ function mediaModal(
       type: "text",
       class: "form-control",
       id: "ArQuestionButtonLabel",
-      maxlength: "20",
+      "data-target": "nextQuestionBtn",
+      maxlength: "40",
       placeholder: "عنوان الزر",
       value:
         ARTrans != null && ARTrans.button_label != undefined
@@ -4366,14 +4677,14 @@ function mediaModal(
     let inputLabel3 = create(
       "label",
       { class: "mb-2", for: "EnQuestionTitleInput" },
-      "Button: *"
+      __["Button: *"]
     );
     inputContainer3.append(inputLabel3);
     var input3 = create("input", {
       type: "text",
       class: "form-control",
       id: "EnQuestionButtonLabel",
-      maxlength: "20",
+      maxlength: "40",
       placeholder: "Button Label",
       "data-target": "nextQuestionBtn",
       value:
@@ -4436,8 +4747,8 @@ function mediaModal(
 
   let nextQuestionBtnClass =
     values != null && values.button_label != null
-      ? "btn d-inline-block ml-auto"
-      : "btn d-inline-block ml-auto d-none";
+      ? "btn d-inline-block mt-3 ml-auto"
+      : "btn d-inline-block mt-3 ml-auto d-none";
   let nextQuestionBtn = create(
     "button",
     {
@@ -4457,6 +4768,16 @@ function mediaModal(
   bindInput(input1, "input", "d-none", "is-invalid");
   bindInput(input2, "input", "d-none");
   bindInput(input3, "input", "d-none", "is-invalid");
+
+  if (typeof input1Ar != "undefined") {
+    bindInput(input1Ar, "input", "d-none", "is-invalid");
+  }
+  if (typeof input2Ar != "undefined") {
+    bindInput(input2Ar, "input", "d-none");
+  }
+  if (typeof input3Ar != "undefined") {
+    bindInput(input3Ar, "input", "d-none", "is-invalid");
+  }
   if (values != null && values.id != null) {
     bindImage(imgInput, values.id);
   } else {
@@ -4500,6 +4821,12 @@ function mediaModal(
       .siblings(".option-page")
       .hide();
   });
+  $("#modalSidebar .option-link.active").each(function () {
+    $("#" + $(this).data("target"))
+      .show()
+      .siblings(".option-page")
+      .hide();
+  });
 }
 
 function resultModal(
@@ -4521,7 +4848,9 @@ function resultModal(
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-target": "en-question-translation",
         id: "en-intro-link",
       },
@@ -4532,7 +4861,9 @@ function resultModal(
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-target": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -4582,7 +4913,7 @@ function resultModal(
     translationPage1.append(inputContainer2);
     let inputLabel2 = create(
       "label",
-      { class: "mb-2", for: "resultDescInpiut" },
+      { class: "mb-1", for: "resultDescInpiut" },
       "Result Description"
     );
     inputContainer2.append(inputLabel2);
@@ -4592,7 +4923,6 @@ function resultModal(
         class: "form-control",
         id: "resultDescInpiut",
         maxlength: "400",
-        "data-target": "resultDescPreview",
       },
       ENTrans != null && ENTrans.description != undefined
         ? ENTrans.description
@@ -4654,7 +4984,7 @@ function resultModal(
       "Button Label *"
     );
     translationPage1.append(buttonLabel1);
-    let buttonInput1 = create("input", {
+    var buttonInput1 = create("input", {
       type: "text",
       class: "form-control mb-2",
       id: "resultButtonLabel",
@@ -4670,7 +5000,7 @@ function resultModal(
 
     let ARTrans = null;
     if (values != null && values.translations != null) {
-      ARTrans = values.translations.find((x) => x.locale == "ar");
+      ARTrans = values.translations.find((x) => x.locale == "ar") ?? "";
     }
 
     let inputContainer1Ar = create("div", { class: "my-3" });
@@ -4682,10 +5012,11 @@ function resultModal(
       "عنوان النتيجة *"
     );
     inputContainer1Ar.append(inputLabel1Ar);
-    let input1Ar = create("input", {
+    var input1Ar = create("input", {
       type: "text",
       class: "form-control",
       id: "resultTitleInputAr",
+      "data-target": "resultTitlePreview",
       placeholder: "ادخل عنواناً",
       maxlength: "200",
       value: ARTrans != null && ARTrans.title != undefined ? ARTrans.title : "",
@@ -4719,7 +5050,10 @@ function resultModal(
       type: "hidden",
       "data-target": "resultDescPreview",
       value:
-        ARTrans != null && ARTrans.description != null
+        ARTrans != null &&
+        ARTrans != "" &&
+        ARTrans.description != null &&
+        ARTrans.description != ""
           ? ARTrans.description
           : "",
     });
@@ -4741,7 +5075,12 @@ function resultModal(
       theme: "snow",
     });
 
-    if (ARTrans != null && ARTrans.description != null) {
+    if (
+      ARTrans != null &&
+      ARTrans != "" &&
+      ARTrans.description != null &&
+      ARTrans.description != ""
+    ) {
       snowQuillAr.setContents(JSON.parse(ARTrans.description));
       $("#" + hiddenInputAr.dataset.target).html(snowQuillAr.root.innerHTML);
     }
@@ -4766,12 +5105,13 @@ function resultModal(
       "عنوان الزر *"
     );
     translationPage2.append(buttonLabel1Ar);
-    let buttonInput1Ar = create("input", {
+    var buttonInput1Ar = create("input", {
       type: "text",
       class: "form-control mb-2",
       id: "resultButtonLabelAr",
       placeholder: "ادخل عنوان الزر",
       maxlength: "200",
+      "data-target": "nextQuestionBtn",
       value:
         ARTrans != null && ARTrans.button_label != null
           ? ARTrans.button_label
@@ -4881,7 +5221,7 @@ function resultModal(
   let inputContainer3 = create("div", { class: "mb-3" });
   modalSidebar.append(inputContainer3);
 
-  let sectoinTitle1 = create("h6", { class: "title" }, "BUTTON SETTINGS:");
+  let sectoinTitle1 = create("h6", { class: "title" }, __["BUTTON SETTINGS:"]);
   inputContainer3.append(sectoinTitle1);
   let checkBoxContainer = create("div", {
     class: "form-check form-switch p-0 my-4 d-flex gap-3",
@@ -4891,7 +5231,7 @@ function resultModal(
   let inputLabel3 = create(
     "label",
     { class: "form-check-label", for: "showBtn" },
-    "Button:"
+    __["Button:"]
   );
   checkBoxContainer.append(inputLabel3);
   let checkBoxInfo = {
@@ -4917,7 +5257,7 @@ function resultModal(
   let buttonLabel2 = create(
     "label",
     { class: "mb-1", for: "resultButtonLink" },
-    "Button Link *"
+    `${__["Button Link"]} *`
   );
   buttonInfoContainer.append(buttonLabel2);
   let buttonInput2 = create("input", {
@@ -4934,7 +5274,7 @@ function resultModal(
   let inputContainer4 = create("div", { class: "mb-3" });
   modalSidebar.append(inputContainer4);
 
-  let sectoinTitle2 = create("h6", { class: "title" }, "SOCIAL SETTINGS:");
+  let sectoinTitle2 = create("h6", { class: "title" }, __["SOCIAL SETTINGS:"]);
   inputContainer4.append(sectoinTitle2);
   let checkBoxContainer2 = create("div", {
     class: "form-check form-switch p-0 my-4 d-flex gap-3",
@@ -4944,7 +5284,7 @@ function resultModal(
   let inputLabel4 = create(
     "label",
     { class: "form-check-label", for: "social-sharing" },
-    "Social Sharing:"
+    `${__["Social Sharing"]}:`
   );
   checkBoxContainer2.append(inputLabel4);
   let checkBoxInfo2 = {
@@ -4964,7 +5304,11 @@ function resultModal(
     var inputContainer5 = create("div", { class: "mb-3" });
     modalSidebar.append(inputContainer5);
 
-    var sectoinTitle3 = create("h6", { class: "title" }, "RESULT SETTINGS:");
+    var sectoinTitle3 = create(
+      "h6",
+      { class: "title" },
+      __["RESULT SETTINGS:"]
+    );
     inputContainer5.append(sectoinTitle3);
     var sectoinTitledesc = create(
       "p",
@@ -5037,7 +5381,9 @@ function resultModal(
       let translationPagesBtn1 = create(
         "li",
         {
-          class: "nav-link w-50 text-center score-link active",
+          class:
+            "nav-link w-50 text-center score-link" +
+            (LANG == "en" ? " active" : ""),
           "data-target": "en-result-score-translation",
           id: "en-score-link",
         },
@@ -5048,7 +5394,9 @@ function resultModal(
       let translationPagesBtn2 = create(
         "li",
         {
-          class: "nav-link w-50 text-center score-link",
+          class:
+            "nav-link w-50 text-center score-link" +
+            (LANG == "ar" ? " active" : ""),
           "data-target": "ar-result-score-translation",
           id: "ar-score-link",
         },
@@ -5167,7 +5515,7 @@ function resultModal(
     )}; font-family: ${$("#modalPreview")
     .data("font-family")
     .replace(/\"/g, "")};">
-        Share on:
+        ${__["Share on:"]}
     </h2>
     <li style="background-color: #016fdf;">
       <a class="facebook"><i aria-hidden="true" class="fa fa-facebook" title="Facebook"></i></a>
@@ -5224,7 +5572,11 @@ function resultModal(
     values != null && values.title != null ? "question" : "question d-none";
   let questionTitle = create(
     "span",
-    { class: questionTitleClass, id: "resultTitlePreview" },
+    {
+      class: questionTitleClass,
+      style: "color: black",
+      id: "resultTitlePreview",
+    },
     values != null && values.title != null ? values.title : "Question Title"
   );
   resultCard.append(questionTitle);
@@ -5239,7 +5591,8 @@ function resultModal(
     LANG != null &&
       LANG == "ar" &&
       snowQuillAr != null &&
-      snowQuillAr.root.innerHTML != null
+      snowQuillAr.root.innerHTML != null &&
+      snowQuillAr.root.innerHTML != ""
       ? snowQuillAr.root.innerHTML
       : snowQuill1.root.innerHTML ?? "no description"
   );
@@ -5266,11 +5619,22 @@ function resultModal(
     },
     values != null && values.button_label != null
       ? values.button_label
-      : "Submit"
+      : __["Submit"]
   );
   resultCard.append(nextQuestionBtn);
 
   bindInput(input1, "input", "d-none", "is-invalid");
+  if (typeof input1Ar != "undefined") {
+    bindInput(input1Ar, "input", "d-none"); // come
+  }
+  console.log(input1Ar);
+  console.log(buttonInput1);
+  if (typeof buttonInput1 != "undefined") {
+    bindInput(buttonInput1, "input", "d-none");
+  }
+  if (typeof buttonInput1Ar != "undefined") {
+    bindInput(buttonInput1Ar, "input", "d-none");
+  }
   bindInput(hiddenInput, "input", "d-none");
   bindCheck(input3);
   bindCheck(input4);
@@ -5304,6 +5668,15 @@ function resultModal(
       $("#resultCard").addClass("d-none");
     }
   });
+  if (typeof input1Ar != "undefined") {
+    $(input1Ar).on("input", function () {
+      if ($(this).val().length > 0) {
+        $("#resultCard").removeClass("d-none");
+      } else {
+        $("#resultCard").addClass("d-none");
+      }
+    });
+  }
 
   $(input3).on("input", function () {
     if ($(input3).is(":checked")) {
@@ -5327,6 +5700,12 @@ function resultModal(
     document
       .getElementById($(this).data("target"))
       .setAttribute("href", $(this).val());
+  });
+  $("#modalSidebar .option-link.active").each(function () {
+    $("#" + $(this).data("target"))
+      .show()
+      .siblings(".option-page")
+      .hide();
   });
 }
 
@@ -5379,7 +5758,11 @@ function redirectModal(sidebarId = "modalSidebar", values = null) {
   let inputContainer3 = create("div", { class: "mb-3 border-bottom" });
   modalSidebar.append(inputContainer3);
 
-  let sectoinTitle1 = create("h6", { class: "title" }, "SEND DATA SETTINGS:");
+  let sectoinTitle1 = create(
+    "h6",
+    { class: "title" },
+    __["SEND DATA SETTINGS:"]
+  );
   inputContainer3.append(sectoinTitle1);
 
   let checkBoxContainer = create("div", {
@@ -5408,7 +5791,7 @@ function redirectModal(sidebarId = "modalSidebar", values = null) {
   let inputContainer4 = create("div", { class: "mb-3 border-bottom" });
   modalSidebar.append(inputContainer4);
 
-  let sectoinTitle2 = create("h6", { class: "title" }, "UTM SETTINGS:");
+  let sectoinTitle2 = create("h6", { class: "title" }, __["UTM SETTINGS:"]);
   inputContainer4.append(sectoinTitle2);
   let checkBoxContainer2 = create("div", {
     class: "form-check form-switch p-0 my-4 d-flex gap-1",
@@ -5438,7 +5821,11 @@ function redirectModal(sidebarId = "modalSidebar", values = null) {
     let inputContainer5 = create("div", { class: "mb-3" });
     modalSidebar.append(inputContainer5);
 
-    let sectoinTitle3 = create("h6", { class: "title" }, "RESULT SETTINGS:");
+    let sectoinTitle3 = create(
+      "h6",
+      { class: "title" },
+      __["RESULT SETTINGS:"]
+    );
     inputContainer5.append(sectoinTitle3);
     let sectoinTitledesc = create(
       "p",
@@ -5497,7 +5884,9 @@ function meetingModal(meetingKey, values = null) {
     let translationPagesBtn1 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link active",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "en" ? " active" : ""),
         "data-target": "en-question-translation",
         id: "en-intro-link",
       },
@@ -5508,7 +5897,9 @@ function meetingModal(meetingKey, values = null) {
     let translationPagesBtn2 = create(
       "li",
       {
-        class: "nav-link w-50 text-center option-link",
+        class:
+          "nav-link w-50 text-center option-link" +
+          (LANG == "ar" ? " active" : ""),
         "data-target": "ar-question-translation",
         id: "ar-intro-link",
       },
@@ -5591,12 +5982,13 @@ function meetingModal(meetingKey, values = null) {
       "عنوان النتيجة *"
     );
     inputContainer1Ar.append(inputLabel1Ar);
-    let input1Ar = create("input", {
+    var input1Ar = create("input", {
       type: "text",
       class: "form-control",
       id: "resultTitleInputAr",
       placeholder: "ادخل عنواناً",
       maxlength: "200",
+      "data-target": "resultTitlePreview",
       value: ARTrans != null && ARTrans.title != undefined ? ARTrans.title : "",
     });
     inputContainer1Ar.append(input1Ar);
@@ -5609,13 +6001,14 @@ function meetingModal(meetingKey, values = null) {
       "وصف النتيجة"
     );
     inputContainer2Ar.append(inputLabel2Ar);
-    let input2Ar = create(
+    var input2Ar = create(
       "textarea",
       {
         class: "form-control",
         id: "resultDescInpiutAr",
         placeholder: "ادخل وصفاً",
         maxlength: "400",
+        "data-target": "resultDescPreview",
       },
       ARTrans != null && ARTrans.description != undefined
         ? ARTrans.description
@@ -5745,7 +6138,7 @@ function meetingModal(meetingKey, values = null) {
               let alert = create(
                 "div",
                 { class: "alert alert-danger" },
-                "No Items To Show"
+                __["No Items To Show"]
               );
               inputContainer3.append(alert);
             },
@@ -5753,22 +6146,27 @@ function meetingModal(meetingKey, values = null) {
         }
       },
       error: function (err) {
+        console.log(__["No Items To Show"]);
         console.error(err);
         let alert = create(
           "div",
           { class: "alert alert-danger" },
-          "No Items To Show"
+          __["No Items To Show"]
         );
         inputContainer3.append(alert);
       },
     });
 
+    inputContainer3.append(
+      create("label", { for: "event-types" }, __["choose your calander"])
+    );
     inputContainer3.append(eventTypes);
   } else {
+    console.log(__["No Items To Show"]);
     let alert = create(
       "div",
       { class: "alert alert-danger" },
-      "No Items To Show"
+      __["No Items To Show"]
     );
     inputContainer3.append(alert);
   }
@@ -5778,7 +6176,11 @@ function meetingModal(meetingKey, values = null) {
     var inputContainer5 = create("div", { class: "mb-3" });
     modalSidebar.append(inputContainer5);
 
-    var sectoinTitle3 = create("h6", { class: "title" }, "RESULT SETTINGS:");
+    var sectoinTitle3 = create(
+      "h6",
+      { class: "title" },
+      __["RESULT SETTINGS:"]
+    );
     inputContainer5.append(sectoinTitle3);
     var sectoinTitledesc = create(
       "p",
@@ -5851,7 +6253,9 @@ function meetingModal(meetingKey, values = null) {
       let translationPagesBtn1 = create(
         "li",
         {
-          class: "nav-link w-50 text-center score-link active",
+          class:
+            "nav-link w-50 text-center score-link" +
+            (LANG == "en" ? " active" : ""),
           "data-target": "en-result-score-translation",
           id: "en-score-link",
         },
@@ -5862,7 +6266,9 @@ function meetingModal(meetingKey, values = null) {
       let translationPagesBtn2 = create(
         "li",
         {
-          class: "nav-link w-50 text-center score-link",
+          class:
+            "nav-link w-50 text-center score-link" +
+            (LANG == "ar" ? " active" : ""),
           "data-target": "ar-result-score-translation",
           id: "ar-score-link",
         },
@@ -6011,7 +6417,11 @@ function meetingModal(meetingKey, values = null) {
     values != null && values.title != null ? "question" : "question d-none";
   let questionTitle = create(
     "span",
-    { class: questionTitleClass, id: "resultTitlePreview" },
+    {
+      class: questionTitleClass,
+      style: "color: black",
+      id: "resultTitlePreview",
+    },
     values != null && values.title != null ? values.title : "Question Title"
   );
   resultCard.append(questionTitle);
@@ -6031,6 +6441,13 @@ function meetingModal(meetingKey, values = null) {
 
   bindInput(input1, "input", "d-none", "is-invalid");
   bindInput(input2, "input", "d-none");
+
+  if (typeof input1Ar != "undefined") {
+    bindInput(input1Ar, "input", "d-none", "is-invalid");
+  }
+  if (typeof input2Ar != "undefined") {
+    bindInput(input2Ar, "input", "d-none");
+  }
 
   if (quizType == 1) {
     bindCheck(input5);
@@ -6064,6 +6481,12 @@ function meetingModal(meetingKey, values = null) {
 
   $("#event-types").on("change", function () {
     setActiveEvent();
+  });
+  $("#modalSidebar .option-link.active").each(function () {
+    $("#" + $(this).data("target"))
+      .show()
+      .siblings(".option-page")
+      .hide();
   });
 }
 

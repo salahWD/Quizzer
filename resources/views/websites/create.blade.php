@@ -6,11 +6,11 @@
     <form class="my-5 py-5 needs-validation" method="POST" action="{{ route('store_website'); }}">
       {{ csrf_field() }}
       <fieldset class="form-body">
-        <h1 class="title text-dark text-center my-5">Create New Website</h1>
+        <h1 class="title text-dark text-center my-5">{{ __('Create New Account') }}</h1>
         <hr>
 
         <div class="mb-4">
-          <label for="urlInput" class="form-label">Website Property URL:</label>
+          <label for="urlInput" class="form-label">{{ __('Website Property URL') }}:</label>
           <input
               type="text"
               name="url"
@@ -21,7 +21,7 @@
               @endif
               "
               value="{{ old("url") ?? "" }}"
-              placeholder="Website">
+              placeholder="{{ __('Website') }}">
           @if (count($errors->get("url")) > 0)
             <div class="invalid-feedback">
               @foreach ($errors->get("url") as $err)
@@ -32,7 +32,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="companyInput" class="form-label">Company Name</label>
+          <label for="companyInput" class="form-label">{{ __('Company Name') }}</label>
           <input type="text"
           name="company"
           id="companyInput"
@@ -42,7 +42,7 @@
             @endif
           "
           value="{{ old("company") ?? "" }}"
-          placeholder="Company">
+          placeholder="{{ __('Company') }}">
           @if (count($errors->get("company")) > 0)
             <div class="invalid-feedback">
               @foreach ($errors->get("company") as $err)
@@ -51,7 +51,7 @@
             </div>
           @endif
         </div>
-        <button type="submit" class="btn m-auto btn-primary px-5">Create</button>
+        <button type="submit" class="btn m-auto btn-primary px-5">{{ __('Create') }}</button>
       </fieldset>
     </form>
   </div>

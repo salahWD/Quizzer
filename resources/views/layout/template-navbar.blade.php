@@ -2,17 +2,17 @@
   <div class="container">
     <ul class="navbar-nav m-auto">
       <li class="nav-item {{ (\Request::route()->getName() == 'edit_template') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("edit_template", compact("quiz")) }}">Build</a>
+        <a class="nav-link" href="{{ route("edit_template", compact("quiz")) }}">{{ __('Build') }}</a>
       </li>
       <li class="nav-item {{ (\Request::route()->getName() == 'template_theme') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route("template_theme", compact("quiz")) }}">Design</a>
+        <a class="nav-link" href="{{ route("template_theme", compact("quiz")) }}">{{ __('Design') }}</a>
       </li>
     </ul>
 
     @if ($quiz->status == 0)
-      <button onclick="publish()" id="publish-btn" class="btn btn-sm btn-success">publish</button>
+      <button onclick="publish()" id="publish-btn" class="btn btn-sm btn-success">{{ __('publish') }}</button>
     @else
-      <button onclick="unpublish()" id="publish-btn" class="btn btn-sm btn-secondary">unpublish</button>
+      <button onclick="unpublish()" id="publish-btn" class="btn btn-sm btn-secondary">{{ __('unpublish') }}</button>
     @endif
 
   </div>
@@ -38,7 +38,7 @@
           }, 1500);
         })
         $("#publish-btn").addClass("btn-secondary").removeClass("btn-success");
-        $("#publish-btn").text("unpublish");
+        $("#publish-btn").text("{{ __('unpublish') }}");
         $("#publish-btn").attr("onclick", "unpublish()");
       },
       error: err => console.log(err),
@@ -63,7 +63,7 @@
           }, 1500);
         })
         $("#publish-btn").addClass("btn-success").removeClass("btn-secondary");
-        $("#publish-btn").text("publish");
+        $("#publish-btn").text("{{ __('publish') }}");
         $("#publish-btn").attr("onclick", "publish()");
       },
       error: err => console.log(err),

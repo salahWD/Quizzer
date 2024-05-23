@@ -9,7 +9,7 @@
       <div class="mw-650">
 
         <div class="mb-4">
-          <label class="form-label">Select content type:</label>
+          <label class="form-label">{{ __('Select content type') }}:</label>
           <div class="d-none">
             <input class="form-check-input input-type" id="scoring" type="radio" name="type" value="1">
             <input class="form-check-input input-type" id="outcome" type="radio" name="type" value="2">
@@ -19,8 +19,8 @@
               <div class="card option-card @error('type') border-danger is-invalid @enderror" data-target="outcome">
                 <div class="card-body text-center">
                   <img class="img" src="{{ asset("images/trello-inactive.svg") }}" alt="">
-                  <h4 class="card-title"><b>Outcome Logic</b></h4>
-                  <p class="card-text">Map answers to outcomes. Respondents receive results based on the outcome with the most answers selected.</p>
+                  <h4 class="card-title"><b>{{ __('Outcome Logic') }}</b></h4>
+                  <p class="card-text">{{ __('Map answers to outcomes. Respondents receive results based on the outcome with the most answers selected') }}.</p>
                 </div>
               </div>
               @if (count($errors->get("type")) > 0)
@@ -35,8 +35,8 @@
               <div class="card option-card @error('type') border-danger @enderror" data-target="scoring">
                 <div class="card-body text-center">
                   <img class="img" src="{{ asset("images/hash-inactive.png") }}" alt="">
-                  <h4 class="card-title"><b>Scoring Logic</b></h4>
-                  <p class="card-text">Assign a score value to each answer. Respondents receive results based on their score range.</p>
+                  <h4 class="card-title"><b>{{ __('Scoring Logic') }}</b></h4>
+                  <p class="card-text">{{ __('Assign a score value to each answer. Respondents receive results based on their score range') }}.</p>
                 </div>
               </div>
             </div>
@@ -44,7 +44,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="nameInput" class="form-label">Set content name:</label>
+          <label for="nameInput" class="form-label">{{ __('Set content name') }}:</label>
           <input
               required
               type="text"
@@ -67,7 +67,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="templateDesc" class="form-label">Set Template description:</label>
+          <label for="templateDesc" class="form-label">{{ __('Set Template description') }}:</label>
           <textarea
               required
               type="text"
@@ -89,7 +89,7 @@
           @endif
         </div>
 
-        <button type="submit" class="btn btn-primary px-5">Create</button>
+        <button type="submit" class="btn btn-primary px-5">{{ __('Create') }}</button>
       </div>
 
     </form>
