@@ -41,7 +41,7 @@
    features, case studies...). Generic Bootstrap re-skin lives
    here so it never leaks into the app (builder, settings...).
    ========================================================= */
-.mu-public {
+:where(.mu-public) {
   /* ---------- Base ---------- */
   & {
     font-family: var(--mu-font);
