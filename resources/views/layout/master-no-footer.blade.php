@@ -35,7 +35,7 @@
         @yield('styles')
 
     </head>
-    <body>
+    <body class="mu-public">
 
       @include('layout.header')
 

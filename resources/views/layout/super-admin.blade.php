@@ -10,7 +10,8 @@
 
       <!-- Fonts -->
       <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-      <link href="https://fonts.bunny.net/css?family=readex-pro:300,400,500,600,700&display=swap" rel="stylesheet">
+      <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+      <link href="https://fonts.bunny.net/css?family=readex-pro:400,500,600&display=swap" rel="stylesheet">
 
       <style>
         :root {

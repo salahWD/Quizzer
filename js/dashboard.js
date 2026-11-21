@@ -573,8 +573,9 @@ function createImageAnswer(count, previewId, sidebarId, value = null) {
   });
 }
 
-function createQuestion(count, text, id, type, containerId) {
+function createQuestion(count, text, id, type, containerId, opts = {}) {
   type = parseInt(type);
+  if (opts === null || typeof opts !== "object") opts = {};
   let container = document.getElementById(containerId);
 
   let question = create("div", {
@@ -609,6 +610,35 @@ function createQuestion(count, text, id, type, containerId) {
 
   let actions = create("ul", { class: "actions" });
   body.append(actions);
+
+  // Answer -> result mapping: outcome ("logic") quizzes, questions that have answers
+  if (
+    typeof quizType !== "undefined" &&
+    parseInt(quizType) === 2 &&
+    [1, 2].includes(type)
+  ) {
+    let liMap = create("li", {});
+    actions.append(liMap);
+
+    let mapLabel = LANG == "ar" ? "ربط الإجابات بالنتائج" : "Map answers to results";
+    let btnMap = create("button", {
+      type: "button",
+      class: "btn action-btn px-1 mapping" + (opts.isMapped ? " text-primary" : ""),
+      id: `Q-${count}-mapping`,
+      title: mapLabel,
+      "aria-label": mapLabel,
+    });
+    liMap.append(btnMap);
+    $(btnMap).click(function () {
+      var btn = $(this);
+      btn.prop("disabled", true);
+      setTimeout(function () {
+        btn.prop("disabled", false);
+      }, actionCoolDownTime);
+      questionMapping($(question).data("id"));
+    });
+    btnMap.append(create("i", { class: "fa fa-link" }));
+  }
 
   let li3 = create("li", {});
   actions.append(li3);

@@ -20,7 +20,7 @@
     "src": "resources/sass/admin.scss"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-16441589.css",
+    "file": "assets/app-8fa8530c.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   },
@@ -70,7 +70,7 @@
     "src": "resources/sass/templates-for-nonuser.css"
   },
   "resources/sass/ui.scss": {
-    "file": "assets/ui-792fb5ca.css",
+    "file": "assets/ui-ec609e1a.css",
     "isEntry": true,
     "src": "resources/sass/ui.scss"
   }
