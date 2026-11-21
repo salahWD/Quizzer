@@ -668,7 +668,7 @@
     };
   </script>
   <script type="text/javascript" src="{{ URL::asset("js/sortable.js") }}"></script>
-  <script type="text/javascript" src="{{ URL::asset("js/dashboard.js") }}"></script>
+  <script type="text/javascript" src="{{ URL::asset("js/dashboard.js") }}?v={{ @filemtime(public_path("js/dashboard.js")) }}"></script>
   <script>
 
     $("#quizImageInput").on("input", function () {
