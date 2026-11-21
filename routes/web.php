@@ -28,7 +28,7 @@ use App\Models\Result;
 
 
 Route::redirect('/', "/home");
-Route::view('/test', "test");
+// Route::view('/test', "test");
 
 Auth::routes();
 

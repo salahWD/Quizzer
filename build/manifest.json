@@ -1,0 +1,72 @@
+{
+  "resources/js/app.js": {
+    "file": "assets/app-ffa2faf6.js",
+    "isEntry": true,
+    "src": "resources/js/app.js"
+  },
+  "resources/js/case-study.js": {
+    "file": "assets/case-study-4be956ca.js",
+    "isEntry": true,
+    "src": "resources/js/case-study.js"
+  },
+  "resources/js/quiz.js": {
+    "file": "assets/quiz-97cf81c5.js",
+    "isEntry": true,
+    "src": "resources/js/quiz.js"
+  },
+  "resources/sass/admin.scss": {
+    "file": "assets/admin-f95147ef.css",
+    "isEntry": true,
+    "src": "resources/sass/admin.scss"
+  },
+  "resources/sass/app.scss": {
+    "file": "assets/app-c4dcc655.css",
+    "isEntry": true,
+    "src": "resources/sass/app.scss"
+  },
+  "resources/sass/case-study.scss": {
+    "file": "assets/case-study-0519ade4.css",
+    "isEntry": true,
+    "src": "resources/sass/case-study.scss"
+  },
+  "resources/sass/create-tables.scss": {
+    "file": "assets/create-tables-b0ef1083.css",
+    "isEntry": true,
+    "src": "resources/sass/create-tables.scss"
+  },
+  "resources/sass/dashboard.scss": {
+    "file": "assets/dashboard-867228cb.css",
+    "isEntry": true,
+    "src": "resources/sass/dashboard.scss"
+  },
+  "resources/sass/features.scss": {
+    "file": "assets/features-74a7aa9d.css",
+    "isEntry": true,
+    "src": "resources/sass/features.scss"
+  },
+  "resources/sass/home.scss": {
+    "file": "assets/home-b7b9de6b.css",
+    "isEntry": true,
+    "src": "resources/sass/home.scss"
+  },
+  "resources/sass/manage-tables.scss": {
+    "file": "assets/manage-tables-5aede21f.css",
+    "isEntry": true,
+    "src": "resources/sass/manage-tables.scss"
+  },
+  "resources/sass/quiz.scss": {
+    "file": "assets/quiz-a1f0661b.css",
+    "isEntry": true,
+    "src": "resources/sass/quiz.scss"
+  },
+  "resources/sass/reports.css": {
+    "file": "assets/reports-5c1b5d63.css",
+    "isEntry": true,
+    "src": "resources/sass/reports.css"
+  },
+  "resources/sass/templates-for-nonuser.css": {
+    "file": "assets/templates-for-nonuser-87eb9aa1.css",
+    "isEntry": true,
+    "src": "resources/sass/templates-for-nonuser.css"
+  }
+}

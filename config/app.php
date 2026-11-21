@@ -16,7 +16,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-    'APP_DOMAIN' => env("APP_DOMAIN") ?? "quizzer.test",
+    'APP_DOMAIN' => env("APP_DOMAIN") ?? "salahbakhash.com",
 
     /*
     |--------------------------------------------------------------------------

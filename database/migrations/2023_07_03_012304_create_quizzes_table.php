@@ -36,6 +36,7 @@ return new class extends Migration {
         $table->string("meta_description")->nullable();
         $table->boolean("show_logo")->default(false);
         $table->string("policy_link")->nullable();
+        $table->string("activate_utm")->boolean()->nullable();
         $table->string("popup_img")->nullable();
         $table->string("popup_thumb")->nullable();
         $table->timestamps();
