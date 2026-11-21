@@ -34,9 +34,6 @@ Auth::routes();
 
 // =================================
 
-Route::get('/getresponse', function (Request $request) {
-  dd($request);
-})->name('getresponse');
 Route::get('/home', function () {
   return view('home');
 })->name('home');

@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # --- Security: the web root is the project root, so never serve source, logs or archives ---
+    RewriteRule ^(app|bootstrap|config|database|lang|resources|routes|storage|tests|vendor|node_modules)(/|$) - [F,L]
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule \.(zip|tgz|gz|tar|rar|log|sql|sqlite|md|lock|bak|env|ini|sh)$ - [F,L,NC]
+    RewriteRule ^(composer\.json|package\.json|package-lock\.json|artisan|vite\.config\.js|phpunit\.xml|webpack\.mix\.js)$ - [F,L,NC]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

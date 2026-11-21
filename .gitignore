@@ -17,3 +17,16 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# --- Musaid: never publish user data, archives, logs or secrets ---
+.env.*
+!.env.example
+/images/uploads/*
+!/images/uploads/.gitkeep
+*.zip
+*.tgz
+*.sql
+/storage/logs/*
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/public/build

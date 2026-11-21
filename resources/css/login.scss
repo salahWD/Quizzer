@@ -3,21 +3,21 @@
 .btn:not(.btn-warning):not(.btn-danger):not(.btn-secondary):not(
     [class*="btn-"]
   ):not([class^="btn-"]) {
-  background-color: #6e3e98;
-  color: rgb(236, 207, 247);
+  background-color: #0d4b45;
+  color: #ffffff;
   border: none;
   &:active,
   &:focus {
     outline: none;
     box-shadow: none;
-    background-color: rgb(112, 5, 134);
+    background-color: #08332f;
   }
   &:hover {
-    background-color: rgb(112, 5, 134);
+    background-color: #08332f;
   }
   &.btn-outline {
-    border: 1px solid rgb(112, 5, 134);
-    color: rgb(112, 5, 134);
+    border: 1px solid #08332f;
+    color: #08332f;
     background-color: transparent;
   }
 }
@@ -33,15 +33,15 @@
     border-color: #bd2130;
   }
   &.btn-outline {
-    border: 1px solid rgb(122, 8, 145);
-    color: rgb(122, 8, 145);
+    border: 1px solid #0d4b45;
+    color: #0d4b45;
     background-color: transparent;
   }
 }
 .form-control:focus,
 .form-control:active {
-  border-color: rgb(122, 8, 145);
-  box-shadow: 0 0 0 0.2rem rgba(97, 3, 116, 0.2);
+  border-color: #0d4b45;
+  box-shadow: 0 0 0 0.2rem rgba(43, 191, 148, 0.2);
 }
 .btn-white {
   color: #212529;

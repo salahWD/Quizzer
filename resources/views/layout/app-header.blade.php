@@ -1,7 +1,7 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-light mu-topbar">
   <div class="container">
-    <a class="navbar-brand" href="{{ auth()->check() ? route("show_websites") : route("home") }}">@if(!empty(env("LOGO"))) <img style="max-height: 26px;" src="{{ url("images/".env("LOGO")) }}" alt=""> @else {{ env("APP_NAME") }} @endif</a>
+    <a class="navbar-brand mu-brand" href="{{ auth()->check() ? route("show_websites") : route("home") }}">@if(!empty(env("LOGO"))) <img src="{{ url("images/".env("LOGO")) }}" alt="{{ env("APP_NAME") }}"> @else <span class="mu-brand-mark" aria-hidden="true"></span>{{ env("APP_NAME") }} @endif</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#appMainHeader" aria-controls="appMainHeader" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -43,14 +43,15 @@
           </li>
         @endif
       </ul>
-      <div class="dropdown mx-3">
-        <button type="button" class="btn btn-custom btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+      <div class="dropdown mx-lg-3 my-2 my-lg-0">
+        <button type="button" class="btn mu-lang dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>
           {{ LaravelLocalization::getCurrentLocaleNative() }}
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu dropdown-menu-end">
           @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
             <li>
-              <a class="dropdown-item" rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
+              <a class="dropdown-item {{ app()->getLocale() == $localeCode ? 'active' : '' }}" rel="alternate" hreflang="{{ $localeCode }}" href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
                 {{ $properties['native'] /* name | native */ }}
               </a>
             </li>
@@ -72,13 +73,14 @@
           @endif
         @else
           <li class="nav-item dropdown">
-            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-              {{ Auth::user()->name }}
+            <a id="navbarDropdown" class="nav-link mu-user-toggle dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+              <span class="mu-avatar" aria-hidden="true">{{ mb_substr(Auth::user()->name, 0, 1) }}</span>{{ Auth::user()->name }}
             </a>
-            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="box-shadow: none">
-              <a href="{{ route('profile') }}" class="nav-link">{{ auth()->user()->name }}</a>
-              <a href="{{ route('subscription_info', auth()->user()->id) }}" class="nav-link">{{ __("subscription info") }}</a>
-              <a href="{{ route('logout') }}" class="nav-link text-danger">{{ __('Logout') }}</a>
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <a href="{{ route('profile') }}" class="dropdown-item">{{ auth()->user()->name }}</a>
+              <a href="{{ route('subscription_info', auth()->user()->id) }}" class="dropdown-item">{{ __("subscription info") }}</a>
+              <div class="dropdown-divider"></div>
+              <a href="{{ route('logout') }}" class="dropdown-item text-danger">{{ __('Logout') }}</a>
             </div>
           </li>
         @endguest
@@ -87,35 +89,35 @@
   </div>
 </nav>
 
-<nav class="navbar p-0 navbar-expand-lg navbar-dark" style="background: #6e3e98;color:white">
+<nav class="navbar navbar-expand-lg navbar-dark mu-subnav">
   <div class="container">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-label="{{ __('Setting') }}" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           @if(isset($website) && $website != null && $website->id != null)
-            <a class="nav-link" href="{{ route("show_website", $website->id) }}">{{ __('Dashboard') }}</a>
+            <a class="nav-link mu-crumb" href="{{ route("show_website", $website->id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>{{ __('Dashboard') }}</a>
           @elseif(isset($quiz->website) && $quiz->website != null && $quiz->website->id != null)
-            <a class="nav-link" href="{{ route("show_website", $quiz->website->id) }}">{{ __('Dashboard') }}</a>
+            <a class="nav-link mu-crumb" href="{{ route("show_website", $quiz->website->id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>{{ __('Dashboard') }}</a>
           @else
-            <a class="nav-link" href="{{ route("show_websites") }}">{{ __('Dashboard') }}</a>
+            <a class="nav-link mu-crumb" href="{{ route("show_websites") }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>{{ __('Dashboard') }}</a>
           @endif
         </li>
       </ul>
       <form class="d-flex">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarSettings" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{ __('Setting') }}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="navbarDropdown">
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="navbarSettings">
               @php
                 $trig = true;
               @endphp
               @if(isset($website) && $website != null && $website->url != null)
-                <li><a class="dropdown-item" href="#">{{ preg_replace("(^https?://)", "", $website->url ); }}</a></li>
+                <li><h6 class="dropdown-header">{{ preg_replace("(^https?://)", "", $website->url ); }}</h6></li>
                 <li><a class="dropdown-item" href="{{ route('website_config', $website->id) }}">{{ __('Integrations') }}</a></li>
                 @if(auth()->check() && auth()->user()->can_custom_domain())
                   <li><a class="dropdown-item" href="{{ route('website_custom_domain', $website->id) }}">{{ __('custom domain') }}</a></li>
@@ -124,7 +126,7 @@
                 <li><hr class="dropdown-divider"></li>
               @endif
               @if($trig && isset($quiz) && $quiz != null && $quiz->website != null && $quiz->website->url != null)
-                <li><a class="dropdown-item" href="#">{{ preg_replace("(^https?://)", "", $quiz->website->url ); }}</a></li>
+                <li><h6 class="dropdown-header">{{ preg_replace("(^https?://)", "", $quiz->website->url ); }}</h6></li>
                 <li><a class="dropdown-item" href="{{ route('website_config', $quiz->website->id) }}">{{ __('Integrations') }}</a></li>
                 <li><a class="dropdown-item" href="{{ route('website_custom_domain', $quiz->website->id) }}">{{ __('custom domain') }}</a></li>
                 @php $trig = false @endphp

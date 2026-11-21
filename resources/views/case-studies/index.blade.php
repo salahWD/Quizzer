@@ -37,7 +37,7 @@
       margin-right: auto;
     }
     a {
-      color: #6e3e98;
+      color: #0d4b45;
     }
     html[lang="ar"] .carousel-item {
       margin-right: 0;
@@ -51,7 +51,7 @@
 
 @section('content')
   @if($best_cases != null && count($best_cases) > 0)
-    <div style="background-color: #6e3e98;margin-top:-1.5rem" class="py-3 pb-5 text-white">
+    <div style="background-color: #0d4b45;margin-top:-1.5rem" class="py-3 pb-5 text-white">
       <div class="container">
         <h2 class="text-center my-5">{{ __('Case Studies to Inspire Your Marketing') }}</h2>
         <div id="BestCases" class="carousel carousel-dark slide">

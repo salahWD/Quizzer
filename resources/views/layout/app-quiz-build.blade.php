@@ -9,7 +9,8 @@
       @yield('meta')
 
       <!-- Fonts -->
-      <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+      <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+      <link href="https://fonts.bunny.net/css?family=readex-pro:300,400,500,600,700&display=swap" rel="stylesheet">
 
       <style>
         :root {
@@ -28,7 +29,7 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
       <!-- Styles -->
-      @vite(['resources/sass/dashboard.scss'])
+      @vite(['resources/sass/dashboard.scss', 'resources/sass/ui.scss'])
 
       @yield('styles')
 

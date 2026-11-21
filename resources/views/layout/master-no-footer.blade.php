@@ -12,7 +12,8 @@
         <title>{{ isset($page_title)? $page_title : __("Musaad , Create an AI sales rep") }}</title>
 
         <!-- Fonts -->
-        <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+      <link href="https://fonts.bunny.net/css?family=readex-pro:300,400,500,600,700&display=swap" rel="stylesheet">
 
         <style>
           :root {
@@ -22,7 +23,6 @@
 
         <!-- Bootstrap 5.2.3 -->
         @if(app()->getLocale() == "ar")
-          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
           <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-gXt9imSW0VcJVHezoNQsP+TNrjYXoGcrqBZJpry9zJt8PCQjobwmhMGaDHTASo9N" crossorigin="anonymous">
         @else
           <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -30,7 +30,7 @@
 
         <!-- Styles -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        @vite(['resources/sass/app.scss'])
+        @vite(['resources/sass/app.scss', 'resources/sass/ui.scss'])
 
         @yield('styles')
 

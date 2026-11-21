@@ -72,7 +72,7 @@ textarea {
   background-color: #3cb58c;
 }
 .quiz-type-2 {
-  background-color: #7b6fe7;
+  background-color: #0d4b45;
 }
 .quiz-content,
 .quiz-options {
@@ -717,16 +717,16 @@ textarea {
   aspect-ratio: 16/9;
 }
 .btn-custom {
-  background-color: #6e3e98;
+  background-color: #0d4b45;
   color: #eccff7;
   border: none;
   &:hover {
-    background-color: #700586;
+    background-color: #08332f;
   }
   &:focus,
   &:active {
-    background-color: #700586;
-    border-color: #6e3e98;
+    background-color: #08332f;
+    border-color: #0d4b45;
     box-shadow: 0 0 0 0.25rem rgb(110 62 152 / 50%);
   }
 }

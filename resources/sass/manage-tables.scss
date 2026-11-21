@@ -29,7 +29,7 @@ body {
 }
 .table-title {
   padding-bottom: 15px;
-  background: #6e3e98;
+  background: #0d4b45;
   color: $color_2;
   padding: 16px 30px;
   margin: -20px -25px 10px;
@@ -235,13 +235,13 @@ html[lang="ar"] .table-title .btn {
   }
   li.active {
     a {
-      background: #6e3e98;
+      background: #0d4b45;
       &:hover {
         background: #63318f;
       }
     }
     a.page-link {
-      background: #6e3e98;
+      background: #0d4b45;
     }
   }
   li.disabled {

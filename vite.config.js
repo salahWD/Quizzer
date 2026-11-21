@@ -19,6 +19,7 @@ export default defineConfig({
         "resources/sass/admin.scss",
         "resources/sass/templates-for-nonuser.css",
         "resources/sass/quiz.scss",
+        "resources/sass/ui.scss",
       ],
       refresh: true,
     }),

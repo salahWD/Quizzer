@@ -20,12 +20,12 @@
     "src": "resources/sass/admin.scss"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-c4dcc655.css",
+    "file": "assets/app-16441589.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   },
   "resources/sass/case-study.scss": {
-    "file": "assets/case-study-0519ade4.css",
+    "file": "assets/case-study-81dabf3e.css",
     "isEntry": true,
     "src": "resources/sass/case-study.scss"
   },
@@ -35,22 +35,22 @@
     "src": "resources/sass/create-tables.scss"
   },
   "resources/sass/dashboard.scss": {
-    "file": "assets/dashboard-867228cb.css",
+    "file": "assets/dashboard-3d5abcf7.css",
     "isEntry": true,
     "src": "resources/sass/dashboard.scss"
   },
   "resources/sass/features.scss": {
-    "file": "assets/features-74a7aa9d.css",
+    "file": "assets/features-b116456f.css",
     "isEntry": true,
     "src": "resources/sass/features.scss"
   },
   "resources/sass/home.scss": {
-    "file": "assets/home-b7b9de6b.css",
+    "file": "assets/home-28defa7d.css",
     "isEntry": true,
     "src": "resources/sass/home.scss"
   },
   "resources/sass/manage-tables.scss": {
-    "file": "assets/manage-tables-5aede21f.css",
+    "file": "assets/manage-tables-488e6bbf.css",
     "isEntry": true,
     "src": "resources/sass/manage-tables.scss"
   },
@@ -68,5 +68,10 @@
     "file": "assets/templates-for-nonuser-87eb9aa1.css",
     "isEntry": true,
     "src": "resources/sass/templates-for-nonuser.css"
+  },
+  "resources/sass/ui.scss": {
+    "file": "assets/ui-792fb5ca.css",
+    "isEntry": true,
+    "src": "resources/sass/ui.scss"
   }
 }

@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm p-1">
+<nav class="navbar navbar-expand navbar-light mu-tabs">
   <div class="container">
-    <ul class="navbar-nav m-auto">
+    <ul class="navbar-nav me-auto">
       <li class="nav-item {{ (\Request::route()->getName() == 'edit_template') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route("edit_template", compact("quiz")) }}">{{ __('Build') }}</a>
       </li>
